@@ -9,7 +9,8 @@
   var refBar = $("refBar"), refLink = $("refLink"), copyBtn = $("copyLink"), openStore = $("openStore");
 
   var CUBES = 10;
-  var SHOWN = [];     // текущий показываемый список номеров
+  var SHOWN = [];     // текущий загруженный список номеров
+  var LAST_VIEW = []; // список после фильтра/сортировки (то, что на экране) — для делегирования клика
   var searchTimer = null;
 
   /* ---------- утилиты ---------- */
@@ -158,28 +159,53 @@
 
   function render() {
     var list = viewList();
+    LAST_VIEW = list;
     countEl.textContent = list.length + " " + plural(list.length, ["номер", "номера", "номеров"]);
     gridEl.innerHTML = list.map(card).join("");
   }
 
-  // uuid листинга в объекте номера (ищем строку в формате GUID среди полей).
-  function findUuid(p) {
-    if (p.uuid) return p.uuid;
-    for (var k in p) {
-      if (typeof p[k] === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-/i.test(p[k])) return p[k];
+  // Ищем super_link_uuid.uuid в ответе брони (иначе первый GUID в структуре).
+  function deepUuid(o) {
+    if (!o || typeof o !== "object") return null;
+    if (o.super_link_uuid && o.super_link_uuid.uuid) return o.super_link_uuid.uuid;
+    for (var k in o) {
+      var v = o[k];
+      if (typeof v === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-/i.test(v)) return v;
+      if (v && typeof v === "object") { var r = deepUuid(v); if (r) return r; }
     }
     return null;
   }
-  // Ссылка на КОНКРЕТНЫЙ номер: cubes=<весь номер> (+uuid, если есть). Реф 800848 несёт REF_STORE_URL.
-  function numberUrl(p) {
-    var d = String(p.phone).replace(/\D/g, "").slice(-10);
-    var u = CFG.REF_STORE_URL + "?type=p&cubes=" + d;
-    var uuid = findUuid(p);
-    if (uuid) u += "&uuid=" + encodeURIComponent(uuid);
-    return u;
+
+  // Прямая бронь: POST создаёт бронь на аккаунте партнёра (user_id=REF_ID) и отдаёт сессию → открываем оформление.
+  function reserve(p) {
+    var tariffId = p.tariff && p.tariff.id;
+    var digits = String(p.phone).replace(/\D/g, "").slice(-10);
+    if (!tariffId) { alert("У номера не указан тариф — бронь недоступна."); return; }
+    if (!confirm("Забронировать номер " + fmtPhone(p.phone) + "?\nБронь держится ~1 час.")) return;
+    var w = window.open("", "_blank"); // окно открываем в контексте клика, иначе блокировщик попапов
+    var fd = new FormData();
+    fd.append("phone", digits);
+    fd.append("tariff_id", tariffId);
+    fd.append("type", "store");
+    fd.append("user_id", CFG.REF_ID);
+    fd.append("filter", "professional");
+    fetch(CFG.API_BASE + "/super-link/reservations?expand=super_link_uuid",
+          { method: "POST", headers: { Authorization: CFG.API_TOKEN }, body: fd })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        var uuid = deepUuid(d);
+        if (!uuid) {
+          if (w) w.close();
+          alert("Не удалось забронировать: " + ((d && d.message) || "нет сессии в ответе") + ".");
+          return;
+        }
+        var url = CFG.REF_STORE_URL + "?type=p&cubes=" + digits + "&uuid=" + encodeURIComponent(uuid);
+        if (w) w.location = url; else window.open(url, "_blank", "noopener");
+      })
+      .catch(function (e) { if (w) w.close(); alert("Ошибка брони: " + e.message); });
   }
 
-  function card(p) {
+  function card(p, i) {
     var t = p.tariff || {};
     var specs = [];
     if (t.minutes != null) specs.push(t.minutes + " мин");
@@ -191,7 +217,7 @@
         (t.name ? '<div class="num-tariff">' + esc(t.name) + "</div>" : "") +
         (specs.length ? '<div class="num-specs">' + esc(specs.join(" · ")) + "</div>" : "") +
         (t.price != null ? '<div class="num-price">' + esc(fmtMoney(t.price)) + "<span>/мес</span></div>" : "") +
-        '<a class="num-buy" href="' + esc(numberUrl(p)) + '" target="_blank" rel="noopener">Купить</a>' +
+        '<button class="num-buy" data-i="' + i + '">Забронировать</button>' +
       "</article>"
     );
   }
@@ -216,6 +242,12 @@
   });
   tariffEl.addEventListener("change", render);
   sortEl.addEventListener("change", render);
+  gridEl.addEventListener("click", function (e) {
+    var b = e.target.closest ? e.target.closest(".num-buy") : null;
+    if (!b) return;
+    var i = +b.getAttribute("data-i");
+    if (LAST_VIEW[i]) reserve(LAST_VIEW[i]);
+  });
 
   renderCubes();
   loadDefault();

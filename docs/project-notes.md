@@ -37,15 +37,17 @@
 - Форма ответа: объект-группы `{"<категория, напр. brilliant,brilliant_super>":{"items":[<номера>]}}` →
   разбираем универсальным `extractPhones` (deep-walk, дедуп по phone).
 
-## Прямая бронь (ПАРКОВАНО — задел на будущее)
-Реализуем ссылкой (кнопка → номер в реф-сторе, бронь на стороне Безлимит). Прямую бронь с витрины отложили:
-хрупкий write-флоу + жжёт лимит 50 броней (3ч, авто-отмена) на каждый клик. Что раскопано для будущего:
-- POST `/super-link/reservations?Super-Link-UUID=<сессия>` body `{ phone:<номер>, tariff_id:<tariff.id> }`.
-- Ответ содержит `reservation` + `super_link_uuid.uuid` → финальная ссылка `?cubes=<номер>&uuid=<uuid>`.
-- 🔴 БЛОКЕР: сессионный `Super-Link-UUID` стора 800848 создаётся init-флоу при загрузке (в коде — из ответа
-  `super_link_uuid.uuid`, `expand=super_link_uuid`, с `user_id`/`filter`), НЕ лежит в URL/localStorage —
-  только в памяти JS. Нужен точный init-эндпоинт (снять из Network / спросить у IT Безлимит).
-- Лимит 50 одновременных броней, авто-отмена ~3ч при неоплате.
+## Прямая бронь (РЕАЛИЗОВАНА)
+Флоу раскрыт через XHR-перехват на странице Безлимит (их API — axios/XHR, не fetch):
+- **Создание:** `POST /super-link/reservations?expand=super_link_uuid`, FormData
+  `{phone, tariff_id, type:"store", user_id:"<REF_ID=800848>", filter:"professional"}` — **без** Super-Link-UUID.
+  Сессия НЕ нужна заранее: этот POST сам её и создаёт.
+- **Ответ:** объект брони (`id`, `phone_number`, `tariff_id`, `dealer_id:1165593`, `removed_at` ~1ч) +
+  `super_link_uuid.uuid` (свежая сессия). `user_id` в теле = реф-привязка → `dealer_id` в ответе (комиссия).
+- **Ссылка оформления:** `store/800848?type=p&cubes=<номер>&uuid=<super_link_uuid>`.
+- В коде: `reserve(p)` в app.js (confirm → POST FormData → `deepUuid(ответ)` → открыть окно).
+- 🔶 РИСК: каждый клик = реальная бронь из лимита 50 (авто-отмена ~1ч). Митигация: confirm. Владелец расширит лимит.
+- Заголовок Content-Type НЕ ставим вручную — браузер сам ставит multipart boundary для FormData.
 
 ## Статус
 v2 собран: поиск по маске (cubes) с живой подгрузкой из API + генерация/копирование реф-ссылки + дефолтный
