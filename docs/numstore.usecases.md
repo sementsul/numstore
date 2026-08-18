@@ -81,6 +81,18 @@ app.js (flatten с ._cat, buildFilters/matches/sorted/render, PAGE-пагина�
 index.html (#grid без класса grid — сетки внутри секций), styles.css (.cat/.cat-head/.cat-title/.cat-count).
 Статус: ✅ собрано, тёмная премиум-тема.
 
+## UC-12. Серверные фильтры: клик по категории/тарифу грузит номера из API ✅/❌
+**Предусловие:** страница открыта. **Шаги:** кликнуть категорию/тариф в сайдбаре.
+**Ожидаемо:** сайдбар строится из официального `/super-link/phones/filters` (`mask_category`:
+[{name,filter:"brilliant,brilliant_super"…}], `mask_tariff`: [{name,filter:<id>}]). Клик → `fetchNumbers()`
+собирает запрос `mask-category?phone_pattern=<маска|9NNNNNNNNN>&mask_categories=<код>&mask_tariff=<id>` и
+подгружает номера с сервера (не фильтрует локальный пул). Цена (тир) — клиентский пост-фильтр. Сортировка +
+«показать ещё» + бронь работают. **Радиус:** app.js (loadFilters/buildSidebar/fillList/fetchNumbers/matchesPrice),
+index.html (#fCat/#fPrice/#fTariff), styles.css (.filter-*).
+✅ Категория (`mask_categories`) — подтверждён из бандла. ❌ Тариф-параметр под вопросом: сайт использует
+`tariffs=<цена>` (повторяемый), а /filters даёт id — проверяем тестом (mask_tariff=id vs tariffs=цена),
+до подтверждения фильтр тарифа может не сработать. Заменяет клиентские фильтры UC-11.
+
 ## Открытые долги
 - Поле цены самого номера (разобрать полный объект `phone`).
 - Фильтр по маске/паттерну (эндпоинт `/super-link/phones/filters`).
