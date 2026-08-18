@@ -1,26 +1,33 @@
-/* numstore — клиентская витрина номеров Безлимит. Номера сгруппированы по категориям (секции).
+/* numstore — витрина номеров Безлимит: маркетплейс (сайдбар-фильтры + густая сетка).
    Каталог/поиск тянутся в браузере посетителя напрямую из API (CORS открыт) — ban-proof. */
 (function () {
   var CFG = window.NUMSTORE_CONFIG;
   var $ = function (id) { return document.getElementById(id); };
-  var statusEl = $("status"), gridEl = $("grid"), countEl = $("count");
-  var tariffEl = $("tariff"), sortEl = $("sort");
+  var statusEl = $("status"), gridEl = $("grid"), countEl = $("count"), moreBtn = $("more");
+  var sortEl = $("sort");
   var cubesEl = $("cubes"), findBtn = $("find"), resetBtn = $("reset");
   var refBar = $("refBar"), refLink = $("refLink"), copyBtn = $("copyLink"), openStore = $("openStore");
+  var fCat = $("fCat"), fPrice = $("fPrice"), fTariff = $("fTariff");
 
-  var CUBES = 10;
-  var GROUPS = [];       // [{name, phones:[...]}] — категории с номерами
-  var BY_PHONE = {};     // digits -> объект номера (для брони по клику)
+  var CUBES = 10, PAGE = 60;
+  var ALL = [];          // плоский список номеров (у каждого ._cat)
+  var BY_PHONE = {};     // digits -> объект номера
+  var shown = PAGE;      // сколько карточек показано
   var searchTimer = null;
+  var flt = { cat: null, price: null, tariff: null };
 
   var CAT_LABELS = {
     brilliant: "Бриллиантовые", brilliant_super: "Супер-бриллиантовые",
-    gold: "Золотые", silver: "Серебряные", bronze: "Бронзовые",
-    standard: "Стандартные", vip: "VIP"
+    gold: "Золотые", silver: "Серебряные", bronze: "Бронзовые", standard: "Стандартные", vip: "VIP"
   };
   function labelCat(k) {
     return String(k).split(",").map(function (x) { x = x.trim(); return CAT_LABELS[x] || x; }).join(" · ");
   }
+  var PRICE_TIERS = [
+    { key: "lo", label: "до 1 000 ₽", test: function (v) { return v < 1000; } },
+    { key: "mid", label: "1 000 – 3 000 ₽", test: function (v) { return v >= 1000 && v <= 3000; } },
+    { key: "hi", label: "свыше 3 000 ₽", test: function (v) { return v > 3000; } }
+  ];
 
   /* ---------- утилиты ---------- */
   function fmtPhone(p) {
@@ -29,66 +36,49 @@
     return "+7 " + s.slice(0, 3) + " " + s.slice(3, 6) + "-" + s.slice(6, 8) + "-" + s.slice(8, 10);
   }
   function digitsOf(p) { return String(p).replace(/\D/g, "").slice(-10); }
-  function fmtMoney(n) {
-    if (n == null || isNaN(n)) return "";
-    return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " ₽";
-  }
+  function fmtMoney(n) { return n == null || isNaN(n) ? "" : String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " ₽"; }
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"]/g, function (c) {
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c];
     });
   }
-  function plural(n, forms) {
-    var n10 = n % 10, n100 = n % 100;
-    if (n10 === 1 && n100 !== 11) return forms[0];
-    if (n10 >= 2 && n10 <= 4 && (n100 < 10 || n100 >= 20)) return forms[1];
-    return forms[2];
+  function plural(n, f) {
+    var a = n % 10, b = n % 100;
+    if (a === 1 && b !== 11) return f[0];
+    if (a >= 2 && a <= 4 && (b < 10 || b >= 20)) return f[1];
+    return f[2];
   }
-  function api(path, opts) {
-    opts = opts || {};
-    opts.headers = { Authorization: CFG.API_TOKEN };
-    return fetch(CFG.API_BASE + path, opts).then(function (r) {
-      if (!r.ok && !opts._softError) throw new Error("HTTP " + r.status);
-      return r.json();
-    });
+  function api(path) {
+    return fetch(CFG.API_BASE + path, { headers: { Authorization: CFG.API_TOKEN } })
+      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); });
   }
 
-  /* Разбор ответа в группы. Коллекции: {items:[{name,phones}]}. Поиск: {cat:{items:[...]}}. */
-  function toGroups(data) {
-    var groups = [];
-    if (data && Array.isArray(data.items)) {
-      data.items.forEach(function (c) { groups.push({ name: c.name || "Номера", phones: c.phones || [] }); });
-    } else if (data && typeof data === "object") {
-      Object.keys(data).forEach(function (k) {
-        var v = data[k];
-        if (v && Array.isArray(v.items)) groups.push({ name: labelCat(k), phones: v.items });
-      });
-    }
-    if (!groups.length) { var all = deepPhones(data); if (all.length) groups.push({ name: "Номера", phones: all }); }
-    return groups.filter(function (g) { return g.phones && g.phones.length; });
-  }
-  function deepPhones(data) { // запасной глубокий разбор
+  /* Разбор ответа → плоский список, каждому номеру проставляем ._cat (категория/коллекция). */
+  function flatten(data) {
     var out = [];
-    (function walk(x) {
-      if (!x || typeof x !== "object") return;
-      if (Array.isArray(x)) { x.forEach(walk); return; }
-      if (x.phone != null && (x.tariff || x.type != null)) out.push(x);
-      Object.keys(x).forEach(function (k) { if (k !== "tariff" && k !== "region") walk(x[k]); });
-    })(data);
-    return out;
+    function add(list, cat) { (list || []).forEach(function (p) { if (p && p.phone != null) { p._cat = cat; out.push(p); } }); }
+    if (data && Array.isArray(data.items)) {
+      data.items.forEach(function (c) { add(c.phones, c.name || "Номера"); });
+    } else if (data && typeof data === "object") {
+      Object.keys(data).forEach(function (k) { var v = data[k]; if (v && Array.isArray(v.items)) add(v.items, labelCat(k)); });
+    }
+    // дедуп по номеру
+    var seen = {}, res = [];
+    out.forEach(function (p) { var d = digitsOf(p.phone); if (!seen[d]) { seen[d] = 1; res.push(p); } });
+    return res;
   }
 
-  /* ---------- маска (cubes) ---------- */
+  /* ---------- маска ---------- */
   function buildCubes() {
-    var cells = cubesEl.querySelectorAll("input"), mask = "";
-    for (var i = 0; i < cells.length; i++) { var v = (cells[i].value || "").trim(); mask += v === "" ? "N" : v; }
-    return mask;
+    var cells = cubesEl.querySelectorAll("input"), m = "";
+    for (var i = 0; i < cells.length; i++) { var v = (cells[i].value || "").trim(); m += v === "" ? "N" : v; }
+    return m;
   }
-  function isEmptyMask(mask) { return /^N{10}$/i.test(mask); }
+  function isEmptyMask(m) { return /^N{10}$/i.test(m); }
   function updateRefLink() {
-    var mask = buildCubes();
-    if (isEmptyMask(mask)) { refBar.hidden = true; return; }
-    var url = CFG.REF_STORE_URL + "?type=p&cubes=" + encodeURIComponent(mask);
+    var m = buildCubes();
+    if (isEmptyMask(m)) { refBar.hidden = true; return; }
+    var url = CFG.REF_STORE_URL + "?type=p&cubes=" + encodeURIComponent(m);
     refLink.value = url; openStore.href = url; refBar.hidden = false;
   }
   function renderCubes() {
@@ -111,57 +101,80 @@
   }
 
   /* ---------- загрузка ---------- */
-  function showStatus(msg) { statusEl.textContent = msg; statusEl.style.display = ""; gridEl.innerHTML = ""; }
+  function showStatus(m) { statusEl.textContent = m; statusEl.style.display = ""; gridEl.innerHTML = ""; moreBtn.hidden = true; }
 
   function loadDefault() {
     showStatus("Загружаю номера…");
-    api("/super-link/phones/collection?expand=phones.tariff")
-      .then(function (d) { setResult(toGroups(d)); })
+    // широкий пул: все мобильные (маска 9 + любые) — густой каталог, а не мелкие коллекции
+    api("/super-link/phones/mask-category?expand=tariff&is_reserved=false&per_page=100&phone_pattern=9NNNNNNNNN")
+      .then(function (d) { setData(flatten(d)); })
       .catch(function (e) { showStatus("Не удалось загрузить номера (" + e.message + "). Обнови страницу."); });
   }
   function search() {
-    var mask = buildCubes();
-    if (isEmptyMask(mask)) { loadDefault(); return; }
+    var m = buildCubes();
+    if (isEmptyMask(m)) { loadDefault(); return; }
     showStatus("Ищу номера по маске…");
-    api("/super-link/phones/mask-category?expand=tariff&is_reserved=false&per_page=60&phone_pattern=" + encodeURIComponent(mask))
-      .then(function (d) {
-        var g = toGroups(d);
-        if (!g.length) showStatus("По маске ничего не нашлось. Измени позиции.");
-        else setResult(g);
-      })
+    api("/super-link/phones/mask-category?expand=tariff&is_reserved=false&per_page=100&phone_pattern=" + encodeURIComponent(m))
+      .then(function (d) { var f = flatten(d); if (!f.length) showStatus("По маске ничего не нашлось. Измени позиции."); else setData(f); })
       .catch(function (e) { showStatus("Ошибка поиска (" + e.message + ")."); });
   }
 
-  function setResult(groups) {
-    GROUPS = groups;
-    BY_PHONE = {};
-    var seenTariff = {};
-    groups.forEach(function (g) {
-      g.phones.forEach(function (p) {
-        BY_PHONE[digitsOf(p.phone)] = p;
-        var t = p.tariff && p.tariff.name; if (t) seenTariff[t] = true;
-      });
-    });
-    buildTariffOptions(seenTariff);
+  function setData(list) {
+    ALL = list; BY_PHONE = {};
+    list.forEach(function (p) { BY_PHONE[digitsOf(p.phone)] = p; });
+    flt = { cat: null, price: null, tariff: null };
+    buildFilters();
+    shown = PAGE;
     render();
   }
 
-  function buildTariffOptions(seen) {
-    var cur = tariffEl.value;
-    tariffEl.innerHTML = '<option value="">Все тарифы</option>';
-    Object.keys(seen).sort().forEach(function (name) {
-      var o = document.createElement("option"); o.value = name; o.textContent = name;
-      if (name === cur) o.selected = true;
-      tariffEl.appendChild(o);
+  /* ---------- фильтры (сайдбар) ---------- */
+  function uniq(arr) { var s = {}, r = []; arr.forEach(function (x) { if (x && !s[x]) { s[x] = 1; r.push(x); } }); return r; }
+
+  function buildFilters() {
+    // Категория
+    var cats = uniq(ALL.map(function (p) { return p._cat; })).sort();
+    fillList(fCat, [{ v: null, t: "Все категории" }].concat(cats.map(function (c) { return { v: c, t: c }; })), "cat");
+    // Цена (только тиры, где есть номера)
+    var tiers = PRICE_TIERS.filter(function (tr) {
+      return ALL.some(function (p) { var pr = p.tariff && p.tariff.price; return pr != null && tr.test(pr); });
+    });
+    fillList(fPrice, [{ v: null, t: "Любая" }].concat(tiers.map(function (tr) { return { v: tr.key, t: tr.label }; })), "price");
+    // Тариф
+    var tars = uniq(ALL.map(function (p) { return p.tariff && p.tariff.name; })).sort();
+    fillList(fTariff, [{ v: null, t: "Все тарифы" }].concat(tars.map(function (n) { return { v: n, t: n }; })), "tariff");
+  }
+  function fillList(ul, items, key) {
+    ul.innerHTML = "";
+    items.forEach(function (it) {
+      var li = document.createElement("li");
+      li.className = "filter-item" + (flt[key] === it.v ? " active" : "");
+      li.textContent = it.t;
+      li.addEventListener("click", function () {
+        flt[key] = it.v; shown = PAGE;
+        // подсветка
+        ul.querySelectorAll(".filter-item").forEach(function (x) { x.classList.remove("active"); });
+        li.classList.add("active");
+        render();
+      });
+      ul.appendChild(li);
     });
   }
 
-  function filterSort(phones) {
-    var tf = tariffEl.value;
-    var list = phones.filter(function (p) { return !tf || (p.tariff && p.tariff.name === tf); });
+  function matches(p) {
+    if (flt.cat && p._cat !== flt.cat) return false;
+    if (flt.tariff && !(p.tariff && p.tariff.name === flt.tariff)) return false;
+    if (flt.price) {
+      var tr = PRICE_TIERS.filter(function (t) { return t.key === flt.price; })[0];
+      var pr = p.tariff && p.tariff.price;
+      if (!tr || pr == null || !tr.test(pr)) return false;
+    }
+    return true;
+  }
+  function sorted(list) {
     var s = sortEl.value;
     if (s === "price-asc" || s === "price-desc") {
-      list = list.slice().sort(function (a, b) {
+      return list.slice().sort(function (a, b) {
         var pa = (a.tariff && a.tariff.price) || 0, pb = (b.tariff && b.tariff.price) || 0;
         return s === "price-asc" ? pa - pb : pb - pa;
       });
@@ -170,20 +183,13 @@
   }
 
   function render() {
-    var total = 0, html = "";
-    GROUPS.forEach(function (g) {
-      var list = filterSort(g.phones);
-      if (!list.length) return;
-      total += list.length;
-      html += '<section class="cat">' +
-                '<div class="cat-head"><h2 class="cat-title">' + esc(g.name) + "</h2>" +
-                '<span class="cat-count">' + list.length + "</span></div>" +
-                '<div class="grid">' + list.map(card).join("") + "</div>" +
-              "</section>";
-    });
-    countEl.textContent = total ? (total + " " + plural(total, ["номер", "номера", "номеров"])) : "";
-    if (html) { statusEl.style.display = "none"; gridEl.innerHTML = html; }
-    else showStatus("Ничего не найдено.");
+    var list = sorted(ALL.filter(matches));
+    countEl.textContent = list.length + " " + plural(list.length, ["номер", "номера", "номеров"]);
+    if (!list.length) { showStatus("Ничего не найдено. Смягчи фильтры."); return; }
+    statusEl.style.display = "none";
+    var page = list.slice(0, shown);
+    gridEl.innerHTML = page.map(card).join("");
+    moreBtn.hidden = list.length <= shown;
   }
 
   function card(p) {
@@ -238,15 +244,15 @@
   findBtn.addEventListener("click", search);
   resetBtn.addEventListener("click", function () {
     cubesEl.querySelectorAll("input").forEach(function (c) { c.value = ""; });
-    tariffEl.value = ""; sortEl.value = "default"; refBar.hidden = true; loadDefault();
+    sortEl.value = "default"; refBar.hidden = true; loadDefault();
   });
   copyBtn.addEventListener("click", function () {
     refLink.select();
     try { navigator.clipboard.writeText(refLink.value); } catch (e) { document.execCommand("copy"); }
     copyBtn.textContent = "Скопировано"; setTimeout(function () { copyBtn.textContent = "Копировать"; }, 1500);
   });
-  tariffEl.addEventListener("change", render);
-  sortEl.addEventListener("change", render);
+  sortEl.addEventListener("change", function () { shown = PAGE; render(); });
+  moreBtn.addEventListener("click", function () { shown += PAGE; render(); });
   gridEl.addEventListener("click", function (e) {
     var b = e.target.closest ? e.target.closest(".num-buy") : null;
     if (!b) return;

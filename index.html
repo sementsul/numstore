@@ -10,7 +10,7 @@
   <header class="top">
     <div class="wrap">
       <h1>Красивые номера</h1>
-      <p class="sub">Собери маску — найдём подходящие номера</p>
+      <p class="sub">Подбери номер по маске или фильтрам — бронирование онлайн</p>
     </div>
   </header>
 
@@ -18,10 +18,9 @@
     <section class="search-box">
       <div class="cubes" id="cubes" aria-label="Маска номера из 10 цифр">
         <span class="cube-prefix">+7</span>
-        <!-- 10 ячеек добавит JS -->
       </div>
       <div class="cube-actions">
-        <button id="find" class="btn-primary">Найти</button>
+        <button id="find" class="btn-primary">Найти по маске</button>
         <button id="reset" class="btn-ghost">Сбросить</button>
       </div>
       <p class="cube-hint">Цифра — точная позиция · пусто — любая · буква (a, b, …) — повторяющаяся цифра</p>
@@ -32,18 +31,36 @@
       </div>
     </section>
 
-    <section class="controls">
-      <select id="tariff"><option value="">Все тарифы</option></select>
-      <select id="sort">
-        <option value="default">Сортировка</option>
-        <option value="price-asc">Цена тарифа ↑</option>
-        <option value="price-desc">Цена тарифа ↓</option>
-      </select>
-      <span id="count" class="count"></span>
-    </section>
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="filter-group">
+          <h3 class="filter-title">Категория</h3>
+          <ul class="filter-list" id="fCat"></ul>
+        </div>
+        <div class="filter-group">
+          <h3 class="filter-title">Цена тарифа</h3>
+          <ul class="filter-list" id="fPrice"></ul>
+        </div>
+        <div class="filter-group">
+          <h3 class="filter-title">Тариф</h3>
+          <ul class="filter-list" id="fTariff"></ul>
+        </div>
+      </aside>
 
-    <div id="status" class="status">Загружаю номера…</div>
-    <div id="grid"></div>
+      <div class="content">
+        <div class="controls">
+          <select id="sort">
+            <option value="default">По умолчанию</option>
+            <option value="price-asc">Цена тарифа ↑</option>
+            <option value="price-desc">Цена тарифа ↓</option>
+          </select>
+          <span id="count" class="count"></span>
+        </div>
+        <div id="status" class="status">Загружаю номера…</div>
+        <div id="grid" class="grid"></div>
+        <div class="more-wrap"><button id="more" class="btn-ghost" hidden>Показать ещё</button></div>
+      </div>
+    </div>
   </main>
 
   <footer class="foot">
