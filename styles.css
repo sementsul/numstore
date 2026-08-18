@@ -1,86 +1,140 @@
+/* numstore — тёмная премиум-тема (luxury), не DOS. Номер = ювелирный объект. */
+:root {
+  --bg:      #0d0f13;
+  --bg-soft: #12141b;
+  --card:    #161923;
+  --card-hi: #1c2030;
+  --line:    rgba(255,255,255,.07);
+  --line-2:  rgba(201,165,88,.28);
+  --text:    #eef0f4;
+  --muted:   #8b909c;
+  --gold:    #c9a558;
+  --gold-hi: #e6cd8c;
+}
 * { box-sizing: border-box; }
 body {
   margin: 0;
-  font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
-  color: #1a1a1a;
-  background: #f4f5f7;
+  font-family: "Inter", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(1200px 500px at 50% -10%, rgba(201,165,88,.10), transparent 60%),
+    var(--bg);
+  -webkit-font-smoothing: antialiased;
 }
-.wrap { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+.wrap { max-width: 1120px; margin: 0 auto; padding: 0 20px; }
 
-.top { background: linear-gradient(135deg, #6d28d9, #2563eb); color: #fff; padding: 32px 0; }
-.top h1 { margin: 0; font-size: 28px; }
-.top .sub { margin: 6px 0 0; opacity: .9; }
+/* ---- шапка ---- */
+.top {
+  padding: 46px 0 30px;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(201,165,88,.06), transparent);
+}
+.top h1 {
+  margin: 0; font-size: 32px; font-weight: 600; letter-spacing: .5px;
+}
+.top h1::after {
+  content: ""; display: block; width: 54px; height: 2px; margin-top: 14px;
+  background: linear-gradient(90deg, var(--gold), transparent);
+}
+.top .sub { margin: 14px 0 0; color: var(--muted); font-size: 15px; letter-spacing: .3px; }
 
-/* ---- поиск по маске (cubes) ---- */
+/* ---- поиск по маске ---- */
 .search-box {
-  background: #fff; border: 1px solid #e6e8ec; border-radius: 14px;
-  padding: 20px; margin: 20px 0; box-shadow: 0 2px 10px rgba(0,0,0,.04);
+  background: linear-gradient(180deg, var(--card-hi), var(--card));
+  border: 1px solid var(--line); border-radius: 16px;
+  padding: 24px; margin: 26px 0;
+  box-shadow: 0 20px 60px -30px rgba(0,0,0,.8);
 }
-.cubes { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
-.cube-prefix { font-size: 22px; font-weight: 700; color: #6d28d9; margin-right: 6px; }
+.cubes { display: flex; flex-wrap: wrap; gap: 7px; align-items: center; }
+.cube-prefix { font-size: 22px; font-weight: 600; color: var(--gold); margin-right: 8px; }
 .cube {
-  width: 40px; height: 48px; text-align: center; font-size: 20px; font-weight: 700;
-  border: 1px solid #d0d3d9; border-radius: 8px; text-transform: lowercase;
+  width: 42px; height: 52px; text-align: center; font-size: 22px; font-weight: 600;
+  color: var(--text); background: #0f121a; border: 1px solid var(--line);
+  border-radius: 10px; text-transform: lowercase; transition: border-color .15s, box-shadow .15s;
+  font-variant-numeric: tabular-nums;
 }
-.cube:focus { outline: none; border-color: #6d28d9; box-shadow: 0 0 0 3px rgba(109,40,217,.15); }
-.cube-actions { display: flex; gap: 10px; margin-top: 14px; }
-.cube-hint { color: #888; font-size: 13px; margin: 10px 0 0; }
+.cube:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,165,88,.18); }
+.cube-actions { display: flex; gap: 12px; margin-top: 16px; }
+.cube-hint { color: var(--muted); font-size: 13px; margin: 12px 0 0; }
 
 .btn-primary {
-  background: #2563eb; color: #fff; border: none; border-radius: 8px;
-  padding: 10px 18px; font-size: 15px; font-weight: 600; cursor: pointer; text-decoration: none;
-  display: inline-block;
+  background: linear-gradient(180deg, var(--gold-hi), var(--gold));
+  color: #1a1608; border: none; border-radius: 10px;
+  padding: 11px 22px; font-size: 15px; font-weight: 700; letter-spacing: .3px;
+  cursor: pointer; text-decoration: none; display: inline-block;
+  box-shadow: 0 8px 24px -10px rgba(201,165,88,.6);
 }
-.btn-primary:hover { background: #1d4ed8; }
+.btn-primary:hover { filter: brightness(1.06); }
 .btn-ghost {
-  background: #fff; color: #333; border: 1px solid #d0d3d9; border-radius: 8px;
-  padding: 10px 18px; font-size: 15px; cursor: pointer;
+  background: transparent; color: var(--gold); border: 1px solid var(--line-2);
+  border-radius: 10px; padding: 11px 22px; font-size: 15px; cursor: pointer;
+  transition: border-color .15s, color .15s;
 }
-.btn-ghost:hover { border-color: #999; }
+.btn-ghost:hover { border-color: var(--gold); color: var(--gold-hi); }
 
 .ref-bar {
-  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
-  margin-top: 14px; padding-top: 14px; border-top: 1px dashed #e0e2e6;
+  display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+  margin-top: 18px; padding-top: 18px; border-top: 1px dashed var(--line);
 }
 .ref-link {
-  flex: 1 1 260px; padding: 9px 12px; border: 1px solid #d0d3d9; border-radius: 8px;
-  font-size: 13px; color: #444; background: #fafafa;
+  flex: 1 1 260px; padding: 10px 13px; border: 1px solid var(--line); border-radius: 10px;
+  font-size: 13px; color: var(--muted); background: #0f121a;
 }
 
 /* ---- контролы ---- */
-.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 16px 0; }
+.controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 8px 0 20px; }
 .controls select {
-  padding: 10px 12px; border: 1px solid #d0d3d9; border-radius: 8px; font-size: 15px; background: #fff;
+  padding: 11px 13px; border: 1px solid var(--line); border-radius: 10px;
+  font-size: 15px; background: #0f121a; color: var(--text);
 }
-.count { color: #666; font-size: 14px; margin-left: auto; }
+.count { color: var(--muted); font-size: 14px; margin-left: auto; letter-spacing: .3px; }
 
-.status { padding: 40px 0; text-align: center; color: #666; }
+.status { padding: 56px 0; text-align: center; color: var(--muted); }
 
+/* ---- карточки номеров ---- */
 .grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 14px; padding-bottom: 40px;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px; padding-bottom: 56px;
 }
 .num {
-  background: #fff; border: 1px solid #e6e8ec; border-radius: 12px;
-  padding: 16px; display: flex; flex-direction: column; gap: 6px;
-  transition: box-shadow .15s, transform .15s;
+  position: relative; background: linear-gradient(180deg, var(--card-hi), var(--card));
+  border: 1px solid var(--line); border-radius: 14px;
+  padding: 22px 20px 18px; display: flex; flex-direction: column; gap: 8px;
+  transition: transform .18s, box-shadow .18s, border-color .18s;
 }
-.num:hover { box-shadow: 0 6px 20px rgba(0,0,0,.08); transform: translateY(-2px); }
-.num-phone { font-size: 20px; font-weight: 700; letter-spacing: .3px; }
-.num-tariff { color: #6d28d9; font-weight: 600; font-size: 14px; }
-.num-specs { color: #666; font-size: 13px; }
-.num-price { font-size: 18px; font-weight: 700; margin-top: 4px; }
-.num-price span { font-size: 12px; font-weight: 400; color: #888; }
+.num:hover {
+  transform: translateY(-3px); border-color: var(--line-2);
+  box-shadow: 0 24px 50px -24px rgba(0,0,0,.9), 0 0 0 1px rgba(201,165,88,.12);
+}
+.num-phone {
+  font-size: 25px; font-weight: 600; letter-spacing: 1px;
+  color: var(--text); font-variant-numeric: tabular-nums;
+}
+.num-tariff {
+  color: var(--gold); font-weight: 600; font-size: 13px;
+  text-transform: uppercase; letter-spacing: .6px;
+}
+.num-specs { color: var(--muted); font-size: 13px; }
+.num-price { font-size: 19px; font-weight: 700; margin-top: 6px; color: var(--text); }
+.num-price span { font-size: 12px; font-weight: 400; color: var(--muted); }
 .num-buy {
-  margin-top: 10px; text-align: center; text-decoration: none;
-  background: #2563eb; color: #fff; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 15px;
+  margin-top: 12px; text-align: center; cursor: pointer;
+  background: transparent; color: var(--gold); border: 1px solid var(--line-2);
+  padding: 11px; border-radius: 10px; font-weight: 600; font-size: 15px;
+  transition: background .15s, color .15s, border-color .15s;
 }
-.num-buy:hover { background: #1d4ed8; }
+.num:hover .num-buy { border-color: var(--gold); }
+.num-buy:hover {
+  background: linear-gradient(180deg, var(--gold-hi), var(--gold));
+  color: #1a1608; border-color: transparent;
+}
 
-.foot { border-top: 1px solid #e6e8ec; color: #888; font-size: 13px; padding: 20px 0; margin-top: 20px; }
+.foot { border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; padding: 26px 0; }
 .foot p { margin: 0; }
 
 @media (max-width: 520px) {
-  .cube { width: 32px; height: 42px; font-size: 17px; }
+  .top h1 { font-size: 26px; }
+  .cube { width: 34px; height: 46px; font-size: 19px; }
+  .num-phone { font-size: 22px; }
   .count { margin-left: 0; width: 100%; }
 }
