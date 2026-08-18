@@ -33,13 +33,15 @@
 `{ phone: 9584949494, type, type_category, tariff:{ name, group_name, price, minutes, sms, internet, prolong_paid_price } }`
 (+ вложенные поля, ещё не разобраны — там цена номера/маска).
 
-## Поиск по маске (cubes)
-- Параметр **`cubes`** — позиционная маска из 10 символов: цифра = точная позиция, `N` = любая,
-  буква `a/b/c…` = повторяющаяся (одинаковые буквы → одинаковые цифры). Подтверждено URL Безлимит.
-- Реф-ссылка поиска: `https://l.bezlimit.ru/store/800848?type=p&cubes=<маска>`.
-- API-эндпоинт живого поиска: `GET /super-link/phones/mask-category?expand=tariff&is_reserved=false&per_page=60&cubes=<маска>`.
-- Форма ответа: объект-группы `{"<категория, напр. brilliant,brilliant_super>":{"items":[<номера>]}}` →
-  разбираем универсальным `extractPhones` (deep-walk, дедуп по phone).
+## Поиск и фильтры (актуально)
+- **Маска:** позиционная, 10 символов (цифра=точная, `N`=любая, буква=повтор). В API — параметр
+  **`phone_pattern`** (НЕ `cubes`! cubes только в URL сайта Безлимит для реф-ссылки). Проверено.
+- **Эндпоинт выдачи:** `GET /super-link/phones/mask-category?expand=tariff&is_reserved=false&per_page=100&phone_pattern=<маска|9NNNNNNNNN>`.
+  Ответ — объект-группы `{"<категория>":{items:[номера]}}` → `flatten()` в плоский список (дедуп по phone).
+- **Категория** — серверный фильтр `mask_categories=<код>` (коды из `/filters` → `mask_category`).
+- **Тариф** — КЛИЕНТСКИЙ фильтр (серверный param не работает); список тарифов строим из фактических номеров
+  (`buildTariffFilter`), мёртвые из `/filters` не показываем. **Цена** — клиентский тир-фильтр.
+- Списки для сайдбара — из `/super-link/phones/filters` (живые, не захардкожены).
 
 ## Прямая бронь (РЕАЛИЗОВАНА)
 Флоу раскрыт через XHR-перехват на странице Безлимит (их API — axios/XHR, не fetch):
