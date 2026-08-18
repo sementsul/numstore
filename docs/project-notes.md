@@ -3,12 +3,16 @@
 Реферальная витрина красивых номеров на API Безлимит. Партнёр id **800848**. Некастодиально.
 Истина по задаче: `TZ.md`. Живые сценарии: `docs/numstore.usecases.md`.
 
-## Что где
-- `index.html` — разметка + контролы (поиск/тариф/сортировка).
-- `config.js` — `API_BASE`, публичный Basic-токен Безлимит, реф-URL (`REF_STORE_URL`, `REF_ID`).
-- `app.js` — клиентский fetch каталога, рендер карточек, фильтры/поиск/сортировка.
-- `styles.css` — оформление.
-- `docs/` — project-notes, usecases, DEFINITION_OF_DONE.
+## Что где (архитектура v3)
+- `index.html` — маркетплейс-раскладка: маска-поиск (cubes) сверху, слева сайдбар-фильтры
+  (`#fCat`/`#fPrice`/`#fTariff`), справа сетка `#grid` + «Показать ещё» `#more`.
+- `config.js` — `API_BASE`, публичный Basic-токен Безлимит, `REF_STORE_URL`, `REF_ID` (=800848, идёт в user_id брони).
+- `app.js` — клиентский fetch (mask-category, широкий пул `9NNNNNNNNN`), `flatten` в плоский список с `._cat`,
+  сайдбар-фильтры (`buildFilters`/`matches`/`sorted`), пагинация (PAGE=60), маска-поиск, прямая бронь `reserve`.
+- `styles.css` — тёмная премиум-тема (графит+золото), `.layout/.sidebar/.filter-*/.num*`.
+- `docs/` — project-notes (эта карта), numstore.usecases.md (живые сценарии UC-1..11), DEFINITION_OF_DONE.
+- **Превью:** `python3 -m http.server 5173 --bind 0.0.0.0` → http://localhost:5173.
+- **Репо:** github.com/sementsul/numstore (private). Пуш токеном пользователя. identity `numstore-dev`.
 
 ## Запуск / превью
 - Статика: `python3 -m http.server 5173 --bind 0.0.0.0` в корне → http://localhost:5173.
