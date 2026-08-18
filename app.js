@@ -161,11 +161,21 @@
     gridEl.innerHTML = list.map(card).join("");
   }
 
-  function buyUrl() {
-    var mask = buildCubes();
-    return isEmptyMask(mask)
-      ? CFG.REF_STORE_URL
-      : CFG.REF_STORE_URL + "?type=p&cubes=" + encodeURIComponent(mask);
+  // uuid листинга в объекте номера (ищем строку в формате GUID среди полей).
+  function findUuid(p) {
+    if (p.uuid) return p.uuid;
+    for (var k in p) {
+      if (typeof p[k] === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-/i.test(p[k])) return p[k];
+    }
+    return null;
+  }
+  // Ссылка на КОНКРЕТНЫЙ номер: cubes=<весь номер> (+uuid, если есть). Реф 800848 несёт REF_STORE_URL.
+  function numberUrl(p) {
+    var d = String(p.phone).replace(/\D/g, "").slice(-10);
+    var u = CFG.REF_STORE_URL + "?type=p&cubes=" + d;
+    var uuid = findUuid(p);
+    if (uuid) u += "&uuid=" + encodeURIComponent(uuid);
+    return u;
   }
 
   function card(p) {
@@ -180,7 +190,7 @@
         (t.name ? '<div class="num-tariff">' + esc(t.name) + "</div>" : "") +
         (specs.length ? '<div class="num-specs">' + esc(specs.join(" · ")) + "</div>" : "") +
         (t.price != null ? '<div class="num-price">' + esc(fmtMoney(t.price)) + "<span>/мес</span></div>" : "") +
-        '<a class="num-buy" href="' + esc(buyUrl()) + '" target="_blank" rel="noopener">Купить</a>' +
+        '<a class="num-buy" href="' + esc(numberUrl(p)) + '" target="_blank" rel="noopener">Купить</a>' +
       "</article>"
     );
   }
