@@ -94,7 +94,14 @@
   function buildSidebar() {
     fillList(fCat, [{ v: null, t: "Все категории" }].concat(CATS.map(function (c) { return { v: c.filter, t: c.name }; })), "cat", true);
     fillList(fPrice, [{ v: null, t: "Любая" }].concat(PRICE_TIERS.map(function (t) { return { v: t.key, t: t.label }; })), "price", false);
-    fillList(fTariff, [{ v: null, t: "Все тарифы" }].concat(TARIFFS.map(function (t) { return { v: t.filter, t: t.name }; })), "tariff", false);
+  }
+  // Тарифы — ТОЛЬКО те, по которым есть номера в загруженном пуле (в /filters есть мёртвые). Сортировка по цене.
+  function buildTariffFilter() {
+    var m = {};
+    ALL.forEach(function (p) { var t = p.tariff; if (t && t.id != null && !m[t.id]) m[t.id] = { id: t.id, name: t.name, price: t.price || 0 }; });
+    var list = Object.keys(m).map(function (k) { return m[k]; }).sort(function (a, b) { return a.price - b.price; });
+    if (flt.tariff && !m[flt.tariff]) flt.tariff = null; // выбранный тариф исчез из выдачи
+    fillList(fTariff, [{ v: null, t: "Все тарифы" }].concat(list.map(function (t) { return { v: t.id, t: t.name }; })), "tariff", false);
   }
   function fillList(ul, items, key, refetch) {
     ul.innerHTML = "";
@@ -127,6 +134,7 @@
         var f = flatten(d);
         ALL = f; BY_PHONE = {};
         f.forEach(function (p) { BY_PHONE[digitsOf(p.phone)] = p; });
+        buildTariffFilter(); // список тарифов из фактических номеров
         render();
       })
       .catch(function (e) { showStatus("Ошибка загрузки (" + e.message + ")."); });
