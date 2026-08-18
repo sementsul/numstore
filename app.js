@@ -113,7 +113,8 @@
     var mask = buildCubes();
     if (isEmptyMask(mask)) { loadDefault(); return; }
     showLoading("Ищу номера по маске…");
-    var p = "/super-link/phones/mask-category?expand=tariff&is_reserved=false&per_page=60&cubes=" + encodeURIComponent(mask);
+    // API маску принимает как phone_pattern (10 позиций, N = любая). В реф-ссылку на сайт идёт cubes.
+    var p = "/super-link/phones/mask-category?expand=tariff&is_reserved=false&per_page=60&phone_pattern=" + encodeURIComponent(mask);
     api(p)
       .then(function (data) {
         var list = extractPhones(data);
