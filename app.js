@@ -94,7 +94,7 @@
   function buildSidebar() {
     fillList(fCat, [{ v: null, t: "Все категории" }].concat(CATS.map(function (c) { return { v: c.filter, t: c.name }; })), "cat", true);
     fillList(fPrice, [{ v: null, t: "Любая" }].concat(PRICE_TIERS.map(function (t) { return { v: t.key, t: t.label }; })), "price", false);
-    fillList(fTariff, [{ v: null, t: "Все тарифы" }].concat(TARIFFS.map(function (t) { return { v: t.filter, t: t.name }; })), "tariff", true);
+    fillList(fTariff, [{ v: null, t: "Все тарифы" }].concat(TARIFFS.map(function (t) { return { v: t.filter, t: t.name }; })), "tariff", false);
   }
   function fillList(ul, items, key, refetch) {
     ul.innerHTML = "";
@@ -121,7 +121,7 @@
     var q = ["expand=tariff", "is_reserved=false", "per_page=100"];
     q.push("phone_pattern=" + encodeURIComponent(isEmptyMask(mask) ? DEFAULT_MASK : mask));
     if (flt.cat) q.push("mask_categories=" + encodeURIComponent(flt.cat));
-    if (flt.tariff) q.push("mask_tariff=" + encodeURIComponent(flt.tariff));
+    // тариф API на mask-category не фильтрует (проверено) → фильтруем на клиенте в matchesClient
     api("/super-link/phones/mask-category?" + q.join("&"))
       .then(function (d) {
         var f = flatten(d);
@@ -132,11 +132,14 @@
       .catch(function (e) { showStatus("Ошибка загрузки (" + e.message + ")."); });
   }
 
-  function matchesPrice(p) {
-    if (!flt.price) return true;
-    var tr = PRICE_TIERS.filter(function (t) { return t.key === flt.price; })[0];
-    var pr = p.tariff && p.tariff.price;
-    return tr && pr != null && tr.test(pr);
+  function matchesClient(p) {
+    if (flt.tariff && !(p.tariff && p.tariff.id === flt.tariff)) return false; // тариф — клиентский фильтр
+    if (flt.price) {
+      var tr = PRICE_TIERS.filter(function (t) { return t.key === flt.price; })[0];
+      var pr = p.tariff && p.tariff.price;
+      if (!(tr && pr != null && tr.test(pr))) return false;
+    }
+    return true;
   }
   function sorted(list) {
     var s = sortEl.value;
@@ -149,7 +152,7 @@
     return list;
   }
   function render() {
-    var list = sorted(ALL.filter(matchesPrice));
+    var list = sorted(ALL.filter(matchesClient));
     countEl.textContent = list.length + " " + plural(list.length, ["номер", "номера", "номеров"]);
     if (!list.length) { showStatus("Ничего не найдено. Смягчи фильтры."); return; }
     statusEl.style.display = "none";
