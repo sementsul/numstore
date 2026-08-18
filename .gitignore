@@ -1,0 +1,11 @@
+# секреты
+.env
+.env.*
+!.env.example
+# сборка/мусор
+dist/
+build/
+node_modules/
+__pycache__/
+*.pyc
+.DS_Store
