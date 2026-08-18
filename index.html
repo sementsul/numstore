@@ -10,13 +10,29 @@
   <header class="top">
     <div class="wrap">
       <h1>Красивые номера</h1>
-      <p class="sub">Выбирай красивый номер — подключение онлайн</p>
+      <p class="sub">Собери маску — найдём подходящие номера</p>
     </div>
   </header>
 
   <main class="wrap">
+    <section class="search-box">
+      <div class="cubes" id="cubes" aria-label="Маска номера из 10 цифр">
+        <span class="cube-prefix">+7</span>
+        <!-- 10 ячеек добавит JS -->
+      </div>
+      <div class="cube-actions">
+        <button id="find" class="btn-primary">Найти</button>
+        <button id="reset" class="btn-ghost">Сбросить</button>
+      </div>
+      <p class="cube-hint">Цифра — точная позиция · пусто — любая · буква (a, b, …) — повторяющаяся цифра</p>
+      <div class="ref-bar" id="refBar" hidden>
+        <input id="refLink" class="ref-link" readonly>
+        <button id="copyLink" class="btn-ghost">Копировать</button>
+        <a id="openStore" class="btn-primary" target="_blank" rel="noopener">Открыть в магазине</a>
+      </div>
+    </section>
+
     <section class="controls">
-      <input id="search" type="search" placeholder="Поиск по номеру, напр. 494949">
       <select id="tariff"><option value="">Все тарифы</option></select>
       <select id="sort">
         <option value="default">Сортировка</option>

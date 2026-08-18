@@ -11,15 +11,47 @@ body {
 .top h1 { margin: 0; font-size: 28px; }
 .top .sub { margin: 6px 0 0; opacity: .9; }
 
-.controls {
-  display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
-  margin: 20px 0;
+/* ---- поиск по маске (cubes) ---- */
+.search-box {
+  background: #fff; border: 1px solid #e6e8ec; border-radius: 14px;
+  padding: 20px; margin: 20px 0; box-shadow: 0 2px 10px rgba(0,0,0,.04);
 }
-.controls input, .controls select {
-  padding: 10px 12px; border: 1px solid #d0d3d9; border-radius: 8px;
-  font-size: 15px; background: #fff;
+.cubes { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.cube-prefix { font-size: 22px; font-weight: 700; color: #6d28d9; margin-right: 6px; }
+.cube {
+  width: 40px; height: 48px; text-align: center; font-size: 20px; font-weight: 700;
+  border: 1px solid #d0d3d9; border-radius: 8px; text-transform: lowercase;
 }
-.controls input { flex: 1 1 240px; }
+.cube:focus { outline: none; border-color: #6d28d9; box-shadow: 0 0 0 3px rgba(109,40,217,.15); }
+.cube-actions { display: flex; gap: 10px; margin-top: 14px; }
+.cube-hint { color: #888; font-size: 13px; margin: 10px 0 0; }
+
+.btn-primary {
+  background: #2563eb; color: #fff; border: none; border-radius: 8px;
+  padding: 10px 18px; font-size: 15px; font-weight: 600; cursor: pointer; text-decoration: none;
+  display: inline-block;
+}
+.btn-primary:hover { background: #1d4ed8; }
+.btn-ghost {
+  background: #fff; color: #333; border: 1px solid #d0d3d9; border-radius: 8px;
+  padding: 10px 18px; font-size: 15px; cursor: pointer;
+}
+.btn-ghost:hover { border-color: #999; }
+
+.ref-bar {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  margin-top: 14px; padding-top: 14px; border-top: 1px dashed #e0e2e6;
+}
+.ref-link {
+  flex: 1 1 260px; padding: 9px 12px; border: 1px solid #d0d3d9; border-radius: 8px;
+  font-size: 13px; color: #444; background: #fafafa;
+}
+
+/* ---- контролы ---- */
+.controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 16px 0; }
+.controls select {
+  padding: 10px 12px; border: 1px solid #d0d3d9; border-radius: 8px; font-size: 15px; background: #fff;
+}
 .count { color: #666; font-size: 14px; margin-left: auto; }
 
 .status { padding: 40px 0; text-align: center; color: #666; }
@@ -41,8 +73,7 @@ body {
 .num-price span { font-size: 12px; font-weight: 400; color: #888; }
 .num-buy {
   margin-top: 10px; text-align: center; text-decoration: none;
-  background: #2563eb; color: #fff; padding: 10px; border-radius: 8px;
-  font-weight: 600; font-size: 15px;
+  background: #2563eb; color: #fff; padding: 10px; border-radius: 8px; font-weight: 600; font-size: 15px;
 }
 .num-buy:hover { background: #1d4ed8; }
 
@@ -50,5 +81,6 @@ body {
 .foot p { margin: 0; }
 
 @media (max-width: 520px) {
+  .cube { width: 32px; height: 42px; font-size: 17px; }
   .count { margin-left: 0; width: 100%; }
 }
