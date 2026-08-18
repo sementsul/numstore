@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Красивые номера</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <h1>Красивые номера</h1>
+      <p class="sub">Выбирай красивый номер — подключение онлайн</p>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="controls">
+      <input id="search" type="search" placeholder="Поиск по номеру, напр. 494949">
+      <select id="tariff"><option value="">Все тарифы</option></select>
+      <select id="sort">
+        <option value="default">Сортировка</option>
+        <option value="price-asc">Цена тарифа ↑</option>
+        <option value="price-desc">Цена тарифа ↓</option>
+      </select>
+      <span id="count" class="count"></span>
+    </section>
+
+    <div id="status" class="status">Загружаю номера…</div>
+    <div id="grid" class="grid"></div>
+  </main>
+
+  <footer class="foot">
+    <div class="wrap">
+      <p>Информационная витрина. Подключение и оплата — на стороне оператора.</p>
+    </div>
+  </footer>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
