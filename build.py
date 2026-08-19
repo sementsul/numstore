@@ -730,11 +730,11 @@ def render_landing(l):
         og_image=OG("landing"),
         page_js=page_js,
         schema=schema_breadcrumb({"name": l["h1"], "slug": l["slug"], "toplevel": True}) + faq_schema,
-        nav=nav_links(None, l.get("cats")),
+        nav=nav_links(None),
         header_block=header_block,
         main_top=main_top,
         vitrina=VITRINA + '<section class="seo-text">' + l["text"] + "</section>" + faq_html + related_block(),
-        footnav=nav_links(None, l.get("cats")) + patnav(),
+        footnav=nav_links(None) + patnav(),
         scripts=SCRIPTS,
     )
     write("%s/index.html" % l["slug"], html_out)
