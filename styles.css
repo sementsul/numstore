@@ -122,12 +122,17 @@ body {
   margin: 0 0 12px; font-size: 12px; font-weight: 600; letter-spacing: 1px;
   text-transform: uppercase; color: var(--gold);
 }
-.qpick { display: flex; flex-wrap: wrap; gap: 8px; }
-.qpick a {
-  padding: 7px 13px; border-radius: 20px; font-size: 14px; text-decoration: none;
-  color: var(--muted); border: 1px solid var(--line); transition: color .12s, border-color .12s;
+.hint-ex { font-size: 13px; color: var(--muted); margin: 0 0 16px; line-height: 1.5; }
+.ex + .ex { margin-top: 14px; }
+.ex-mask { display: flex; gap: 3px; margin-bottom: 7px; }
+.ex-cell {
+  width: 18px; height: 24px; border-radius: 4px; border: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 600; background: #0f121a; font-variant-numeric: tabular-nums;
 }
-.qpick a:hover { color: var(--gold); border-color: var(--line-2); }
+.ex-cell.on { border-color: var(--line-2); color: var(--gold); }
+.ex-cell.off { color: var(--muted); }
+.ex-res { font-size: 13px; color: var(--muted); line-height: 1.45; }
 @media (max-width: 720px) {
   .search-box { flex-direction: column; gap: 18px; }
   .search-aside { flex: 1 1 auto; border-left: none; border-top: 1px solid var(--line); padding-left: 0; padding-top: 18px; }

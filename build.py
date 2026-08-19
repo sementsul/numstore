@@ -399,10 +399,15 @@ VITRINA = """    <section class="search-box">
         <p class="cube-hint">Цифра — точная позиция · пусто — любая · буква (a, b, …) — повторяющаяся цифра</p>
       </div>
       <aside class="search-aside">
-        <h3>Быстрый выбор</h3>
-        <div class="qpick">
-          <a href="/na-777/">777</a><a href="/na-999/">999</a><a href="/na-888/">888</a>
-          <a href="/kruglye/">Круглые</a><a href="/zerkalnye/">Зеркальные</a><a href="/povtory/">Повторы</a><a href="/pary/">Пары</a>
+        <h3>Как искать</h3>
+        <p class="hint-ex">Впишите только нужные цифры, остальные позиции оставьте пустыми.</p>
+        <div class="ex">
+          <div class="ex-mask"><span class="ex-cell off">·</span><span class="ex-cell off">·</span><span class="ex-cell off">·</span><span class="ex-cell off">·</span><span class="ex-cell off">·</span><span class="ex-cell off">·</span><span class="ex-cell on">7</span><span class="ex-cell on">7</span><span class="ex-cell on">7</span><span class="ex-cell on">7</span></div>
+          <div class="ex-res">→ номера, что оканчиваются на 77-77</div>
+        </div>
+        <div class="ex">
+          <div class="ex-mask"><span class="ex-cell on">9</span><span class="ex-cell on">9</span><span class="ex-cell on">9</span><span class="ex-cell off">·</span><span class="ex-cell off">·</span><span class="ex-cell off">·</span><span class="ex-cell off">·</span><span class="ex-cell off">·</span><span class="ex-cell off">·</span><span class="ex-cell off">·</span></div>
+          <div class="ex-res">→ все номера с кодом 999</div>
         </div>
       </aside>
     </section>
