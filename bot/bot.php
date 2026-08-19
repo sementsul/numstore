@@ -19,7 +19,7 @@ $KEY       = $cfg['key'] ?? '';
 // Защита: если задан ключ — дёргать URL можно только с ?key=...
 if ($KEY !== '' && (($_GET['key'] ?? '') !== $KEY)) { http_response_code(403); exit('forbidden'); }
 @ignore_user_abort(true);
-@set_time_limit(60);
+@set_time_limit(70);   // окно ~50с + обработка; ignore_user_abort — работаем даже после дисконнекта пингера
 
 const API_BASE  = 'https://api.store.bezlimit.ru/v2';
 const SITE      = 'https://magzgold.ru';
@@ -212,11 +212,12 @@ $lock = fopen($LOCK_FILE, 'c');
 if (!$lock || !flock($lock, LOCK_EX | LOCK_NB)) { exit('busy'); }   // другой заход активен
 
 $offset = is_file($OFFSET_FILE) ? (int)file_get_contents($OFFSET_FILE) : 0;
-// Держим соединение ~25с (под таймаут пингера) и НЕПРЕРЫВНО long-poll'им: сообщение ловится
-// почти мгновенно, пока окно активно. С пингером раз в минуту покрываем ~25 из 60 сек.
-$deadline = time() + 25;
+// «Агрессивный» режим: держим соединение ~50с и НЕПРЕРЫВНО long-poll'им → покрываем почти всю минуту,
+// ответ почти всегда мгновенный. ignore_user_abort позволяет работать даже после того, как пингер
+// (cron-job.org) отвалится по своему таймауту ~30с — бот доработает окно до конца.
+$deadline = time() + 50;
 while (time() < $deadline) {
-    $t = max(1, min(25, $deadline - time()));   // long-poll на остаток окна
+    $t = max(1, min(20, $deadline - time()));   // long-poll кусками ≤20с (чтобы перечитывать дедлайн)
     $q = ['timeout' => $t];
     if ($offset > 0) { $q['offset'] = $offset; }
     $resp = http_get('https://api.telegram.org/bot' . $TOKEN . '/getUpdates?' . http_build_query($q));
