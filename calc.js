@@ -15,7 +15,6 @@
     var c = currentCat(); if (!c) return;
     var tar = TARIFFS.filter(function (t) { return String(t.price) === tarSel.value; })[0] || TARIFFS[0] || { price: 0 };
     var monthly = +tar.price, m = +months.value, abon = monthly * m;
-    var port = c.pmin === c.pmax ? fmt(c.pmin) : fmt(c.pmin) + " – " + fmt(c.pmax);
     var mtxt = m + " " + plural(m, ["месяц", "месяца", "месяцев"]);
     monthsVal.textContent = mtxt;
     out.innerHTML =
@@ -23,8 +22,8 @@
       '<div class="calc-row"><span>Абонплата ' + fmt(monthly) + "/мес × " + m + "</span><b>" + fmt(abon) + "</b></div>" +
       '<div class="calc-total"><span>Итого за ' + mtxt + "</span><b>" + fmt(abon) + "</b></div>" +
       '<div class="calc-note">Номер достаётся <b>бесплатно</b> — платите только абонплату тарифа. ' +
-      'Цена появляется только при <b>переносе номера к другому оператору</b>: тогда для категории «' +
-      c.name.toLowerCase() + '» это ориентировочно <b>' + port + "</b>.</div>" +
+      'Номер становится платным только при <b>переносе к другому оператору</b> — цену в этом случае уточняйте ' +
+      'у оператора.</div>' +
       '<a class="btn-primary calc-cta" href="/kategoriya/' + c.slug + '/">Смотреть ' + c.name.toLowerCase() + " номера</a>";
   }
 
