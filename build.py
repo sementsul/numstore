@@ -396,11 +396,6 @@ VITRINA = """    <section class="search-box">
         <button id="reset" class="btn-ghost">Сбросить</button>
       </div>
       <p class="cube-hint">Цифра — точная позиция · пусто — любая · буква (a, b, …) — повторяющаяся цифра</p>
-      <div class="ref-bar" id="refBar" hidden>
-        <input id="refLink" class="ref-link" readonly>
-        <button id="copyLink" class="btn-ghost">Копировать</button>
-        <a id="openStore" class="btn-primary" target="_blank" rel="noopener">Открыть в магазине</a>
-      </div>
     </section>
     <div class="layout">
       <aside class="sidebar">

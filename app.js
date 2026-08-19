@@ -6,7 +6,6 @@
   var statusEl = $("status"), gridEl = $("grid"), countEl = $("count"), moreBtn = $("more");
   var sortEl = $("sort");
   var cubesEl = $("cubes"), findBtn = $("find"), resetBtn = $("reset");
-  var refBar = $("refBar"), refLink = $("refLink"), copyBtn = $("copyLink"), openStore = $("openStore");
   var fCat = $("fCat"), fPrice = $("fPrice"), fTariff = $("fTariff");
 
   var CUBES = 10, PAGE = 60, DEFAULT_MASK = "9NNNNNNNNN";
@@ -91,13 +90,6 @@
       var ch = (mask && mask[i]) || "";
       cells[i].value = (ch === "N" || ch === "n" || ch === "") ? "" : ch;
     }
-    updateRefLink();
-  }
-  function updateRefLink() {
-    var m = buildCubes();
-    if (isEmptyMask(m)) { refBar.hidden = true; return; }
-    var url = CFG.REF_STORE_URL + "?type=p&cubes=" + encodeURIComponent(m);
-    refLink.value = url; openStore.href = url; refBar.hidden = false;
   }
   function renderCubes() {
     for (var i = 0; i < CUBES; i++) {
@@ -109,7 +101,6 @@
     cubesEl.addEventListener("input", function (e) {
       var t = e.target;
       if (t.value && t.nextElementSibling && t.nextElementSibling.tagName === "INPUT") t.nextElementSibling.focus();
-      updateRefLink();
       clearTimeout(searchTimer); searchTimer = setTimeout(fetchNumbers, 500);
     });
     cubesEl.addEventListener("keydown", function (e) {
@@ -303,14 +294,9 @@
   findBtn.addEventListener("click", fetchNumbers);
   resetBtn.addEventListener("click", function () {
     cubesEl.querySelectorAll("input").forEach(function (c) { c.value = ""; });
-    sortEl.value = "default"; refBar.hidden = true;
+    sortEl.value = "default";
     flt = { cat: null, tariff: null, price: null };
     buildSidebar(); fetchNumbers();
-  });
-  copyBtn.addEventListener("click", function () {
-    refLink.select();
-    try { navigator.clipboard.writeText(refLink.value); } catch (e) { document.execCommand("copy"); }
-    copyBtn.textContent = "Скопировано"; setTimeout(function () { copyBtn.textContent = "Копировать"; }, 1500);
   });
   sortEl.addEventListener("change", function () { shown = PAGE; render(); });
   moreBtn.addEventListener("click", function () { shown += PAGE; render(); });
