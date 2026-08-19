@@ -7,7 +7,7 @@
 - `build.py` — **источник HTML** (~50 страниц): главная + категории ×5 + паттерны ×7 (вкл. 777/888/999) +
   лонгтейл-лендинги ×4 (LANDINGS: /dlya-biznesa/, /v-podarok/, /legko-zapomnit/, /na-datu-rozhdeniya/ — витрина +
   уникальный текст + перелинковка) + тарифы
-  ×10 + `/tarify/` + коды `/kody/`+`/kod/<pfx>/`×16 + `/skolko-stoit-nomer/` + `/blog/`(+3) + `/faq/`(FAQPage) +
+  ×10 + `/tarify/` + коды `/kody/`+`/kod/<pfx>/`×16 + `/skolko-stoit-nomer/` + `/blog/`(+6, Article-schema) + `/faq/`(FAQPage) +
   `/o-servise/` + `/politika/` + `/polzovatelskoe-soglashenie/` + 404 + sitemap(lastmod)/robots/CNAME.
   Скорость: preconnect/dns-prefetch (api Безлимит, Метрика, GTM). Organization schema: description + contactPoint.
   SEO: og:image (make_og/PIL), favicon.svg, Organization+WebSite schema (home_schema), Breadcrumb/FAQPage.
