@@ -1,53 +1,39 @@
-/* MagzGold — калькулятор стоимости номера по красоте.
-   Стоимость номера (единоразово) — из ОФИЦИАЛЬНОГО прайса Безлимит (pmin/pmax по категории).
-   Абонплата тарифа (ежемесячно) — из реальных номеров API (клиент, ban-proof). */
+/* MagzGold — калькулятор стоимости владения номером.
+   Разовая цена номера (по категории, офиц. прайс) + абонплата тарифа × срок = итог. */
 (function () {
-  var CFG = window.NUMSTORE_CONFIG, CATS = window.CALC_CATS || [];
+  var CATS = window.CALC_CATS || [], TARIFFS = window.CALC_TARIFFS || [];
   var $ = function (id) { return document.getElementById(id); };
-  var catSel = $("calcCat"), out = $("calcOut"), link = $("calcLink");
+  var catSel = $("calcCat"), price = $("calcPrice"), priceVal = $("calcPriceVal"),
+      tarSel = $("calcTariff"), months = $("calcMonths"), monthsVal = $("calcMonthsVal"), out = $("calcOut");
+  if (!catSel || !out) return;
 
   function fmt(n) { return String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " ₽"; }
-  function api(path) {
-    return fetch(CFG.API_BASE + path, { headers: { Authorization: CFG.API_TOKEN } })
-      .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); });
-  }
-  function pricesOf(data) {
-    var res = [];
-    (function walk(x) {
-      if (!x || typeof x !== "object") return;
-      if (Array.isArray(x)) { x.forEach(walk); return; }
-      if (x.phone != null && x.tariff && x.tariff.price != null) res.push(x.tariff.price);
-      Object.keys(x).forEach(function (k) { if (k !== "tariff") walk(x[k]); });
-    })(data);
-    return res;
+  function plural(n, f) { var a = n % 10, b = n % 100; return (a === 1 && b !== 11) ? f[0] : (a >= 2 && a <= 4 && (b < 10 || b >= 20)) ? f[1] : f[2]; }
+  function currentCat() { return CATS.filter(function (c) { return c.slug === catSel.value; })[0]; }
+
+  function setCatRange() {
+    var c = currentCat(); if (!c) return;
+    price.min = c.pmin; price.max = c.pmax;
+    price.step = Math.max(500, Math.round((c.pmax - c.pmin) / 200));
+    price.value = Math.round((c.pmin + c.pmax) / 2);
   }
 
   function calc() {
-    var cat = CATS.filter(function (c) { return c.slug === catSel.value; })[0];
-    if (!cat) return;
-    var price = cat.pmin === cat.pmax ? fmt(cat.pmin) : fmt(cat.pmin) + " – " + fmt(cat.pmax);
+    var c = currentCat(); if (!c) return;
+    var onetime = +price.value;
+    var tar = TARIFFS.filter(function (t) { return String(t.price) === tarSel.value; })[0] || TARIFFS[0] || { price: 0 };
+    var monthly = +tar.price, m = +months.value;
+    var abon = monthly * m, total = onetime + abon;
+    priceVal.textContent = fmt(onetime);
+    monthsVal.textContent = m + " " + plural(m, ["месяц", "месяца", "месяцев"]);
     out.innerHTML =
-      '<div class="calc-range">' + price + '</div>' +
-      '<div class="calc-sub">' + cat.name + ' номера · стоимость номера (единоразово, по прайсу оператора)</div>' +
-      '<div class="calc-live" id="calcLive">Абонплата тарифа: считаю по наличию…</div>' +
-      '<div class="calc-note">Итоговая цена конкретного номера зависит от его маски внутри категории ' +
-      '(см. официальный прайс). Абонплата тарифа оплачивается отдельно, ежемесячно.</div>';
-    link.href = "/kategoriya/" + cat.slug + "/";
-    link.hidden = false;
-
-    var live = $("calcLive");
-    api("/super-link/phones/mask-category?expand=tariff&is_reserved=false&per_page=100&mask_categories=" +
-        encodeURIComponent(cat.code) + "&phone_pattern=9NNNNNNNNN")
-      .then(function (d) {
-        var pr = pricesOf(d);
-        if (!pr.length) { live.textContent = "Сейчас нет активных номеров этой категории."; return; }
-        var mn = Math.min.apply(null, pr), mx = Math.max.apply(null, pr);
-        live.innerHTML = "Абонплата тарифа: <b>" + (mn === mx ? fmt(mn) : fmt(mn) + " – " + fmt(mx)) +
-                         "/мес</b> · в наличии: " + pr.length;
-      })
-      .catch(function () { live.textContent = "Абонплату не удалось загрузить."; });
+      '<div class="calc-row"><span>Разовая цена номера</span><b>' + fmt(onetime) + "</b></div>" +
+      '<div class="calc-row"><span>Абонплата ' + fmt(monthly) + "/мес × " + m + "</span><b>" + fmt(abon) + "</b></div>" +
+      '<div class="calc-total"><span>Итого за ' + m + " " + plural(m, ["месяц", "месяца", "месяцев"]) + "</span><b>" + fmt(total) + "</b></div>" +
+      '<a class="btn-primary calc-cta" href="/kategoriya/' + c.slug + '/">Смотреть ' + c.name.toLowerCase() + " номера</a>";
   }
 
-  catSel.addEventListener("change", calc);
-  calc();
+  catSel.addEventListener("change", function () { setCatRange(); calc(); });
+  [price, tarSel, months].forEach(function (el) { if (el) el.addEventListener("input", calc); });
+  setCatRange(); calc();
 })();

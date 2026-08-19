@@ -995,15 +995,19 @@ def render_number_page():
 def render_calc():
     cats_js = "[" + ",".join(
         '{"slug":"%s","code":"%s","name":"%s","pmin":%d,"pmax":%d}' % (c["slug"], c["code"], c["name"], c["pmin"], c["pmax"]) for c in CATEGORIES) + "]"
-    page_js = "<script>window.CALC_CATS=%s;</script>" % cats_js
+    tariffs_js = "[" + ",".join('{"name":"%s","price":%d}' % (t["name"], t["price"]) for t in TARIFFS) + "]"
+    page_js = "<script>window.CALC_CATS=%s;window.CALC_TARIFFS=%s;</script>" % (cats_js, tariffs_js)
     cat_opts = "".join('<option value="%s">%s</option>' % (c["slug"], esc(c["name"])) for c in CATEGORIES)
+    tar_opts = "".join('<option value="%d">%s · %s ₽/мес</option>' % (t["price"], esc(t["name"]), format(t["price"], ",d").replace(",", " ")) for t in TARIFFS)
     body = (
         '<div class="calc">'
         '<div class="calc-form">'
         '<label>Красота номера<select id="calcCat">' + cat_opts + '</select></label>'
+        '<label>Цена номера: <b id="calcPriceVal"></b><input type="range" id="calcPrice"></label>'
+        '<label>Тариф<select id="calcTariff">' + tar_opts + '</select></label>'
+        '<label>Срок владения: <b id="calcMonthsVal"></b><input type="range" id="calcMonths" min="1" max="36" value="12"></label>'
         '</div>'
         '<div class="calc-out" id="calcOut"></div>'
-        '<a id="calcLink" class="btn-primary" hidden>Показать такие номера</a>'
         '</div>'
         '<section class="seo-text">'
         '<h2>От чего зависит цена красивого номера</h2>'
@@ -1034,8 +1038,8 @@ def render_calc():
         nav=nav_links(None),
         header_block='    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>',
         main_top='%s\n  <h1 class="page-h1">Сколько стоит красивый номер</h1>\n'
-                 '  <p class="page-intro">Оцените ориентировочную стоимость красивого номера по категории красоты '
-                 'и региону — расчёт на основе реальных тарифов. Ниже — из чего складывается цена.</p>'
+                 '  <p class="page-intro">Посчитайте полную стоимость владения: разовая цена номера по категории '
+                 'красоты + абонплата тарифа за нужный срок = итог. Двигайте ползунки — расчёт мгновенный.</p>'
                  % crumbs("Сколько стоит номер"),
         vitrina=body,
         footnav=nav_links(None) + patnav(),

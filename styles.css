@@ -564,3 +564,12 @@ body {
 .code { background:#0f121a; border:1px solid var(--line); border-radius:10px; padding:14px 16px;
   overflow-x:auto; font-family:"SF Mono",Menlo,Consolas,monospace; font-size:13px; color:#cdd3df; line-height:1.5; }
 .seo-text code { background:#0f121a; border:1px solid var(--line); border-radius:5px; padding:1px 6px; font-size:13px; color:var(--gold); }
+
+/* Калькулятор стоимости владения */
+.calc-form label b { color: var(--gold); font-weight: 600; }
+.calc-form input[type=range] { width: 100%; margin-top: 10px; accent-color: var(--gold); cursor: pointer; }
+.calc-row { display: flex; justify-content: space-between; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--line); color: var(--muted); font-size: 15px; }
+.calc-row b { color: var(--text); font-weight: 600; }
+.calc-total { display: flex; justify-content: space-between; gap: 12px; padding: 14px 0 6px; font-size: 20px; font-weight: 700; }
+.calc-total b { color: var(--gold); }
+.calc-cta { display: inline-block; margin-top: 16px; text-decoration: none; }
