@@ -1,0 +1,18 @@
+name: Пинг бота (keepalive)
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"     # каждые 15 минут (резервный будильник)
+  workflow_dispatch: {}
+
+concurrency:
+  group: bot-keepalive
+  cancel-in-progress: true
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Дёрнуть бота
+        run: |
+          curl -s -m 8 -A "Mozilla/5.0 (keepalive)" "${{ secrets.BOT_PING_URL }}" -o /dev/null -w "ping: %{http_code}\n" || true
