@@ -82,6 +82,12 @@
 - **HTML source of truth = build.py** (VITRINA + PAGE_TMPL). Корневой index.html — dev-версия витрины (может дрейфовать; для деплоя используем dist/).
 - **Сборка/превью:** `python3 build.py` → `cd dist && python3 -m http.server 5173`.
 
+## Деплой (GitHub Pages)
+- **Публичный deploy-репо: github.com/sementsul/magzgold** (только собранный dist/, БЕЗ исходников/доков).
+  Источник — приватный `numstore`. Pages: source main/root, CNAME=magzgold.ru, статус built.
+- **Редеплой:** `python3 build.py` → `cd dist && git add -A && git commit -m ... && git push -f https://<token>@github.com/sementsul/magzgold.git HEAD:main` (в dist свой git, identity sementsul).
+- **DNS (делает владелец у регистратора):** apex magzgold.ru → A 185.199.108-111.153 (+AAAA 2606:50c0:8000-8003::153); www → CNAME sementsul.github.io. После DNS GitHub выпустит HTTPS (Let's Encrypt) → включить Enforce HTTPS.
+
 ## Статус
 v4: бренд **MagzGold (magzgold.ru)**, тёмный люкс, маркетплейс-витрина (сайдбар-фильтры категория[сервер]/
 тариф[клиент]/цена + густая сетка + «показать ещё» + маска-поиск + прямая бронь). SEO-каркас: сборщик build.py →
