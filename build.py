@@ -60,6 +60,39 @@ PATTERNS = [
     {"slug": "kruglye", "mask": "NNNNNNN000", "name": "Круглые", "h1": "Круглые номера",
      "desc": "Круглые номера — оканчиваются на нули (…000). Солидно и легко запомнить. Подбор на MagzGold.",
      "intro": "Круглые номера оканчиваются на нули (…000) — выглядят солидно и запоминаются с первого раза."},
+    {"slug": "na-777", "mask": "NNNNNNN777", "name": "На 777", "h1": "Номера на 777",
+     "desc": "Номера, оканчивающиеся на 777 (три семёрки) — счастливая комбинация. Подбор и бронь на MagzGold.",
+     "intro": "Номера на 777 — три семёрки в конце, «счастливое» окончание, которое легко запоминается."},
+    {"slug": "na-999", "mask": "NNNNNNN999", "name": "На 999", "h1": "Номера на 999",
+     "desc": "Номера, оканчивающиеся на 999 (три девятки). Красиво и запоминается. Подбор на MagzGold.",
+     "intro": "Номера на 999 — три девятки в конце, эффектное и запоминающееся окончание."},
+    {"slug": "na-888", "mask": "NNNNNNN888", "name": "На 888", "h1": "Номера на 888",
+     "desc": "Номера, оканчивающиеся на 888 (три восьмёрки). Подбор и бронирование на MagzGold.",
+     "intro": "Номера на 888 — три восьмёрки в конце; восьмёрка символизирует достаток и гармонию."},
+]
+
+# Префиксы (первые 3 цифры мобильного, +7 9XX). Страница /kod/<pfx>/ = маска <pfx>NNNNNNN.
+PREFIXES = ["900", "903", "905", "906", "909", "916", "925", "929",
+            "950", "960", "965", "966", "967", "968", "969", "999"]
+
+# FAQ: вопрос → ответ (HTML в ответе допустим). Идёт в FAQPage schema.
+FAQ = [
+    ("Что такое красивый номер?",
+     "Красивый номер — телефонный номер с запоминающейся комбинацией цифр: повторами, зеркальностью, "
+     "круглыми окончаниями. Чем «чище» комбинация, тем выше категория (от бронзы до бриллианта)."),
+    ("Как забронировать номер?",
+     "Выберите номер в каталоге (по маске, категории или тарифу) и нажмите «Забронировать». Бронь удержит "
+     "номер за вами ограниченное время; оформление и оплата — у оператора."),
+    ("Сколько стоит красивый номер?",
+     "Стоимость зависит от красоты: бронза — от 3 000 ₽, бриллиант — от 400 000 ₽. Оцените диапазон на "
+     '<a href="/skolko-stoit-nomer/">калькуляторе стоимости</a>. Абонплата тарифа оплачивается отдельно.'),
+    ("Регион влияет на цену номера?",
+     "Нет. У оператора цена номера определяется его красотой (категорией), а не кодом или регионом."),
+    ("Кто оказывает услуги связи?",
+     "Оператор связи ООО «Безлимит». MagzGold — информационная витрина, которая помогает подобрать и "
+     "забронировать номер; оформление и оплата проходят на стороне оператора."),
+    ("Можно ли выбрать номер с моей датой рождения?",
+     "Да. В каталоге задайте маску — зафиксируйте нужные цифры на позициях, а остальные оставьте любыми."),
 ]
 
 # Гайды/блог: slug, title, desc, h1, body (HTML).
@@ -152,7 +185,7 @@ def _dlinks(items):
 
 
 def _build_drawer():
-    other = [("/", "Все номера"), ("/tarify/", "Тарифы"), ("/blog/", "Блог"), ("/skolko-stoit-nomer/", "Сколько стоит номер"), ("/o-servise/", "О сервисе")]
+    other = [("/", "Все номера"), ("/tarify/", "Тарифы"), ("/kody/", "Номера по кодам"), ("/blog/", "Блог"), ("/faq/", "Вопросы и ответы"), ("/skolko-stoit-nomer/", "Сколько стоит номер"), ("/o-servise/", "О сервисе")]
     legal = [("/politika/", "Политика конфиденциальности"), ("/polzovatelskoe-soglashenie/", "Пользовательское соглашение")]
     return (
         '<div class="drawer-backdrop" id="drawerBg"></div>'
@@ -260,7 +293,7 @@ PAGE_TMPL = """<!doctype html>
 <footer class="foot">
   <div class="wrap">
     {footnav}
-    <nav class="catnav footlinks"><a href="/blog/">Блог</a><a href="/skolko-stoit-nomer/">Сколько стоит номер</a><a href="/tarify/">Тарифы</a><a href="/o-servise/">О сервисе</a><a href="/politika/">Политика</a><a href="/polzovatelskoe-soglashenie/">Соглашение</a></nav>
+    <nav class="catnav footlinks"><a href="/blog/">Блог</a><a href="/skolko-stoit-nomer/">Сколько стоит номер</a><a href="/tarify/">Тарифы</a><a href="/kody/">Коды</a><a href="/faq/">FAQ</a><a href="/o-servise/">О сервисе</a><a href="/politika/">Политика</a><a href="/polzovatelskoe-soglashenie/">Соглашение</a></nav>
     <p>MagzGold — информационная витрина красивых номеров. Подбор и бронирование; подключение и оплата на стороне оператора.</p>
   </div>
 </footer>
@@ -606,6 +639,68 @@ def render_terms():
                 "Пользовательское соглашение MagzGold: условия использования сайта, оформление, ограничение ответственности.", body)
 
 
+def render_prefix(pfx):
+    page_js = '<script>window.PAGE={mask:"%sNNNNNNN"};</script>' % pfx
+    intro = ("Красивые номера с кодом +7 %s: подбор по маске, категории и тарифу, бронирование онлайн. "
+             "Ниже — доступные номера на %s; уточните нужные цифры маской." % (pfx, pfx))
+    html_out = PAGE_TMPL.format(
+        drawer=_DRAWER,
+        title="Красивые номера на %s (+7 %s) | MagzGold" % (pfx, pfx),
+        desc="Красивые номера с кодом +7 %s — подбор по маске, категории, тарифу и бронирование онлайн на MagzGold." % pfx,
+        canonical=SITE["base"] + "/kod/%s/" % pfx,
+        page_js=page_js,
+        schema=schema_breadcrumb({"name": "Код %s" % pfx, "slug": "kod/%s" % pfx, "toplevel": True}),
+        nav=nav_links(None),
+        header_block='    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>',
+        main_top='%s\n  <h1 class="page-h1">Номера на %s</h1>\n  <p class="page-intro">%s</p>'
+                 % (crumbs("Код %s" % pfx), pfx, esc(intro)),
+        vitrina=VITRINA, footnav=nav_links(None) + patnav(), scripts=SCRIPTS,
+    )
+    write("kod/%s/index.html" % pfx, html_out)
+
+
+def render_prefixes_hub():
+    rows = "".join(
+        '<a class="blog-card" href="/kod/%s/"><h2>+7 %s</h2><p>Красивые номера на %s</p></a>' % (p, p, p)
+        for p in PREFIXES)
+    html_out = PAGE_TMPL.format(
+        drawer=_DRAWER,
+        title="Номера по кодам (+7 9XX) — выбор кода | MagzGold",
+        desc="Красивые номера по кодам мобильного оператора (+7 900, 916, 999 и другие). Выберите код и подберите номер — MagzGold.",
+        canonical=SITE["base"] + "/kody/", page_js="",
+        schema=schema_breadcrumb({"name": "Коды", "slug": "kody", "toplevel": True}),
+        nav=nav_links(None),
+        header_block='    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>',
+        main_top='%s\n  <h1 class="page-h1">Номера по кодам</h1>\n'
+                 '  <p class="page-intro">Выберите код мобильного (+7 9XX) — покажем красивые номера на нём.</p>'
+                 % crumbs("Коды"),
+        vitrina='<div class="blog-list">%s</div>' % rows,
+        footnav=nav_links(None) + patnav(), scripts="",
+    )
+    write("kody/index.html", html_out)
+
+
+def render_faq():
+    items = "".join(
+        '<div class="faq-item"><h2>%s</h2><div>%s</div></div>' % (esc(q), a) for q, a in FAQ)
+    faq_ld = ('<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage",'
+              '"mainEntity":[%s]}</script>' % ",".join(
+                  '{"@type":"Question","name":"%s","acceptedAnswer":{"@type":"Answer","text":"%s"}}'
+                  % (esc(q), esc(__import__("re").sub("<[^>]+>", "", a))) for q, a in FAQ))
+    html_out = PAGE_TMPL.format(
+        drawer=_DRAWER,
+        title="Частые вопросы о красивых номерах — FAQ | MagzGold",
+        desc="Ответы на частые вопросы о красивых номерах: что это, как забронировать, сколько стоит, кто оператор — FAQ MagzGold.",
+        canonical=SITE["base"] + "/faq/", page_js="", schema=faq_ld,
+        nav=nav_links(None),
+        header_block='    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>',
+        main_top='%s\n  <h1 class="page-h1">Частые вопросы</h1>' % crumbs("FAQ"),
+        vitrina='<div class="faq">%s</div>' % items,
+        footnav=nav_links(None) + patnav(), scripts="",
+    )
+    write("faq/index.html", html_out)
+
+
 def render_404():
     err = ('<div class="err"><div class="err-code">404</div>'
            '<h1>Страница не найдена</h1>'
@@ -633,7 +728,9 @@ def render_sitemap():
             + [SITE["base"] + "/skolko-stoit-nomer/", SITE["base"] + "/blog/"]
             + [SITE["base"] + "/blog/%s/" % a["slug"] for a in BLOG]
             + [SITE["base"] + "/o-servise/", SITE["base"] + "/tarify/", SITE["base"] + "/politika/", SITE["base"] + "/polzovatelskoe-soglashenie/"]
-            + [SITE["base"] + "/tarif/%s/" % t["slug"] for t in TARIFFS])
+            + [SITE["base"] + "/tarif/%s/" % t["slug"] for t in TARIFFS]
+            + [SITE["base"] + "/kody/", SITE["base"] + "/faq/"]
+            + [SITE["base"] + "/kod/%s/" % pfx for pfx in PREFIXES])
     body = "".join("<url><loc>%s</loc><changefreq>daily</changefreq></url>" % u for u in urls)
     write("sitemap.xml", '<?xml version="1.0" encoding="UTF-8"?>'
           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">%s</urlset>' % body)
@@ -666,10 +763,14 @@ def main():
         render_tariff(t)
     render_privacy()
     render_terms()
+    render_prefixes_hub()
+    for pfx in PREFIXES:
+        render_prefix(pfx)
+    render_faq()
     render_404()
     render_sitemap()
     copy_assets()
-    print("✅ dist/: главная + %d кат + %d паттернов + %d тарифов + калькулятор + %d статей + юр + 404 + sitemap" % (len(CATEGORIES), len(PATTERNS), len(TARIFFS), len(BLOG)))
+    print("✅ dist/: %d кат + %d паттернов + %d тарифов + %d кодов + FAQ + калькулятор + %d статей + юр + 404" % (len(CATEGORIES), len(PATTERNS), len(TARIFFS), len(PREFIXES), len(BLOG)))
 
 
 if __name__ == "__main__":

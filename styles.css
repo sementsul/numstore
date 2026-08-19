@@ -289,3 +289,9 @@ body {
   .num-phone { font-size: 22px; }
   .count { margin-left: 0; width: 100%; }
 }
+
+.faq { max-width: 780px; padding-bottom: 48px; }
+.faq-item { border-bottom: 1px solid var(--line); padding: 18px 0; }
+.faq-item h2 { font-size: 17px; font-weight: 600; margin: 0 0 8px; color: var(--text); }
+.faq-item div { color: var(--muted); font-size: 15px; line-height: 1.65; }
+.faq-item a { color: var(--gold); text-decoration: none; }

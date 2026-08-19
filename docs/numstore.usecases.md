@@ -164,6 +164,13 @@ render_privacy/render_terms/_legal_page), app.js (PAGE.tariff). 🔺 Юр-тек
 (_build_drawer/_DRAWER прокинут во все PAGE_TMPL.format, бургер в шапке, nav.js в scripts+copy_assets),
 styles.css (.burger/.drawer/.drawer-backdrop/.drawer-group). Плюс к UX и внутренней перелинковке (SEO).
 
+## UC-21. Новые SEO-страницы: коды, FAQ, доп-паттерны ✅
+Коды: `/kody/`(хаб) + `/kod/<pfx>/`×16 (900/916/999…) — `window.PAGE.mask="<pfx>NNNNNNN"` (цифры, точно фильтруют).
+FAQ: `/faq/` — 6 Q&A + **FAQPage schema**. Доп-паттерны: `/na-777/`,`/na-999/`,`/na-888/` (маски-концовки).
+Всё в sitemap + футер (Коды/FAQ) + шторка («Номера по кодам», «Вопросы и ответы»). Радиус: build.py
+(PREFIXES/FAQ/PATTERNS+3, render_prefix/render_prefixes_hub/render_faq, main/sitemap/футер/_DRAWER), styles.css (.faq*).
+Сайт ~50 страниц. Деплой через deploy.sh.
+
 ## Открытые долги
 - Поле цены самого номера (разобрать полный объект `phone`).
 - Фильтр по маске/паттерну (эндпоинт `/super-link/phones/filters`).
