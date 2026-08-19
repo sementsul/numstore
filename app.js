@@ -205,6 +205,9 @@
         '<button class="share-ic" data-share="' + esc(d) + '" title="Поделиться номером" aria-label="Поделиться номером" type="button">' +
           '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"></line><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"></line></svg>' +
         "</button>" +
+        '<a class="rate-ic" href="/proverit-nomer/?p=' + esc(d) + '" title="Оценить красоту номера" aria-label="Оценить красоту номера" target="_blank" rel="noopener">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.5" y2="16.5"></line></svg>' +
+        "</a>" +
         (badge ? '<span class="num-badge">' + esc(badge) + "</span>" : "") +
         '<div class="num-phone">' + esc(fmtPhone(p.phone)) + "</div>" +
         (t.name ? '<div class="num-tariff">' + esc(t.name) + "</div>" : "") +

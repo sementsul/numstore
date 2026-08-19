@@ -109,4 +109,14 @@
   }
   btn.addEventListener("click", run);
   input.addEventListener("keydown", function (e) { if (e.key === "Enter") run(); });
+
+  // автозапуск из ?p=<цифры> (кнопка «оценить» на карточке номера)
+  var pm = /[?&]p=(\d+)/.exec(location.search);
+  if (pm) {
+    var pd = digitsOf(pm[1]);
+    if (pd.length === 10) {
+      input.value = pd.slice(0, 3) + " " + pd.slice(3, 6) + "-" + pd.slice(6, 8) + "-" + pd.slice(8, 10);
+      render(pd);
+    }
+  }
 })();
