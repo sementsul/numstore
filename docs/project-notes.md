@@ -4,9 +4,11 @@
 Истина по задаче: `TZ.md`. Живые сценарии: `docs/numstore.usecases.md`.
 
 ## Что где (архитектура v4 — SEO-каркас)
-- `build.py` — **источник HTML**: генерит `dist/` (главная + `/kategoriya/<slug>/` ×5 + паттерны `/zerkalnye|povtory|
-  pary|kruglye/` + `/skolko-stoit-nomer/` калькулятор + 404 + sitemap/robots/CNAME). PAGE_TMPL + VITRINA; header_block/
-  main_top настраивают шапку. Паттерны: `window.PAGE.mask` (🔴 буквы-маски на API не подтверждены — проверить).
+- `build.py` — **источник HTML** (~16 страниц в `dist/`): главная + `/kategoriya/<slug>/` ×5 + паттерны
+  `/zerkalnye|povtory|pary|kruglye/` + `/skolko-stoit-nomer/` (калькулятор) + `/blog/` (хаб + 3 статьи) +
+  `/o-servise/` + 404 + sitemap/robots/CNAME. Данные: CATEGORIES/PATTERNS/BLOG. PAGE_TMPL+VITRINA; header_block/
+  main_top/scripts настраивают страницу (контентные — scripts=""). Паттерны: `window.PAGE.mask`
+  (🔴 буквы-маски на API не подтверждены). Категории: `window.PAGE.cat`.
 - `calc.js` — калькулятор: цена НОМЕРА из офиц. прайса (pmin/pmax в CATEGORIES: brilliant 400к–4М,
   platinum 25к–600к, gold 50к–200к, silver 12к–100к, bronze 3к–12к ₽) + живая абонплата тарифа/мес из API.
 - `_sources/` (gitignore) — офиц. прайс «Стоимость номеров.pdf» (скан, читан через fitz→PNG→Read) + юр-доки
