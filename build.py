@@ -343,7 +343,7 @@ def _dlinks(items):
 
 
 def _build_drawer():
-    other = [("/", "Все номера"), ("/kak-eto-rabotaet/", "Как это работает"), ("/tarify/", "Тарифы"), ("/kody/", "Номера по кодам"), ("/blog/", "Блог"), ("/faq/", "Вопросы и ответы"), ("/skolko-stoit-nomer/", "Сколько стоит номер"), ("/proverit-nomer/", "Проверить красоту номера"), ("/api-i-vidzhety/", "API и виджеты"), ("/o-servise/", "О сервисе")]
+    other = [("/", "Все номера"), ("/kak-eto-rabotaet/", "Как это работает"), ("/tarify/", "Тарифы"), ("/kody/", "Номера по кодам"), ("/blog/", "Блог"), ("/faq/", "Вопросы и ответы"), ("/skolko-stoit-nomer/", "Сколько стоит номер"), ("/proverit-nomer/", "Проверить красоту номера"), ("/operator-po-nomeru/", "Оператор по номеру"), ("/api-i-vidzhety/", "API и виджеты"), ("/o-servise/", "О сервисе")]
     picks = [("/%s/" % l["slug"], l["h1"]) for l in LANDINGS]
     legal = [("/dokumenty/", "Документы и партнёрство"), ("/politika/", "Политика конфиденциальности"), ("/polzovatelskoe-soglashenie/", "Пользовательское соглашение")]
     tg = ('<a href="https://t.me/magzgoldmg" target="_blank" rel="noopener">📢 Канал с номерами</a>'
@@ -479,7 +479,7 @@ PAGE_TMPL = """<!doctype html>
 <footer class="foot">
   <div class="wrap">
     {footnav}
-    <nav class="catnav footlinks"><a href="/blog/">Блог</a><a href="/krasivye-nomera/">Номера по городам</a><a href="/skolko-stoit-nomer/">Сколько стоит номер</a><a href="/tarify/">Тарифы</a><a href="/kody/">Коды</a><a href="/faq/">FAQ</a><a href="/o-servise/">О сервисе</a><a href="/politika/">Политика</a><a href="/polzovatelskoe-soglashenie/">Соглашение</a></nav>
+    <nav class="catnav footlinks"><a href="/blog/">Блог</a><a href="/krasivye-nomera/">Номера по городам</a><a href="/skolko-stoit-nomer/">Сколько стоит номер</a><a href="/tarify/">Тарифы</a><a href="/kody/">Коды</a><a href="/operator-po-nomeru/">Оператор по номеру</a><a href="/faq/">FAQ</a><a href="/o-servise/">О сервисе</a><a href="/politika/">Политика</a><a href="/polzovatelskoe-soglashenie/">Соглашение</a></nav>
     <div class="tg-links"><a href="https://t.me/magzgoldmg" target="_blank" rel="noopener">📢 Telegram-канал с номерами</a><a href="https://t.me/magzgoldbot" target="_blank" rel="noopener">🤖 Бот подбора и брони</a></div>
     <p>MagzGold — официальный партнёр оператора «Безлимит». Информационная витрина красивых номеров; подключение и оплата на стороне оператора.</p>
   </div>
@@ -1171,6 +1171,46 @@ def render_widget_docs():
     write("vidzhet/index.html", html_out)
 
 
+def render_operator():
+    """Инструмент: узнать оператора и регион по номеру (база Россвязи, лукап в браузере) + похожие номера."""
+    body = (
+        '<div class="chk">'
+        '<div class="chk-form">'
+        '<span class="chk-prefix">+7</span>'
+        '<input id="opInput" class="chk-input" inputmode="numeric" maxlength="14" placeholder="999 888-77-66" autocomplete="off">'
+        '<button id="opBtn" class="btn-primary">Определить</button>'
+        '</div>'
+        '<div id="opOut" class="chk-out"></div>'
+        '<aside id="opSimilar" class="num-similar" hidden></aside>'
+        '</div>'
+        '<section class="seo-text">'
+        '<h2>Как это работает</h2>'
+        '<p>Оператор и регион определяются по коду (первые три цифры) и диапазону номера на основе плана '
+        'нумерации Россвязи. Проверка идёт прямо в браузере — <b>номер никуда не отправляется</b> и не сохраняется.</p>'
+        '<p>⚠️ Реестр показывает, где номер был <b>изначально выдан</b>. Из-за переноса номера между операторами '
+        '(MNP) фактический оператор может отличаться. Ищете красивый номер — под результатом покажем похожие из '
+        '<a href="/">каталога</a>, а оценить «красоту» поможет <a href="/proverit-nomer/">проверка номера</a>.</p>'
+        '</section>')
+    html_out = render_page(metrika=METRIKA, drawer=_DRAWER,
+        title="Узнать оператора и регион по номеру телефона — онлайн | MagzGold",
+        desc="Определите мобильного оператора и регион по номеру телефона: по коду и диапазону (реестр Россвязи). "
+             "Бесплатно, номер не сохраняется, проверка в браузере. MagzGold.",
+        canonical=SITE["base"] + "/operator-po-nomeru/",
+        og_image=OG("home"),
+        page_js="",
+        schema=schema_breadcrumb({"name": "Оператор по номеру", "slug": "operator-po-nomeru", "toplevel": True}),
+        nav=nav_links(None),
+        header_block='    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>',
+        main_top='%s\n  <h1 class="page-h1">Узнать оператора и регион по номеру</h1>\n'
+                 '  <p class="page-intro">Введите номер — покажем мобильного оператора и регион выдачи по реестру '
+                 'Россвязи. Всё считается в браузере, номер не сохраняется.</p>' % crumbs("Оператор по номеру"),
+        vitrina=body,
+        footnav=nav_links(None) + patnav(),
+        scripts='<script src="/config.js%s"></script>\n<script src="/operator.js%s"></script>' % (_ver("config.js"), _ver("operator.js")),
+    )
+    write("operator-po-nomeru/index.html", html_out)
+
+
 def render_checker():
     """Инструмент проверки «красоты» номера: свой анализатор паттернов + наличие в каталоге."""
     body = (
@@ -1623,7 +1663,7 @@ def render_sitemap():
             + [SITE["base"] + "/%s/" % l["slug"] for l in LANDINGS]
             + [SITE["base"] + "/krasivye-nomera/"]
             + [SITE["base"] + "/krasivye-nomera/%s/" % c["slug"] for c in CITIES]
-            + [SITE["base"] + "/kak-eto-rabotaet/", SITE["base"] + "/proverit-nomer/", SITE["base"] + "/vidzhet/", SITE["base"] + "/api-i-vidzhety/", SITE["base"] + "/api/", SITE["base"] + "/skolko-stoit-nomer/", SITE["base"] + "/blog/"]
+            + [SITE["base"] + "/kak-eto-rabotaet/", SITE["base"] + "/proverit-nomer/", SITE["base"] + "/operator-po-nomeru/", SITE["base"] + "/vidzhet/", SITE["base"] + "/api-i-vidzhety/", SITE["base"] + "/api/", SITE["base"] + "/skolko-stoit-nomer/", SITE["base"] + "/blog/"]
             + [SITE["base"] + "/blog/%s/" % a["slug"] for a in BLOG]
             + [SITE["base"] + "/o-servise/", SITE["base"] + "/dokumenty/", SITE["base"] + "/tarify/", SITE["base"] + "/politika/", SITE["base"] + "/polzovatelskoe-soglashenie/"]
             + [SITE["base"] + "/tarif/%s/" % t["slug"] for t in TARIFFS]
@@ -1675,13 +1715,44 @@ def make_numbers_json():
     print("✅ api/numbers.json: %d номеров" % len(nums))
 
 
+def make_operators_json():
+    """Компактная база операторов/регионов по префиксу (реестр Россвязи DEF-9xx) → dist/data/operators.json.
+       Клиент: код (3 цифры) + диапазон → оператор/регион. ~400 КБ (gzip ~100 КБ)."""
+    src = os.path.join(ROOT, "data", "DEF-9xx.csv")
+    if not os.path.exists(src):
+        print("⚠️  нет data/DEF-9xx.csv — operators.json пропущен"); return
+    import csv as _csv
+    ops, opi, regs, regi, codes = [], {}, [], {}, {}
+    with open(src, encoding="utf-8-sig") as f:
+        r = _csv.reader(f, delimiter=";"); next(r, None)
+        for row in r:
+            if len(row) < 6:
+                continue
+            code = row[0].strip()
+            try:
+                a = int(row[1]); b = int(row[2])
+            except ValueError:
+                continue
+            op, reg = row[4].strip(), row[5].strip()
+            if op not in opi: opi[op] = len(ops); ops.append(op)
+            if reg not in regi: regi[reg] = len(regs); regs.append(reg)
+            codes.setdefault(code, []).append([a, b, opi[op], regi[reg]])
+    for c in codes:
+        codes[c].sort()
+    os.makedirs(os.path.join(DIST, "data"), exist_ok=True)
+    with open(os.path.join(DIST, "data", "operators.json"), "w", encoding="utf-8") as f:
+        json.dump({"ops": ops, "regs": regs, "codes": codes}, f, ensure_ascii=False, separators=(",", ":"))
+    print("✅ data/operators.json: %d диапазонов, %d операторов, %d регионов" % (sum(len(v) for v in codes.values()), len(ops), len(regs)))
+
+
 def copy_assets():
-    for f in ("app.js", "styles.css", "config.js", "calc.js", "nav.js", "geo.js", "nomer.js", "checker.js", "widget.js", "tarify.js", "favicon.svg"):
+    for f in ("app.js", "styles.css", "config.js", "calc.js", "nav.js", "geo.js", "nomer.js", "checker.js", "operator.js", "widget.js", "tarify.js", "favicon.svg"):
         shutil.copy(os.path.join(ROOT, f), os.path.join(DIST, f))
     if os.path.isdir(os.path.join(ROOT, "img")):
         shutil.copytree(os.path.join(ROOT, "img"), os.path.join(DIST, "img"), dirs_exist_ok=True)
     make_og()
     make_numbers_json()
+    make_operators_json()
     copy_docs()
     write("CNAME", "magzgold.ru\n")
     open(os.path.join(DIST, ".nojekyll"), "w").close()
@@ -1723,6 +1794,7 @@ def main():
     render_app()
     render_number_page()
     render_checker()
+    render_operator()
     render_widget_docs()
     render_tools_hub()
     render_api_docs()
