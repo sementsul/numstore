@@ -5,12 +5,13 @@
 
 ## Что где (архитектура v4 — SEO-каркас)
 - `build.py` — **источник HTML** (~50 страниц): главная + категории ×5 + паттерны ×7 (вкл. 777/888/999) +
-  лонгтейл-лендинги ×4 (LANDINGS: /dlya-biznesa/, /v-podarok/, /legko-zapomnit/, /na-datu-rozhdeniya/ — витрина +
+  лонгтейл-лендинги ×5 (LANDINGS: /dlya-biznesa/, /v-podarok/, /legko-zapomnit/, /na-datu-rozhdeniya/, /vip-nomera/ — витрина +
   уникальный текст + перелинковка) + тарифы
   ×10 + `/tarify/` + коды `/kody/`+`/kod/<pfx>/`×16 + `/skolko-stoit-nomer/` + `/blog/`(+6, Article-schema) + `/faq/`(FAQPage) +
   `/o-servise/` + `/politika/` + `/polzovatelskoe-soglashenie/` + 404 + sitemap(lastmod)/robots/CNAME.
   Скорость: preconnect/dns-prefetch (api Безлимит, Метрика, GTM). Organization schema: description + contactPoint.
-  SEO: og:image (make_og/PIL), favicon.svg, Organization+WebSite schema (home_schema), Breadcrumb/FAQPage.
+  SEO: og:image ПОД ТИП страницы (make_og/PIL → dist/og/<kind>.png ×7; шаблон {og_image}+twitter:image; обёртка
+  render_page с дефолтом /og.png), favicon.svg, Organization+WebSite schema (home_schema), Breadcrumb/FAQPage.
   Пресеты страниц: `window.PAGE` = {cat|mask|tariff}. Данные: CATEGORIES/PATTERNS/BLOG. PAGE_TMPL+VITRINA; header_block/
   main_top/scripts настраивают страницу (контентные — scripts=""). Паттерны: `window.PAGE.mask`
   (🔴 буквы-маски на API не подтверждены). Категории: `window.PAGE.cat`.

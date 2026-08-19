@@ -174,6 +174,16 @@ LANDINGS = [
               "варианты.</p>"
               "<p>Так же можно искать номер с годом (например, 2000) или другими значимыми цифрами. "
               "Понравившийся вариант добавьте в избранное и забронируйте.</p>")},
+    {"slug": "vip-nomera", "h1": "VIP-номера телефонов",
+     "title": "VIP-номера телефонов — купить эксклюзивный номер | MagzGold",
+     "desc": "VIP-номера телефонов: эксклюзивные комбинации премиум-класса. Платиновые и бриллиантовые номера, подбор по маске, бронирование онлайн — MagzGold.",
+     "text": ("<p>VIP-номер — это статус в одной строке: эксклюзивная комбинация, которую замечают и запоминают. "
+              "Такой номер подчёркивает уровень владельца и одинаково уместен и в бизнесе, и в личном общении.</p>"
+              "<p>В премиум-сегменте — <a href=\"/kategoriya/platinum/\">платиновые</a> и "
+              "<a href=\"/kategoriya/brilliant/\">бриллиантовые</a> номера: выраженная симметрия, длинные повторы, "
+              "максимально «чистые» комбинации. Хотите конкретный рисунок — задайте его маской, например "
+              "<a href=\"/povtory/\">повторы</a> или окончание на <a href=\"/kruglye/\">нули</a>. "
+              "Оценить бюджет поможет <a href=\"/skolko-stoit-nomer/\">калькулятор стоимости</a>.</p>")},
 ]
 
 # Гайды/блог: slug, title, desc, h1, body (HTML).
@@ -418,9 +428,10 @@ PAGE_TMPL = """<!doctype html>
 <meta property="og:description" content="{desc}">
 <meta property="og:type" content="website">
 <meta property="og:url" content="{canonical}">
-<meta property="og:image" content="https://magzgold.ru/og.png">
+<meta property="og:image" content="{og_image}">
 <meta property="og:site_name" content="MagzGold">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="{og_image}">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://api.store.bezlimit.ru">
 <link rel="preconnect" href="https://mc.yandex.ru">
@@ -509,24 +520,61 @@ def home_schema():
     return org + web + schema_breadcrumb()
 
 
-def make_og():
+# Подписи OG под каждый тип страницы (файл og/<kind>.png). "home" дублируется в /og.png (дефолт + логотип).
+OG_KINDS = {
+    "home": "Красивые номера",
+    "category": "Категории красивых номеров",
+    "pattern": "Красивые комбинации цифр",
+    "landing": "Подборки красивых номеров",
+    "blog": "Блог о красивых номерах",
+    "tariff": "Тарифы Безлимит",
+    "code": "Номера по кодам операторов",
+}
+
+
+def _draw_og(sub):
     from PIL import Image, ImageDraw, ImageFont
     W, H = 1200, 630
     img = Image.new("RGB", (W, H), (13, 15, 19))
     d = ImageDraw.Draw(img)
+    d.rectangle([(0, 0), (W - 1, H - 1)], outline=(201, 165, 88), width=4)
     FB = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
-    f1 = ImageFont.truetype(FB, 110); f2 = ImageFont.truetype(FB, 46)
+    f1 = ImageFont.truetype(FB, 110); f2 = ImageFont.truetype(FB, 44)
     gold = (201, 165, 88); white = (238, 240, 244); muted = (150, 155, 168)
     m, g = "Magz", "Gold"
     wm = d.textlength(m, font=f1); wg = d.textlength(g, font=f1)
-    x = (W - (wm + wg)) / 2; y = 210
+    x = (W - (wm + wg)) / 2; y = 205
     d.text((x, y), m, font=f1, fill=white)
     d.text((x + wm, y), g, font=f1, fill=gold)
     d.rectangle([(W/2 - 60, y + 132), (W/2 + 60, y + 137)], fill=gold)
-    sub = "Красивые номера"
+    # длинную подпись при необходимости ужимаем шрифтом, чтобы влезла в поле
+    while d.textlength(sub, font=f2) > W - 120 and f2.size > 26:
+        f2 = ImageFont.truetype(FB, f2.size - 2)
     ws = d.textlength(sub, font=f2)
-    d.text(((W - ws) / 2, y + 160), sub, font=f2, fill=muted)
-    img.save(os.path.join(DIST, "og.png"))
+    d.text(((W - ws) / 2, y + 158), sub, font=f2, fill=muted)
+    return img
+
+
+def make_og():
+    os.makedirs(os.path.join(DIST, "og"), exist_ok=True)
+    for kind, sub in OG_KINDS.items():
+        img = _draw_og(sub)
+        img.save(os.path.join(DIST, "og", "%s.png" % kind))
+        if kind == "home":
+            img.save(os.path.join(DIST, "og.png"))  # дефолт для инфо-страниц + логотип Organization
+
+
+DEFAULT_OG = SITE["base"] + "/og.png"
+
+
+def OG(kind):
+    return SITE["base"] + "/og/%s.png" % kind
+
+
+def render_page(**kw):
+    """Обёртка над PAGE_TMPL.format с дефолтной OG-картинкой (переопределяется og_image=...)."""
+    kw.setdefault("og_image", DEFAULT_OG)
+    return PAGE_TMPL.format(**kw)
 
 
 def render_home():
@@ -535,11 +583,12 @@ def render_home():
     intro = ("MagzGold — витрина красивых номеров телефонов. Соберите нужную комбинацию маской или выберите "
              "категорию: бриллиантовые, платиновые, золотые, серебряные, бронзовые. Каждый номер — с тарифом "
              "и мгновенной бронью онлайн. Бесплатная доставка SIM по всей России и eSIM — без визита в офис.")
-    html_out = PAGE_TMPL.format(metrika=METRIKA, drawer=_DRAWER, 
+    html_out = render_page(metrika=METRIKA, drawer=_DRAWER, 
         title="MagzGold — красивые номера: купить и забронировать онлайн",
         desc="MagzGold — красивые и премиальные номера телефонов: подбор по маске и категориям, тарифы, "
              "бронирование онлайн. Бриллиантовые, платиновые, золотые, серебряные и бронзовые номера.",
         canonical=SITE["base"] + "/",
+        og_image=OG("home"),
         page_js="",
         schema=home_schema(),
         nav=nav_links(None),
@@ -557,10 +606,11 @@ def render_category(c):
     header_block = '    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>'
     main_top = "%s\n  <h1 class=\"page-h1\">%s</h1>\n  <p class=\"page-intro\">%s</p>" % (
         crumbs(c["name"]), esc(c["h1"]), c["intro"])
-    html_out = PAGE_TMPL.format(metrika=METRIKA, drawer=_DRAWER, 
+    html_out = render_page(metrika=METRIKA, drawer=_DRAWER, 
         title="%s номера — купить и забронировать | MagzGold" % c["name"],
         desc=c["desc"],
         canonical=SITE["base"] + "/kategoriya/%s/" % c["slug"],
+        og_image=OG("category"),
         page_js=page_js,
         schema=cat_schema(c),
         nav=nav_links(c["slug"]),
@@ -578,10 +628,11 @@ def render_pattern(p):
     header_block = '    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>'
     main_top = "%s\n  <h1 class=\"page-h1\">%s</h1>\n  <p class=\"page-intro\">%s</p>" % (
         crumbs(p["h1"]), esc(p["h1"]), p["intro"])
-    html_out = PAGE_TMPL.format(metrika=METRIKA, drawer=_DRAWER, 
+    html_out = render_page(metrika=METRIKA, drawer=_DRAWER, 
         title="%s — купить и забронировать | MagzGold" % p["h1"],
         desc=p["desc"],
         canonical=SITE["base"] + "/%s/" % p["slug"],
+        og_image=OG("pattern"),
         page_js=page_js,
         schema=schema_breadcrumb({"name": p["h1"], "slug": p["slug"], "toplevel": True}),
         nav=nav_links(None),
@@ -597,10 +648,11 @@ def render_pattern(p):
 def render_landing(l):
     header_block = '    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>'
     main_top = "%s\n  <h1 class=\"page-h1\">%s</h1>" % (crumbs(l["h1"]), esc(l["h1"]))
-    html_out = PAGE_TMPL.format(metrika=METRIKA, drawer=_DRAWER,
+    html_out = render_page(metrika=METRIKA, drawer=_DRAWER,
         title=l["title"],
         desc=l["desc"],
         canonical=SITE["base"] + "/%s/" % l["slug"],
+        og_image=OG("landing"),
         page_js="",
         schema=schema_breadcrumb({"name": l["h1"], "slug": l["slug"], "toplevel": True}),
         nav=nav_links(None),
@@ -645,7 +697,7 @@ def render_calc():
         'Это не оферта; итоговая сумма — у оператора при оформлении.</p>'
         '</section>'
     )
-    html_out = PAGE_TMPL.format(metrika=METRIKA, drawer=_DRAWER, 
+    html_out = render_page(metrika=METRIKA, drawer=_DRAWER, 
         title="Сколько стоит красивый номер — калькулятор стоимости | MagzGold",
         desc="Сколько стоит красивый номер телефона: онлайн-калькулятор ориентировочной стоимости по категории "
              "красоты и региону. Реальные тарифы и факторы цены — MagzGold.",
@@ -669,10 +721,11 @@ def render_blog_index():
     cards = "".join(
         '<a class="blog-card" href="/blog/%s/"><h2>%s</h2><p>%s</p></a>' % (a["slug"], esc(a["h1"]), esc(a["desc"]))
         for a in BLOG)
-    html_out = PAGE_TMPL.format(metrika=METRIKA, drawer=_DRAWER, 
+    html_out = render_page(metrika=METRIKA, drawer=_DRAWER, 
         title="Блог о красивых номерах — гайды и советы | MagzGold",
         desc="Блог MagzGold: как выбрать красивый номер, категории красоты, как забронировать и сколько стоит номер.",
         canonical=SITE["base"] + "/blog/",
+        og_image=OG("blog"),
         page_js="",
         schema=schema_breadcrumb({"name": "Блог", "slug": "blog", "toplevel": True}),
         nav=nav_links(None),
@@ -693,10 +746,11 @@ def render_article(a):
               '"mainEntityOfPage":"%s/blog/%s/"}</script>' % (esc(a["h1"]), SITE["base"], a["slug"]))
     bc = ('<nav class="crumbs"><a href="/">Главная</a> / <a href="/blog/">Блог</a> / <span>%s</span></nav>'
           % esc(a["h1"]))
-    html_out = PAGE_TMPL.format(metrika=METRIKA, drawer=_DRAWER, 
+    html_out = render_page(metrika=METRIKA, drawer=_DRAWER, 
         title=a["title"],
         desc=a["desc"],
         canonical=SITE["base"] + "/blog/%s/" % a["slug"],
+        og_image=OG("blog"),
         page_js="",
         schema=art_ld,
         nav=nav_links(None),
@@ -714,11 +768,12 @@ def render_tariff(t):
     intro = ("Номера с тарифом %s — абонентская плата %d ₽/мес с ёмким пакетом минут, SMS и интернета. "
              "Ниже — красивые номера, доступные на этом тарифе; уточните комбинацию маской и забронируйте онлайн."
              % (t["name"], t["price"]))
-    html_out = PAGE_TMPL.format(metrika=METRIKA, drawer=_DRAWER, 
+    html_out = render_page(metrika=METRIKA, drawer=_DRAWER, 
         title="Номера с тарифом %s (%d ₽/мес) | MagzGold" % (t["name"], t["price"]),
         desc="Красивые номера с тарифом %s — абонплата %d ₽/мес. Подбор по маске, категории, бронирование онлайн — MagzGold."
              % (t["name"], t["price"]),
         canonical=SITE["base"] + "/tarif/%s/" % t["slug"],
+        og_image=OG("tariff"),
         page_js=page_js,
         schema=schema_breadcrumb({"name": t["name"], "slug": "tarif/%s" % t["slug"], "toplevel": True}),
         nav=nav_links(None),
@@ -736,10 +791,11 @@ def render_tariffs_index():
     rows = "".join(
         '<a class="blog-card" href="/tarif/%s/"><h2>%s</h2><p>Абонплата %d ₽/мес · красивые номера на этом тарифе</p></a>'
         % (t["slug"], esc(t["name"]), t["price"]) for t in TARIFFS)
-    html_out = PAGE_TMPL.format(metrika=METRIKA, drawer=_DRAWER, 
+    html_out = render_page(metrika=METRIKA, drawer=_DRAWER, 
         title="Тарифы Безлимит ULTRA — номера по тарифам | MagzGold",
         desc="Тарифы Безлимит ULTRA (от 399 до 5000 ₽/мес) и красивые номера на каждом из них. Подбор и бронирование — MagzGold.",
         canonical=SITE["base"] + "/tarify/",
+        og_image=OG("tariff"),
         page_js="",
         schema=schema_breadcrumb({"name": "Тарифы", "slug": "tarify", "toplevel": True}),
         nav=nav_links(None),
@@ -780,7 +836,7 @@ def render_about():
         "оформлении. Наличие номеров ограничено.</p>"
         "</article>"
     )
-    html_out = PAGE_TMPL.format(metrika=METRIKA, drawer=_DRAWER, 
+    html_out = render_page(metrika=METRIKA, drawer=_DRAWER, 
         title="О сервисе MagzGold — витрина красивых номеров",
         desc="О сервисе MagzGold: информационная витрина красивых номеров, как работает подбор и бронь, оператор связи и официальные документы.",
         canonical=SITE["base"] + "/o-servise/",
@@ -797,7 +853,7 @@ def render_about():
 
 
 def _legal_page(slug, h1, title, desc, body):
-    html_out = PAGE_TMPL.format(metrika=METRIKA, drawer=_DRAWER, 
+    html_out = render_page(metrika=METRIKA, drawer=_DRAWER, 
         title=title, desc=desc, canonical=SITE["base"] + "/%s/" % slug,
         page_js="", schema=schema_breadcrumb({"name": h1, "slug": slug, "toplevel": True}),
         nav=nav_links(None),
@@ -869,11 +925,12 @@ def render_prefix(pfx):
     page_js = '<script>window.PAGE={mask:"%sNNNNNNN"};</script>' % pfx
     intro = ("Красивые номера с кодом +7 %s: подбор по маске, категории и тарифу, бронирование онлайн. "
              "Ниже — доступные номера на %s; уточните нужные цифры маской." % (pfx, pfx))
-    html_out = PAGE_TMPL.format(metrika=METRIKA, 
+    html_out = render_page(metrika=METRIKA, 
         drawer=_DRAWER,
         title="Красивые номера на %s (+7 %s) | MagzGold" % (pfx, pfx),
         desc="Красивые номера с кодом +7 %s — подбор по маске, категории, тарифу и бронирование онлайн на MagzGold." % pfx,
         canonical=SITE["base"] + "/kod/%s/" % pfx,
+        og_image=OG("code"),
         page_js=page_js,
         schema=schema_breadcrumb({"name": "Код %s" % pfx, "slug": "kod/%s" % pfx, "toplevel": True}),
         nav=nav_links(None),
@@ -889,11 +946,11 @@ def render_prefixes_hub():
     rows = "".join(
         '<a class="blog-card" href="/kod/%s/"><h2>+7 %s</h2><p>Красивые номера на %s</p></a>' % (p, p, p)
         for p in PREFIXES)
-    html_out = PAGE_TMPL.format(metrika=METRIKA, 
+    html_out = render_page(metrika=METRIKA, 
         drawer=_DRAWER,
         title="Номера по кодам (+7 9XX) — выбор кода | MagzGold",
         desc="Красивые номера по кодам мобильного оператора (+7 900, 916, 999 и другие). Выберите код и подберите номер — MagzGold.",
-        canonical=SITE["base"] + "/kody/", page_js="",
+        canonical=SITE["base"] + "/kody/", page_js="", og_image=OG("code"),
         schema=schema_breadcrumb({"name": "Коды", "slug": "kody", "toplevel": True}),
         nav=nav_links(None),
         header_block='    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>',
@@ -913,7 +970,7 @@ def render_faq():
               '"mainEntity":[%s]}</script>' % ",".join(
                   '{"@type":"Question","name":"%s","acceptedAnswer":{"@type":"Answer","text":"%s"}}'
                   % (esc(q), esc(__import__("re").sub("<[^>]+>", "", a))) for q, a in FAQ))
-    html_out = PAGE_TMPL.format(metrika=METRIKA, 
+    html_out = render_page(metrika=METRIKA, 
         drawer=_DRAWER,
         title="Частые вопросы о красивых номерах — FAQ | MagzGold",
         desc="Ответы на частые вопросы о красивых номерах: что это, как забронировать, сколько стоит, кто оператор — FAQ MagzGold.",
@@ -932,7 +989,7 @@ def render_404():
            '<h1>Страница не найдена</h1>'
            '<p>Похоже, такой страницы нет или она переехала.</p>'
            '<a class="btn-primary" href="/">На главную</a></div>')
-    html_out = PAGE_TMPL.format(metrika=METRIKA, drawer=_DRAWER, 
+    html_out = render_page(metrika=METRIKA, drawer=_DRAWER, 
         title="Страница не найдена — MagzGold",
         desc="Страница не найдена.",
         canonical=SITE["base"] + "/404.html",

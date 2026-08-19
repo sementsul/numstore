@@ -227,6 +227,18 @@ node --check app.js OK, сборка OK, kнопка/модалка в dist. �
 sitemap перебирают BLOG автоматически. Радиус: build.py (BLOG += 3). Проверено: 6 статей собраны, в индексе и
 sitemap, ссылки /kod/999,903/ существуют.
 
+## UC-29. OG-картинки под тип страницы + лендинг VIP-номера ✅
+Было: одна общая og.png на все страницы. Стало: набор OG (1200×630, тёмная тема + золотая рамка + бренд +
+подпись типа) в `dist/og/<kind>.png` под 7 типов — home/category/pattern/landing/blog/tariff/code. В шаблоне
+og:image стал `{og_image}` + добавлен `twitter:image`. Чтобы не править все 15 вызовов, `PAGE_TMPL.format`
+обёрнут в `render_page(**kw)` с дефолтом `og_image=/og.png` (setdefault); кастом задаётся `og_image=OG("kind")`
+в нужных рендерах, инфо-страницы (faq/about/калькулятор/юр/404) на дефолте. Генерация: `_draw_og(sub)` (авто-
+ужатие шрифта под длину) + `make_og()` (цикл OG_KINDS, home дублируется в /og.png для дефолта и логотипа
+Organization). Плюс НОВЫЙ лендинг **/vip-nomera/** (5-й в LANDINGS: платина/бриллиант, премиум-интент) — в
+sitemap и шторке. Радиус: build.py (PAGE_TMPL, render_page/OG/OG_KINDS/_draw_og/make_og, og_image=OG(...) в
+рендерах, LANDINGS += vip-nomera). Проверено: 7 png сгенерированы, og:image+twitter:image по типам верны,
+faq→og.png (дефолт), vip-nomera в sitemap/шторке, картинка code.png отрисована корректно (текст влезает).
+
 ## Открытые долги
 - Поле цены самого номера (разобрать полный объект `phone`).
 - Фильтр по маске/паттерну (эндпоинт `/super-link/phones/filters`).
