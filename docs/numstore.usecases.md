@@ -569,6 +569,14 @@ cat/tmin/hidePrice и передаёт cats в nav. Итог: vip → катна
 PRESET.hidePrice), build.py (nav_links only, render_landing page_js+nav, LANDINGS vip/бизнес +cats/tmin/hidePrice).
 Проверено: пресеты и катнав в HTML. ❌ каталог/сайдбар вживую — руками (API в контейнере забанен).
 
+## UC-54. Удалены 3 бесполезные подборки ✅
+Юзер: «какой толк от этих страниц» → удалить. v-podarok/legko-zapomnit/na-datu-rozhdeniya не фильтровали каталог
+(дубли главной, только текст) → удалены из LANDINGS (значит из sitemap и dist; deploy.sh force-push стирает старые
+файлы с прода). Внутренняя ссылка из блог-статьи nomer-telefona-v-podarok на /v-podarok/ переправлена на каталог.
+Осталось 2 лендинга: dlya-biznesa, vip-nomera (оба с cat-фильтром). Блог-статья /blog/nomer-telefona-v-podarok/
+остаётся (информационная, не дубль). Старые URL теперь 404 — приемлемо для удалённых страниц. **Радиус:** build.py
+(LANDINGS −3, блог-ссылка). Проверено: dist без 3 папок, sitemap чист, битых ссылок нет.
+
 ## Дальше (бэклог)
 - Поле цены самого номера (разобрать полный объект `phone`).
 - Фильтр по маске/паттерну (эндпоинт `/super-link/phones/filters`).

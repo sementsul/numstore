@@ -5,8 +5,8 @@
 
 ## Что где (архитектура v4 — SEO-каркас)
 - `build.py` — **источник HTML** (~50 страниц): главная + категории ×5 + паттерны ×7 (вкл. 777/888/999) +
-  лонгтейл-лендинги ×5 (LANDINGS: /dlya-biznesa/, /v-podarok/, /legko-zapomnit/, /na-datu-rozhdeniya/, /vip-nomera/ — витрина +
-  уникальный текст + перелинковка) + тарифы
+  лонгтейл-лендинги ×2 (LANDINGS: /dlya-biznesa/, /vip-nomera/ — витрина + cat-фильтр + tmin-порог тарифа + уникальный
+  текст + FAQ; 3 бесполезные подборки удалены UC-54) + тарифы
   ×10 + `/tarify/` + коды `/kody/`+`/kod/<pfx>/`×16 + `/skolko-stoit-nomer/` + `/blog/`(+6, Article-schema) + `/faq/`(FAQPage) +
   `/kak-eto-rabotaet/` (промо-лендинг: инфо-блоки + CTA в каталог, без витрины) +
   `/o-servise/` + `/politika/` + `/polzovatelskoe-soglashenie/` + 404 + sitemap(lastmod)/robots/CNAME.
