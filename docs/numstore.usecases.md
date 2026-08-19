@@ -185,6 +185,12 @@ favicon.svg (золотая M). Главная: Organization + WebSite JSON-LD (
 пользователя; доставка ВСЕГДА бесплатная). Радиус: app.js (FAV/toggleFav/catBadge/card/render/favToggle),
 build.py (кнопка в VITRINA, тексты доставки), styles.css (.fav/.num-badge/#favToggle.on).
 
+## UC-24. Яндекс.Метрика (аналитика) ✅
+Счётчик Метрики id **111737982** (webvisor/clickmap/trackLinks) на ВСЕХ страницах: константа METRIKA прокинута
+как `{metrika}` во все PAGE_TMPL.format (значение — не форматируется, поэтому фигурные скобки JS ок).
+Политика конфиденциальности обновлена: явно указаны Яндекс.Метрика + Вебвизор (152-ФЗ). Радиус: build.py
+(METRIKA/{metrika}/render_privacy). Проверить в кабинете Метрики, что данные пошли (после захода на прод).
+
 ## Открытые долги
 - Поле цены самого номера (разобрать полный объект `phone`).
 - Фильтр по маске/паттерну (эндпоинт `/super-link/phones/filters`).
