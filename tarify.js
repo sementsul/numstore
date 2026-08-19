@@ -25,7 +25,7 @@
       var list = Object.keys(m).map(function (k) { return m[k]; }).sort(function (a, b) { return a.price - b.price; });
       if (!list.length) return; // сеть/данные пусты — оставляем статический фолбэк
       grid.innerHTML = list.map(function (t) {
-        return '<a class="blog-card" href="/tarif/ultra-' + t.price + '/"><h2>' + esc(t.name) + "</h2>" +
+        return '<a class="blog-card" href="/?tariff=' + t.price + '"><h2>' + esc(t.name) + "</h2>" +
           "<p>Абонплата " + money(t.price) + "/мес · безлимит на звонки Безлимит и Билайн · красивые номера на этом тарифе</p></a>";
       }).join("");
     })

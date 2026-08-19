@@ -368,6 +368,8 @@
   if (PRESET.cat) flt.cat = PRESET.cat;
   if (PRESET.tariff) flt.tariff = PRESET.tariff; // тарифные страницы задают тариф (клиентский фильтр)
   if (PRESET.tariffPrice) flt.tariffPrice = PRESET.tariffPrice; // тарифная страница по цене
+  var _qt = /[?&]tariff=(\d+)/.exec(location.search); // живой фильтр по цене тарифа из URL (?tariff=550) — кнопки /tarify/
+  if (_qt) flt.tariffPrice = parseInt(_qt[1], 10) || null;
   if (PRESET.hidePrice && fPrice) { var _pg = fPrice.closest && fPrice.closest(".filter-group"); if (_pg) _pg.style.display = "none"; } // vip/бизнес: раздел «Цена тарифа» не нужен
 
   renderCubes();
