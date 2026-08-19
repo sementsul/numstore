@@ -10,6 +10,9 @@
 
   var CUBES = 10, PAGE = 60, DEFAULT_MASK = "9NNNNNNNNN";
   var ALL = [], BY_PHONE = {}, shown = PAGE, searchTimer = null;
+  // Региональные тарифы (Анадырь/Норильск) выглядят стрёмно и не для широкой продажи — прячем такие номера.
+  var BAD_TARIFF = /Анадыр|Норильск/i;
+  function okTariff(p) { return !(p && p.tariff && p.tariff.name && BAD_TARIFF.test(p.tariff.name)); }
   var CATS = [], TARIFFS = [];
   var flt = { cat: null, tariff: null, price: null }; // cat=код mask_categories, tariff=id mask_tariff, price=тир (клиент)
 
@@ -116,7 +119,7 @@
       .catch(function () { buildSidebar(); }); // без списков — только цена/дефолт
   }
   function buildSidebar() {
-    fillList(fCat, [{ v: null, t: "Все категории" }].concat(CATS.map(function (c) { return { v: c.filter, t: c.name }; })), "cat", true);
+    // Категории выбираются в шапке (верхнее меню), в сайдбаре их не дублируем.
     fillList(fPrice, [{ v: null, t: "Любая" }].concat(PRICE_TIERS.map(function (t) { return { v: t.key, t: t.label }; })), "price", false);
   }
   // Тарифы — ТОЛЬКО те, по которым есть номера в загруженном пуле (в /filters есть мёртвые). Сортировка по цене.
@@ -155,7 +158,7 @@
     // тариф API на mask-category не фильтрует (проверено) → фильтруем на клиенте в matchesClient
     api("/super-link/phones/mask-category?" + q.join("&"))
       .then(function (d) {
-        var f = flatten(d);
+        var f = flatten(d).filter(okTariff); // выкидываем региональные тарифы (Анадырь/Норильск)
         ALL = f; BY_PHONE = {};
         f.forEach(function (p) { BY_PHONE[digitsOf(p.phone)] = p; });
         buildTariffFilter(); // список тарифов из фактических номеров

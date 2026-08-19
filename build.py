@@ -427,7 +427,6 @@ VITRINA = """    <section class="search-box">
     </section>
     <div class="layout">
       <aside class="sidebar">
-        <div class="filter-group"><h3 class="filter-title">Категория</h3><ul class="filter-list" id="fCat"></ul></div>
         <div class="filter-group"><h3 class="filter-title">Цена тарифа</h3><ul class="filter-list" id="fPrice"></ul></div>
         <div class="filter-group"><h3 class="filter-title">Тариф</h3><ul class="filter-list" id="fTariff"></ul></div>
       </aside>
