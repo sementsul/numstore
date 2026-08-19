@@ -503,11 +503,14 @@ API забанен). Дальше: по одобрению эталона раз
 номеров с счётчиком, «Все коды» по умолчанию → фильтрует каталог клиентски (matchesClient: `digitsOf(phone).slice(0,3)`).
 🧭 Почему «Код», а не «коды Москвы»: по реестру Россвязи 63 из 83 DEF-кодов имеют московские диапазоны (MVNO всё
 регают в Москве) → «код Москвы» ≈ «любой код», ярлык вводил бы в заблуждение. (2) На /krasivye-nomera/moskva/ —
-картинка Кремля справа в шапке (hero): исходник из репо goldnumbers, бел.фон убран в прозрачный PNG (PIL, порог 243),
-лежит в img/moskva.png, копируется в dist/img. Только на московской странице (поле "img" в CITIES); на др. страницах
-нет. **Радиус:** app.js (fCode/flt.code/buildCodeFilter/matchesClient/обработчик), build.py (VITRINA select,
-render_city hero+img, copy_assets копирует img/), styles.css (.city-hero*/.code-filter), img/moskva.png. Проверено
-headless-скрином: картинка справа в шапке, дропдаун под маской, раскладка не ломается. ❌ каталог/фильтр вживую — руками.
+картинка Кремля в ВЕРХНЕЙ ПАНЕЛИ справа (не в hero): исходник из репо goldnumbers, бел.фон убран в прозрачный PNG
+(PIL, порог 243), лежит в img/moskva.png, копируется в dist/img. Вставка через новый слот PAGE_TMPL `{header_extra}`
+(render_page setdefault "") — картинка позиционируется absolute в `.top .wrap` справа (right:72, не пересекает бургер,
+скрыта ≤860px). Только на московской странице (поле "img" в CITIES); на др. страницах header_extra пуст. **Радиус:**
+app.js (fCode/flt.code/buildCodeFilter/matchesClient/обработчик), build.py (VITRINA select, PAGE_TMPL header_extra,
+render_page setdefault, render_city header_extra, copy_assets копирует img/), styles.css (.top-hero-img/.code-filter),
+img/moskva.png. Проверено headless-скрином: картинка в шапке справа у бургера, дропдаун под маской, раскладка ок.
+❌ каталог/фильтр вживую — руками.
 
 ## Дальше (бэклог)
 - Поле цены самого номера (разобрать полный объект `phone`).
