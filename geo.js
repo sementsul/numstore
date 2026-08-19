@@ -12,6 +12,13 @@
     { slug: "mahachkala", name: "Махачкале",          nom: "Махачкала",        match: ["makhachkala", "mahachkala", "махачкала", "dagestan", "дагестан", "kaspiysk", "каспийск"] }
   ];
   var KEY = "mg_geo_banner_off";
+
+  // Тест-режим: ?geo=<slug> принудительно показывает баннер (в обход IP и отказа) — для проверки.
+  var forced = (/[?&]geo=([a-z]+)/.exec(location.search) || [])[1];
+  if (forced) {
+    for (var f = 0; f < CITIES.length; f++) { if (CITIES[f].slug === forced) { showBanner(CITIES[f]); return; } }
+  }
+
   try { if (localStorage.getItem(KEY)) return; } catch (e) {}
   // в Telegram Mini App не мешаем
   if (window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.initData) return;
