@@ -577,6 +577,18 @@ PRESET.hidePrice), build.py (nav_links only, render_landing page_js+nav, LANDING
 остаётся (информационная, не дубль). Старые URL теперь 404 — приемлемо для удалённых страниц. **Радиус:** build.py
 (LANDINGS −3, блог-ссылка). Проверено: dist без 3 папок, sitemap чист, битых ссылок нет.
 
+## UC-55. /tarify/ — живые кнопки тарифов + фильтр по цене ✅
+Баг (юзер): на /tarify/ кнопки статические (хардкод TARIFFS), тарифы у Безлимит меняются → работают некорректно.
+Причины: (1) ultra-399 в TARIFFS, но таких номеров в каталоге НЕТ (мин 550) → /tarif/ultra-399/ пустой; (2) тарифные
+страницы фильтровали по захардкоженному id (`window.PAGE={tariff:id}`) — при смене id ломается. Фикс: (а) удалён
+ultra-399; (б) тарифные страницы теперь фильтруют по ЦЕНЕ (`window.PAGE={tariffPrice:price}`, app.js flt.tariffPrice
+→ matchesClient по p.tariff.price) — цена стабильнее внутреннего id; (в) кнопки на /tarify/ рисуются из ЖИВОГО API
+(tarify.js: fetch mask-category → уникальные тарифы по цене, скрыт Анадырь/Норильск, ссылка /tarif/ultra-<price>/),
+статические карточки в HTML остаются фолбэком для поисковика/сбоя сети. **Радиус:** tarify.js (новый), app.js
+(flt.tariffPrice + matchesClient + PRESET), build.py (TARIFFS −399, render_tariff page_js по цене, render_tariffs_index
+контейнер #tariffGrid + config.js/tarify.js, copy_assets +tarify.js). Проверено: 9 тарифов, tariffPrice в HTML,
+tarify.js подключён, 399 нет в dist/sitemap, битых ссылок нет. ❌ живой рендер кнопок — руками (API в контейнере забанен).
+
 ## Дальше (бэклог)
 - Поле цены самого номера (разобрать полный объект `phone`).
 - Фильтр по маске/паттерну (эндпоинт `/super-link/phones/filters`).
