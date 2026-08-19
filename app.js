@@ -343,12 +343,13 @@
   favCountUpd();
 
   // Пресет страницы (категорийные SEO-страницы задают window.PAGE = {cat:"<код>"}).
-  var PAGE = window.PAGE || {};
-  if (PAGE.cat) flt.cat = PAGE.cat;
-  if (PAGE.tariff) flt.tariff = PAGE.tariff; // тарифные страницы задают тариф (клиентский фильтр)
+  // ВНИМАНИЕ: не называть переменную PAGE — она уже занята размером страницы (60), иначе shown=PAGE ломается.
+  var PRESET = window.PAGE || {};
+  if (PRESET.cat) flt.cat = PRESET.cat;
+  if (PRESET.tariff) flt.tariff = PRESET.tariff; // тарифные страницы задают тариф (клиентский фильтр)
 
   renderCubes();
-  if (PAGE.mask) setCubes(PAGE.mask); // паттерн-страницы задают маску
+  if (PRESET.mask) setCubes(PRESET.mask); // паттерн-страницы задают маску
   loadFilters();
   fetchNumbers();
 })();
