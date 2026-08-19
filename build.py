@@ -162,7 +162,7 @@ FAQ = [
 # Лонгтейл-лендинги: витрина + уникальный текст под интент-запрос.
 LANDINGS = [
     {"slug": "dlya-biznesa", "h1": "Красивые номера для бизнеса",
-     "cat": "gold,platinum,platinum_lite",
+     "cat": "gold,platinum,platinum_lite", "cats": ["gold", "platinum"], "tmin": 1300, "hidePrice": True,
      "title": "Красивые номера для бизнеса — купить корпоративный номер | MagzGold",
      "desc": "Красивые номера для бизнеса: запоминающийся номер для рекламы, визиток и клиентов. Подбор по маске и категории, бронирование онлайн — MagzGold.",
      "text": ("<p>Красивый номер для бизнеса — это рабочий инструмент: его проще запомнить с рекламы, вывески или "
@@ -211,7 +211,7 @@ LANDINGS = [
          ("А если точной даты в каталоге нет?", "Ослабьте маску: оставьте только год или пару значимых цифр — вариантов станет больше. Каталог живой и обновляется."),
      ]},
     {"slug": "vip-nomera", "h1": "VIP-номера телефонов",
-     "cat": "platinum,platinum_lite,brilliant,brilliant_super",
+     "cat": "platinum,platinum_lite,brilliant,brilliant_super", "cats": ["platinum", "brilliant"], "tmin": 2000, "hidePrice": True,
      "title": "VIP-номера телефонов — купить эксклюзивный номер | MagzGold",
      "desc": "VIP-номера телефонов: эксклюзивные комбинации премиум-класса. Платиновые и бриллиантовые номера, подбор по маске, бронирование онлайн — MagzGold.",
      "text": ("<p>VIP-номер — это статус в одной строке: эксклюзивная комбинация, которую замечают и запоминают. "
@@ -401,9 +401,10 @@ def esc(s):
     return html.escape(str(s), quote=True)
 
 
-def nav_links(active_slug=None):
+def nav_links(active_slug=None, only=None):
+    cats = CATEGORIES if only is None else [c for c in CATEGORIES if c["slug"] in only]
     items = ['<a href="/"%s>Все номера</a>' % (' class="active"' if active_slug is None else "")]
-    for c in CATEGORIES:
+    for c in cats:
         cls = ' class="active"' if c["slug"] == active_slug else ""
         items.append('<a href="/kategoriya/%s/"%s>%s</a>' % (c["slug"], cls, esc(c["name"])))
     return '<nav class="catnav">' + "".join(items) + "</nav>"
@@ -711,7 +712,11 @@ def render_pattern(p):
 def render_landing(l):
     header_block = '    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>'
     main_top = "%s\n  <h1 class=\"page-h1\">%s</h1>" % (crumbs(l["h1"]), esc(l["h1"]))
-    page_js = ('<script>window.PAGE={cat:"%s"};</script>' % l["cat"]) if l.get("cat") else ""  # реальный фильтр каталога
+    _pp = []
+    if l.get("cat"): _pp.append('cat:"%s"' % l["cat"])
+    if l.get("tmin"): _pp.append("tmin:%d" % l["tmin"])
+    if l.get("hidePrice"): _pp.append("hidePrice:true")
+    page_js = ("<script>window.PAGE={%s};</script>" % ",".join(_pp)) if _pp else ""  # реальный фильтр каталога
     faq_html = faq_schema = ""
     if l.get("faq"):
         items = "".join('<details class="faq-item"><summary>%s</summary><p>%s</p></details>'
@@ -725,11 +730,11 @@ def render_landing(l):
         og_image=OG("landing"),
         page_js=page_js,
         schema=schema_breadcrumb({"name": l["h1"], "slug": l["slug"], "toplevel": True}) + faq_schema,
-        nav=nav_links(None),
+        nav=nav_links(None, l.get("cats")),
         header_block=header_block,
         main_top=main_top,
         vitrina=VITRINA + '<section class="seo-text">' + l["text"] + "</section>" + faq_html + related_block(),
-        footnav=nav_links(None) + patnav(),
+        footnav=nav_links(None, l.get("cats")) + patnav(),
         scripts=SCRIPTS,
     )
     write("%s/index.html" % l["slug"], html_out)

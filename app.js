@@ -125,7 +125,7 @@
   // Тарифы — ТОЛЬКО те, по которым есть номера в загруженном пуле (в /filters есть мёртвые). Сортировка по цене.
   function buildTariffFilter() {
     var m = {};
-    ALL.forEach(function (p) { var t = p.tariff; if (t && t.id != null && !m[t.id]) m[t.id] = { id: t.id, name: t.name, price: t.price || 0 }; });
+    ALL.forEach(function (p) { var t = p.tariff; if (t && t.id != null && !m[t.id] && !(PRESET.tmin && (t.price || 0) <= PRESET.tmin)) m[t.id] = { id: t.id, name: t.name, price: t.price || 0 }; });
     var list = Object.keys(m).map(function (k) { return m[k]; }).sort(function (a, b) { return a.price - b.price; });
     if (flt.tariff && !m[flt.tariff]) flt.tariff = null; // выбранный тариф исчез из выдачи
     fillList(fTariff, [{ v: null, t: "Все тарифы" }].concat(list.map(function (t) { return { v: t.id, t: t.name }; })), "tariff", false);
@@ -181,6 +181,7 @@
   }
 
   function matchesClient(p) {
+    if (PRESET.tmin && !(p.tariff && (p.tariff.price || 0) > PRESET.tmin)) return false; // порог тарифа (vip/бизнес)
     if (flt.code && digitsOf(p.phone).slice(0, 3) !== flt.code) return false; // код — первые 3 цифры
     if (flt.tariff && !(p.tariff && p.tariff.id === flt.tariff)) return false; // тариф — клиентский фильтр
     if (flt.price) {
@@ -365,6 +366,7 @@
   var PRESET = window.PAGE || {};
   if (PRESET.cat) flt.cat = PRESET.cat;
   if (PRESET.tariff) flt.tariff = PRESET.tariff; // тарифные страницы задают тариф (клиентский фильтр)
+  if (PRESET.hidePrice && fPrice) { var _pg = fPrice.closest && fPrice.closest(".filter-group"); if (_pg) _pg.style.display = "none"; } // vip/бизнес: раздел «Цена тарифа» не нужен
 
   renderCubes();
   if (PRESET.mask) setCubes(PRESET.mask); // паттерн-страницы задают маску
