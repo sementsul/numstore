@@ -159,8 +159,7 @@ def write(path, content):
 
 def render_home():
     header_block = ('    <h1 class="hero">Magz<span class="brand-gold">Gold</span>'
-                    ' <span class="hero-tag">— премиальные номера</span></h1>\n'
-                    '    <p class="sub">Премиальный сегмент</p>')
+                    ' <span class="hero-tag">— премиальные номера</span></h1>')
     intro = ("MagzGold — витрина красивых номеров телефонов. Соберите нужную комбинацию маской или выберите "
              "категорию: бриллиантовые, платиновые, золотые, серебряные, бронзовые. Каждый номер — с тарифом "
              "и мгновенной бронью онлайн.")
