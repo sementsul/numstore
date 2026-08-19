@@ -10,3 +10,6 @@ __pycache__/
 *.pyc
 .DS_Store
 _sources/
+bot/config.php
+bot/offset.txt
+bot/bot.lock
