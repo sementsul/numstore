@@ -144,6 +144,13 @@ app.js (чтение window.PAGE), index.html/styles.css (.catnav/.crumbs/.page-
 реквизиты оператора ООО «Безлимит» (ИНН 9725007063), ссылки на офиц. документы (bezlimit.ru/files + прайс),
 дисклеймер (не оферта). БЕЗ выдуманной легалки. В sitemap + футер. Радиус: build.py (render_about).
 
+## UC-18. Деплой на GitHub Pages ✅
+**Шаги:** `python3 build.py` → залить `dist/` в public-репо. **Ожидаемо:** сайт на github.com/sementsul/magzgold
+(public, только dist/), Pages source main/root, CNAME=magzgold.ru, статус built; github.io редиректит на
+magzgold.ru. Владелец настраивает DNS (A 185.199.108-111.153 + AAAA + www CNAME). **Радиус:** dist/ (свой git,
+identity sementsul), build.py (о-сервисе: реквизиты владельца — самозанятый Семенцул М.Г. ИНН 381616884622 +
+ссылка на документы оператора bezlimit.ru/legal). Редеплой — build.py + push dist. Источник (numstore) остаётся private.
+
 ## Открытые долги
 - Поле цены самого номера (разобрать полный объект `phone`).
 - Фильтр по маске/паттерну (эндпоинт `/super-link/phones/filters`).
