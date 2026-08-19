@@ -23,14 +23,20 @@
     for (var j = 1; j < 10; j++) { if (d[j] === d[j - 1]) { run++; maxRun = Math.max(maxRun, run); } else run = 1; }
     function seqRun(st) { var r = 1, m = 1; for (var i = 1; i < 10; i++) { if ((+d[i] - +d[i - 1]) === st) { r++; m = Math.max(m, r); } else r = 1; } return m; }
     var maxSeq = Math.max(seqRun(1), seqRun(-1));
+    // чередование пар ABAB (напр. 505050)
+    var alt = 1, ar = 1;
+    for (var a = 2; a < 10; a++) { if (d[a] === d[a - 2] && d[a] !== d[a - 1]) { ar = (ar < 2 ? 3 : ar + 1); alt = Math.max(alt, ar); } else ar = 1; }
+    // длина серии одинаковых цифр В КОНЦЕ (красивое окончание)
+    var trail = 1; for (var b = 8; b >= 0; b--) { if (d[b] === d[9]) trail++; else break; }
     var tz = (d.match(/0+$/) || [""])[0].length;
     var palin = d === d.split("").reverse().join("");
-    var rep = (10 - distinct) / 9, runC = (maxRun - 1) / 9, freqC = (maxFreq - 1) / 9, seqC = (maxSeq - 1) / 9, round = Math.min(1, tz / 4);
-    var repBeauty = 0.5 * rep + 0.3 * runC + 0.2 * freqC;                 // 0..1, все одинаковые = 1
-    var patternBeauty = Math.max(repBeauty, seqC * 0.85, palin ? 0.7 : 0); // лучший из паттернов, без двойного счёта
-    var score = Math.round(Math.min(100, (patternBeauty + round * 0.15) * 100));
+    var rep = (10 - distinct) / 9, runC = Math.min(1, (maxRun - 1) / 7), freqC = (maxFreq - 1) / 9,
+        seqC = (maxSeq - 1) / 9, altC = Math.min(1, (alt - 2) / 6), tailC = Math.min(1, (trail - 1) / 5), round = Math.min(1, tz / 4);
+    var repBeauty = 0.45 * rep + 0.35 * runC + 0.20 * freqC;             // сила повторов, 0..1
+    var pat = Math.max(repBeauty, seqC * 0.8, altC * 0.72, palin ? 0.7 : 0); // лучший паттерн, без двойного счёта
+    var score = Math.round(Math.min(100, (pat + tailC * 0.15 + round * 0.06) * 100));  // + бонус за красивое окончание
     var verdict, cls;
-    if (score >= 75) { verdict = "Премиальный \u00b7 редкий"; cls = "v-top"; }
+    if (score >= 75) { verdict = "Премиальный · редкий"; cls = "v-top"; }
     else if (score >= 50) { verdict = "Красивый"; cls = "v-nice"; }
     else if (score >= 25) { verdict = "Приятный"; cls = "v-ok"; }
     else { verdict = "Обычный номер"; cls = "v-plain"; }
@@ -39,10 +45,12 @@
     else {
       if (maxRun >= 4) feats.push(maxRun + " одинаковых подряд");
       else if (maxRun === 3) feats.push("Тройка одинаковых");
+      if (trail >= 3) feats.push("Красивое окончание: " + trail + " одинаковых в конце");
+      if (alt >= 4) feats.push("Чередование пар (ABAB)");
       if (maxSeq >= 5) feats.push("Последовательность из " + maxSeq + " цифр");
       if (palin) feats.push("Зеркальный (палиндром)");
       if (tz >= 4) feats.push("Круглый: " + tz + " нулей в конце");
-      else if (tz >= 2) feats.push("Ровное окончание на нули");
+      else if (tz >= 2 && trail < 3) feats.push("Ровное окончание на нули");
       if (distinct <= 2) feats.push("Всего " + distinct + " разные цифры");
       else if (distinct === 3) feats.push("Три разные цифры");
       if (maxFreq >= 4 && maxRun < 4) feats.push("Цифра повторяется " + maxFreq + " раз");
