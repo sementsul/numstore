@@ -151,6 +151,13 @@ magzgold.ru. Владелец настраивает DNS (A 185.199.108-111.153 
 identity sementsul), build.py (о-сервисе: реквизиты владельца — самозанятый Семенцул М.Г. ИНН 381616884622 +
 ссылка на документы оператора bezlimit.ru/legal). Редеплой — build.py + push dist. Источник (numstore) остаётся private.
 
+## UC-19. Тарифные страницы + юр-страницы ✅
+Тарифы: `/tarify/` (хаб 10 тарифов ULTRA 399…5000) + `/tarif/<slug>/` — задают `window.PAGE.tariff=<id>`
+(app.js → flt.tariff, клиентский фильтр по пулу). Юр: `/politika/` (конфиденциальность) + `/polzovatelskoe-soglashenie/`
+— честные минимальные тексты, реквизиты владельца (самозанятый Семенцул, ИНН 381616884622), ссылки на документы
+оператора bezlimit.ru/legal. Всё в sitemap + футер. Радиус: build.py (TARIFFS/render_tariff/render_tariffs_index/
+render_privacy/render_terms/_legal_page), app.js (PAGE.tariff). 🔺 Юр-тексты базовые — для боевого лучше ревью юриста.
+
 ## Открытые долги
 - Поле цены самого номера (разобрать полный объект `phone`).
 - Фильтр по маске/паттерну (эндпоинт `/super-link/phones/filters`).

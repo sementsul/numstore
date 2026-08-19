@@ -249,6 +249,7 @@
   // Пресет страницы (категорийные SEO-страницы задают window.PAGE = {cat:"<код>"}).
   var PAGE = window.PAGE || {};
   if (PAGE.cat) flt.cat = PAGE.cat;
+  if (PAGE.tariff) flt.tariff = PAGE.tariff; // тарифные страницы задают тариф (клиентский фильтр)
 
   renderCubes();
   if (PAGE.mask) setCubes(PAGE.mask); // паттерн-страницы задают маску

@@ -130,6 +130,23 @@ BLOG = [
 ]
 
 
+# Тарифы (из /filters mask_tariff): slug, id, цена (= число в названии). Специфику не выдумываем.
+TARIFFS = [
+    {"slug": "ultra-399", "id": 16194, "price": 399},
+    {"slug": "ultra-550", "id": 16184, "price": 550},
+    {"slug": "ultra-750", "id": 16185, "price": 750},
+    {"slug": "ultra-950", "id": 16186, "price": 950},
+    {"slug": "ultra-1300", "id": 16187, "price": 1300},
+    {"slug": "ultra-1600", "id": 16188, "price": 1600},
+    {"slug": "ultra-2000", "id": 16189, "price": 2000},
+    {"slug": "ultra-3000", "id": 16190, "price": 3000},
+    {"slug": "ultra-4000", "id": 16191, "price": 4000},
+    {"slug": "ultra-5000", "id": 16192, "price": 5000},
+]
+for _t in TARIFFS:
+    _t["name"] = "Безлимит ULTRA %d" % _t["price"]
+
+
 def esc(s):
     return html.escape(str(s), quote=True)
 
@@ -221,7 +238,7 @@ PAGE_TMPL = """<!doctype html>
 <footer class="foot">
   <div class="wrap">
     {footnav}
-    <nav class="catnav footlinks"><a href="/blog/">Блог</a><a href="/skolko-stoit-nomer/">Сколько стоит номер</a><a href="/o-servise/">О сервисе</a></nav>
+    <nav class="catnav footlinks"><a href="/blog/">Блог</a><a href="/skolko-stoit-nomer/">Сколько стоит номер</a><a href="/tarify/">Тарифы</a><a href="/o-servise/">О сервисе</a><a href="/politika/">Политика</a><a href="/polzovatelskoe-soglashenie/">Соглашение</a></nav>
     <p>MagzGold — информационная витрина красивых номеров. Подбор и бронирование; подключение и оплата на стороне оператора.</p>
   </div>
 </footer>
@@ -413,6 +430,51 @@ def render_article(a):
     write("blog/%s/index.html" % a["slug"], html_out)
 
 
+def render_tariff(t):
+    page_js = "<script>window.PAGE={tariff:%d};</script>" % t["id"]
+    intro = ("Номера с тарифом %s — абонентская плата %d ₽/мес с ёмким пакетом минут, SMS и интернета. "
+             "Ниже — красивые номера, доступные на этом тарифе; уточните комбинацию маской и забронируйте онлайн."
+             % (t["name"], t["price"]))
+    html_out = PAGE_TMPL.format(
+        title="Номера с тарифом %s (%d ₽/мес) | MagzGold" % (t["name"], t["price"]),
+        desc="Красивые номера с тарифом %s — абонплата %d ₽/мес. Подбор по маске, категории, бронирование онлайн — MagzGold."
+             % (t["name"], t["price"]),
+        canonical=SITE["base"] + "/tarif/%s/" % t["slug"],
+        page_js=page_js,
+        schema=schema_breadcrumb({"name": t["name"], "slug": "tarif/%s" % t["slug"], "toplevel": True}),
+        nav=nav_links(None),
+        header_block='    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>',
+        main_top='%s\n  <h1 class="page-h1">Номера с тарифом %s</h1>\n  <p class="page-intro">%s</p>'
+                 % (crumbs(t["name"]), esc(t["name"]), esc(intro)),
+        vitrina=VITRINA,
+        footnav=nav_links(None) + patnav(),
+        scripts=SCRIPTS,
+    )
+    write("tarif/%s/index.html" % t["slug"], html_out)
+
+
+def render_tariffs_index():
+    rows = "".join(
+        '<a class="blog-card" href="/tarif/%s/"><h2>%s</h2><p>Абонплата %d ₽/мес · красивые номера на этом тарифе</p></a>'
+        % (t["slug"], esc(t["name"]), t["price"]) for t in TARIFFS)
+    html_out = PAGE_TMPL.format(
+        title="Тарифы Безлимит ULTRA — номера по тарифам | MagzGold",
+        desc="Тарифы Безлимит ULTRA (от 399 до 5000 ₽/мес) и красивые номера на каждом из них. Подбор и бронирование — MagzGold.",
+        canonical=SITE["base"] + "/tarify/",
+        page_js="",
+        schema=schema_breadcrumb({"name": "Тарифы", "slug": "tarify", "toplevel": True}),
+        nav=nav_links(None),
+        header_block='    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>',
+        main_top='%s\n  <h1 class="page-h1">Тарифы Безлимит ULTRA</h1>\n'
+                 '  <p class="page-intro">Линейка тарифов Безлимит ULTRA — от 399 до 5000 ₽/мес. Выберите тариф, '
+                 'чтобы посмотреть красивые номера на нём.</p>' % crumbs("Тарифы"),
+        vitrina='<div class="blog-list">%s</div>' % rows,
+        footnav=nav_links(None) + patnav(),
+        scripts="",
+    )
+    write("tarify/index.html", html_out)
+
+
 def render_about():
     body = (
         '<article class="article">'
@@ -453,6 +515,73 @@ def render_about():
     write("o-servise/index.html", html_out)
 
 
+def _legal_page(slug, h1, title, desc, body):
+    html_out = PAGE_TMPL.format(
+        title=title, desc=desc, canonical=SITE["base"] + "/%s/" % slug,
+        page_js="", schema=schema_breadcrumb({"name": h1, "slug": slug, "toplevel": True}),
+        nav=nav_links(None),
+        header_block='    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>',
+        main_top='%s\n  <h1 class="page-h1">%s</h1>' % (crumbs(h1), esc(h1)),
+        vitrina='<article class="article">%s</article>' % body,
+        footnav=nav_links(None) + patnav(), scripts="",
+    )
+    write("%s/index.html" % slug, html_out)
+
+
+def render_privacy():
+    body = (
+        "<p>Настоящая политика описывает обработку данных на сайте MagzGold (magzgold.ru) — информационной "
+        "витрине красивых номеров.</p>"
+        "<h2>Оператор данных сайта</h2>"
+        "<p>Обработку данных, связанных с работой сайта, осуществляет самозанятый (плательщик НПД) "
+        "Семенцул Максим Геннадиевич, ИНН 381616884622, "
+        '<a href="mailto:sementsul.maksim@yandex.ru">sementsul.maksim@yandex.ru</a>.</p>'
+        "<h2>Какие данные обрабатываются</h2>"
+        "<p>Сайт статический и не требует регистрации. Мы можем использовать сервисы веб-аналитики "
+        "(обезличенные cookie и технические данные: тип устройства, страницы, источник перехода) для улучшения "
+        "работы сайта. Персональные данные для покупки и оформления номера собираются и обрабатываются "
+        "оператором связи на его стороне и по его политике.</p>"
+        "<h2>Цели и правовые основания</h2>"
+        "<p>Технические и аналитические данные обрабатываются для функционирования и улучшения сайта на "
+        "основании законного интереса и согласия, выражаемого использованием сайта (152-ФЗ).</p>"
+        "<h2>Передача третьим лицам</h2>"
+        "<p>Мы не продаём персональные данные. Оформление и услуги связи выполняет оператор "
+        "<b>ООО «Безлимит»</b> согласно его документам: "
+        '<a href="https://bezlimit.ru/legal" target="_blank" rel="noopener">bezlimit.ru/legal</a>.</p>'
+        "<h2>Ваши права</h2>"
+        "<p>Вы можете запросить сведения об обработке ваших данных сайтом или их удаление, написав на "
+        '<a href="mailto:sementsul.maksim@yandex.ru">sementsul.maksim@yandex.ru</a>. Отключить cookie можно '
+        "в настройках браузера.</p>"
+    )
+    _legal_page("politika", "Политика конфиденциальности",
+                "Политика конфиденциальности | MagzGold",
+                "Политика конфиденциальности сайта MagzGold: какие данные обрабатываются, оператор данных, права пользователя.", body)
+
+
+def render_terms():
+    body = (
+        "<p>Настоящее соглашение регулирует использование сайта MagzGold (magzgold.ru).</p>"
+        "<h2>О сервисе</h2>"
+        "<p>MagzGold — информационная витрина: помогает подобрать красивый номер по маске, категории или тарифу "
+        "и оформить бронь. MagzGold не является оператором связи и не оказывает услуги связи самостоятельно.</p>"
+        "<h2>Оформление и оплата</h2>"
+        "<p>Бронирование удерживает номер ограниченное время. Регистрация, оплата и оказание услуг связи "
+        "выполняются оператором <b>ООО «Безлимит»</b> по его условиям и документам "
+        '(<a href="https://bezlimit.ru/legal" target="_blank" rel="noopener">bezlimit.ru/legal</a>). '
+        "Стоимость номеров и тарифы определяются оператором.</p>"
+        "<h2>Ограничение ответственности</h2>"
+        "<p>Информация на сайте носит справочный характер и не является публичной офертой. Наличие номеров, "
+        "цены и условия могут меняться; актуальные условия вы видите при оформлении у оператора. "
+        "Сайт не несёт ответственности за услуги, оказываемые оператором.</p>"
+        "<h2>Контакты</h2>"
+        "<p>Владелец сайта: самозанятый Семенцул Максим Геннадиевич, ИНН 381616884622, "
+        '<a href="mailto:sementsul.maksim@yandex.ru">sementsul.maksim@yandex.ru</a>.</p>'
+    )
+    _legal_page("polzovatelskoe-soglashenie", "Пользовательское соглашение",
+                "Пользовательское соглашение | MagzGold",
+                "Пользовательское соглашение MagzGold: условия использования сайта, оформление, ограничение ответственности.", body)
+
+
 def render_404():
     err = ('<div class="err"><div class="err-code">404</div>'
            '<h1>Страница не найдена</h1>'
@@ -479,7 +608,8 @@ def render_sitemap():
             + [SITE["base"] + "/%s/" % p["slug"] for p in PATTERNS]
             + [SITE["base"] + "/skolko-stoit-nomer/", SITE["base"] + "/blog/"]
             + [SITE["base"] + "/blog/%s/" % a["slug"] for a in BLOG]
-            + [SITE["base"] + "/o-servise/"])
+            + [SITE["base"] + "/o-servise/", SITE["base"] + "/tarify/", SITE["base"] + "/politika/", SITE["base"] + "/polzovatelskoe-soglashenie/"]
+            + [SITE["base"] + "/tarif/%s/" % t["slug"] for t in TARIFFS])
     body = "".join("<url><loc>%s</loc><changefreq>daily</changefreq></url>" % u for u in urls)
     write("sitemap.xml", '<?xml version="1.0" encoding="UTF-8"?>'
           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">%s</urlset>' % body)
@@ -507,10 +637,15 @@ def main():
     for a in BLOG:
         render_article(a)
     render_about()
+    render_tariffs_index()
+    for t in TARIFFS:
+        render_tariff(t)
+    render_privacy()
+    render_terms()
     render_404()
     render_sitemap()
     copy_assets()
-    print("✅ dist/: главная + %d кат + %d паттернов + калькулятор + %d статей + 404 + sitemap" % (len(CATEGORIES), len(PATTERNS), len(BLOG)))
+    print("✅ dist/: главная + %d кат + %d паттернов + %d тарифов + калькулятор + %d статей + юр + 404 + sitemap" % (len(CATEGORIES), len(PATTERNS), len(TARIFFS), len(BLOG)))
 
 
 if __name__ == "__main__":
