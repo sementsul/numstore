@@ -29,10 +29,15 @@ body {
   border-bottom: 1px solid var(--line);
   background: linear-gradient(180deg, rgba(201,165,88,.06), transparent);
 }
-.top h1 {
-  margin: 0; font-size: 32px; font-weight: 600; letter-spacing: .5px;
+.brand { font-size: 26px; font-weight: 700; letter-spacing: .5px; color: var(--text); }
+.brand-gold {
+  background: linear-gradient(180deg, var(--gold-hi), var(--gold));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
 }
-.top h1::after {
+.top .h1 {
+  margin: 18px 0 0; font-size: 30px; font-weight: 600; letter-spacing: .5px;
+}
+.top .h1::after {
   content: ""; display: block; width: 54px; height: 2px; margin-top: 14px;
   background: linear-gradient(90deg, var(--gold), transparent);
 }
