@@ -177,6 +177,14 @@ favicon.svg (золотая M). Главная: Organization + WebSite JSON-LD (
 Радиус: build.py (make_og/home_schema/PAGE_TMPL head/sitemap lastmod/copy favicon), favicon.svg.
 Готовность под Метрику/Вебмастер — вставить ID позже (в PAGE_TMPL head).
 
+## UC-23. Избранное + бейджи + УТП доставки ✅
+Избранное: сердечко ♥ на карточке (localStorage `magz_fav` = {digits:{phone,tariff}}), кнопка «★ Избранное (N)»
+в контролах → режим показа только сохранённых (независимо от текущего пула). Бейдж категории на карточке
+(catBadge из `_cat`). Клик-делегирование: `.fav` → toggleFav, `.num-buy` → reserve (лукап BY_PHONE||FAV).
+Контент-УТП: **бесплатная доставка SIM по всей России + eSIM** — в интро главной, FAQ, «О сервисе» (по вводным
+пользователя; доставка ВСЕГДА бесплатная). Радиус: app.js (FAV/toggleFav/catBadge/card/render/favToggle),
+build.py (кнопка в VITRINA, тексты доставки), styles.css (.fav/.num-badge/#favToggle.on).
+
 ## Открытые долги
 - Поле цены самого номера (разобрать полный объект `phone`).
 - Фильтр по маске/паттерну (эндпоинт `/super-link/phones/filters`).

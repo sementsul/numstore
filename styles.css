@@ -295,3 +295,20 @@ body {
 .faq-item h2 { font-size: 17px; font-weight: 600; margin: 0 0 8px; color: var(--text); }
 .faq-item div { color: var(--muted); font-size: 15px; line-height: 1.65; }
 .faq-item a { color: var(--gold); text-decoration: none; }
+
+/* избранное + бейджи */
+.btn-sm { padding: 8px 14px; font-size: 14px; }
+#favToggle.on { background: linear-gradient(180deg, var(--gold-hi), var(--gold)); color: #1a1608; border-color: transparent; }
+.num { position: relative; }
+.num-badge {
+  position: absolute; top: 14px; left: 16px; font-size: 11px; letter-spacing: .5px; text-transform: uppercase;
+  color: var(--gold); border: 1px solid var(--line-2); border-radius: 20px; padding: 2px 9px;
+}
+.fav {
+  position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; font-size: 18px; line-height: 1;
+  background: transparent; color: var(--muted); border: 1px solid var(--line); border-radius: 50%;
+  cursor: pointer; transition: color .12s, border-color .12s;
+}
+.fav:hover { color: var(--gold); border-color: var(--line-2); }
+.fav.on { color: var(--gold); border-color: var(--gold); }
+.num-phone { margin-top: 8px; }

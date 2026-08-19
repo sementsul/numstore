@@ -14,6 +14,31 @@
   var CATS = [], TARIFFS = [];
   var flt = { cat: null, tariff: null, price: null }; // cat=код mask_categories, tariff=id mask_tariff, price=тир (клиент)
 
+  // Избранное (localStorage): digits -> {phone, tariff}
+  var FAV = {}, favMode = false;
+  try { FAV = JSON.parse(localStorage.getItem("magz_fav") || "{}") || {}; } catch (e) { FAV = {}; }
+  function saveFav() { try { localStorage.setItem("magz_fav", JSON.stringify(FAV)); } catch (e) {} }
+  function favCountUpd() {
+    var n = Object.keys(FAV).length, el = document.getElementById("favCount");
+    if (el) el.textContent = n ? "(" + n + ")" : "";
+  }
+  function toggleFav(p) {
+    var d = digitsOf(p.phone);
+    if (FAV[d]) delete FAV[d]; else FAV[d] = { phone: p.phone, tariff: p.tariff };
+    saveFav(); favCountUpd();
+    if (favMode) render(); else {
+      var btn = gridEl.querySelector('.fav[data-fav="' + d + '"]');
+      if (btn) btn.classList.toggle("on", !!FAV[d]);
+    }
+  }
+  var CAT_BADGE = { brilliant: "Бриллиант", brilliant_super: "Бриллиант", platinum: "Платина",
+    platinum_lite: "Платина", gold: "Золото", silver: "Серебро", bronze: "Бронза" };
+  function catBadge(cat) {
+    if (!cat) return "";
+    var key = String(cat).split(",")[0].trim();
+    return CAT_BADGE[key] || "";
+  }
+
   var PRICE_TIERS = [
     { key: "lo", label: "до 1 000 ₽", test: function (v) { return v < 1000; } },
     { key: "mid", label: "1 000 – 3 000 ₽", test: function (v) { return v >= 1000 && v <= 3000; } },
@@ -168,22 +193,25 @@
     return list;
   }
   function render() {
-    var list = sorted(ALL.filter(matchesClient));
+    var base = favMode ? Object.keys(FAV).map(function (k) { return FAV[k]; }) : ALL;
+    var list = sorted(base.filter(matchesClient));
     countEl.textContent = list.length + " " + plural(list.length, ["номер", "номера", "номеров"]);
-    if (!list.length) { showStatus("Ничего не найдено. Смягчи фильтры."); return; }
+    if (!list.length) { showStatus(favMode ? "В избранном пусто. Добавьте номера ♥." : "Ничего не найдено. Смягчи фильтры."); return; }
     statusEl.style.display = "none";
     gridEl.innerHTML = list.slice(0, shown).map(card).join("");
     moreBtn.hidden = list.length <= shown;
   }
 
   function card(p) {
-    var t = p.tariff || {};
+    var t = p.tariff || {}, d = digitsOf(p.phone), badge = catBadge(p._cat);
     var specs = [];
     if (t.minutes != null) specs.push(t.minutes + " мин");
     if (t.sms != null) specs.push(t.sms + " смс");
     if (t.internet != null) specs.push(t.internet + " ГБ");
     return (
       '<article class="num">' +
+        '<button class="fav' + (FAV[d] ? " on" : "") + '" data-fav="' + esc(d) + '" aria-label="В избранное" type="button">♥</button>' +
+        (badge ? '<span class="num-badge">' + esc(badge) + "</span>" : "") +
         '<div class="num-phone">' + esc(fmtPhone(p.phone)) + "</div>" +
         (t.name ? '<div class="num-tariff">' + esc(t.name) + "</div>" : "") +
         (specs.length ? '<div class="num-specs">' + esc(specs.join(" · ")) + "</div>" : "") +
@@ -240,11 +268,17 @@
   sortEl.addEventListener("change", function () { shown = PAGE; render(); });
   moreBtn.addEventListener("click", function () { shown += PAGE; render(); });
   gridEl.addEventListener("click", function (e) {
-    var b = e.target.closest ? e.target.closest(".num-buy") : null;
-    if (!b) return;
-    var p = BY_PHONE[b.getAttribute("data-phone")];
-    if (p) reserve(p);
+    if (!e.target.closest) return;
+    var fav = e.target.closest(".fav");
+    if (fav) { var d = fav.getAttribute("data-fav"); var pf = BY_PHONE[d] || FAV[d]; if (pf) toggleFav(pf); return; }
+    var b = e.target.closest(".num-buy");
+    if (b) { var d2 = b.getAttribute("data-phone"), pb = BY_PHONE[d2] || FAV[d2]; if (pb) reserve(pb); }
   });
+  var favBtn = document.getElementById("favToggle");
+  if (favBtn) favBtn.addEventListener("click", function () {
+    favMode = !favMode; favBtn.classList.toggle("on", favMode); shown = PAGE; render();
+  });
+  favCountUpd();
 
   // Пресет страницы (категорийные SEO-страницы задают window.PAGE = {cat:"<код>"}).
   var PAGE = window.PAGE || {};
