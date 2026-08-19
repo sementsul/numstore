@@ -4,8 +4,10 @@
 Истина по задаче: `TZ.md`. Живые сценарии: `docs/numstore.usecases.md`.
 
 ## Что где (архитектура v4 — SEO-каркас)
-- `build.py` — **источник HTML**: генерит `dist/` (главная + `/kategoriya/<slug>/` ×5 + 404 + sitemap/robots/CNAME).
-  Шаблон PAGE_TMPL + общая витрина VITRINA; header_block/main_top настраивают шапку (главная — hero одной строкой).
+- `build.py` — **источник HTML**: генерит `dist/` (главная + `/kategoriya/<slug>/` ×5 + паттерны `/zerkalnye|povtory|
+  pary|kruglye/` + `/skolko-stoit-nomer/` калькулятор + 404 + sitemap/robots/CNAME). PAGE_TMPL + VITRINA; header_block/
+  main_top настраивают шапку. Паттерны: `window.PAGE.mask` (🔴 буквы-маски на API не подтверждены — проверить).
+- `calc.js` — калькулятор: реальные тарифы категории × регион-коэф (оценочно).
 - `index.html` — dev-копия витрины (может дрейфовать; деплой = `dist/`, генерённый build.py).
 - `app.js` — витрина (клиентский fetch, фильтры, бронь) + читает `window.PAGE={cat}` для категорийных страниц.
 - `config.js` — `API_BASE`, публичный Basic-токен Безлимит, `REF_STORE_URL`, `REF_ID` (=800848, идёт в user_id брони).
