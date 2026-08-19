@@ -16,53 +16,39 @@
 
   /* ---- анализатор паттернов (10 цифр) ---- */
   function analyze(d) {
-    var feats = [], score = 0;
-    function add(label, w) { feats.push(label); score += w; }
-
-    if (/^(\d)\1{9}$/.test(d)) add("Все цифры одинаковые", 12);
-
-    // максимальная серия одинаковых подряд
+    var counts = {}; for (var i = 0; i < 10; i++) counts[d[i]] = (counts[d[i]] || 0) + 1;
+    var distinct = Object.keys(counts).length, maxFreq = 0;
+    for (var k in counts) maxFreq = Math.max(maxFreq, counts[k]);
     var run = 1, maxRun = 1;
-    for (var i = 1; i < d.length; i++) { if (d[i] === d[i - 1]) { run++; maxRun = Math.max(maxRun, run); } else run = 1; }
-    if (maxRun >= 6) add(maxRun + " одинаковых подряд", 9);
-    else if (maxRun === 5) add("Пять одинаковых подряд", 7);
-    else if (maxRun === 4) add("Четыре одинаковых подряд", 5);
-    else if (maxRun === 3) add("Тройка одинаковых", 3);
-
-    // палиндром (зеркальный)
-    if (d === d.split("").reverse().join("")) add("Зеркальный (палиндром)", 8);
-
-    // нули на конце
-    var z = d.match(/0+$/);
-    if (z) { var n = z[0].length; if (n >= 4) add("Круглый: " + n + " нулей в конце", 7); else if (n >= 2) add("Ровное окончание на " + n + " нуля", 3); }
-
-    // повторяющиеся пары в хвосте: ..ABAB или пары XX-XX-XX
-    if (/(\d)\1(\d)\2(\d)\3$/.test(d)) add("Три пары в конце", 6);
-    else if (/(\d\d)\1$/.test(d)) add("Повтор пары в конце", 4);
-    if (/^(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)$/.test(d) && d[0]===d[2]&&d[2]===d[4]&&d[1]===d[3]&&d[3]===d[5]) add("Ритм пар ABAB", 5);
-
-    // последовательность (возр/убыв) длиной >=4
-    function seqRun(step) { var r=1,m=1; for(var i=1;i<d.length;i++){ if((+d[i]-+d[i-1])===step){r++;m=Math.max(m,r);}else r=1;} return m; }
-    var up = seqRun(1), dn = seqRun(-1);
-    if (up >= 4) add("Возрастающая последовательность", 4);
-    if (dn >= 4) add("Убывающая последовательность", 4);
-
-    // две тройки (AAA BBB)
-    if (/(\d)\1\1.*(\d)\2\2/.test(d)) add("Несколько троек", 4);
-
-    // мало разных цифр
-    var uniq = {}; for (var k = 0; k < d.length; k++) uniq[d[k]] = 1;
-    var nu = Object.keys(uniq).length;
-    if (nu <= 2) add("Всего " + nu + " разные цифры", 5);
-    else if (nu === 3) add("Три разные цифры", 2);
-
+    for (var j = 1; j < 10; j++) { if (d[j] === d[j - 1]) { run++; maxRun = Math.max(maxRun, run); } else run = 1; }
+    function seqRun(st) { var r = 1, m = 1; for (var i = 1; i < 10; i++) { if ((+d[i] - +d[i - 1]) === st) { r++; m = Math.max(m, r); } else r = 1; } return m; }
+    var maxSeq = Math.max(seqRun(1), seqRun(-1));
+    var tz = (d.match(/0+$/) || [""])[0].length;
+    var palin = d === d.split("").reverse().join("");
+    var rep = (10 - distinct) / 9, runC = (maxRun - 1) / 9, freqC = (maxFreq - 1) / 9, seqC = (maxSeq - 1) / 9, round = Math.min(1, tz / 4);
+    var repBeauty = 0.5 * rep + 0.3 * runC + 0.2 * freqC;                 // 0..1, все одинаковые = 1
+    var patternBeauty = Math.max(repBeauty, seqC * 0.85, palin ? 0.7 : 0); // лучший из паттернов, без двойного счёта
+    var score = Math.round(Math.min(100, (patternBeauty + round * 0.15) * 100));
     var verdict, cls;
-    if (score >= 13) { verdict = "Премиальный · редкий"; cls = "v-top"; }
-    else if (score >= 8) { verdict = "Красивый"; cls = "v-nice"; }
-    else if (score >= 4) { verdict = "Приятный"; cls = "v-ok"; }
+    if (score >= 75) { verdict = "Премиальный \u00b7 редкий"; cls = "v-top"; }
+    else if (score >= 50) { verdict = "Красивый"; cls = "v-nice"; }
+    else if (score >= 25) { verdict = "Приятный"; cls = "v-ok"; }
     else { verdict = "Обычный номер"; cls = "v-plain"; }
-    if (!feats.length) feats.push("Особых закономерностей не найдено");
-    return { verdict: verdict, cls: cls, feats: feats, score: score };
+    var feats = [];
+    if (distinct === 1) feats.push("Все цифры одинаковые");
+    else {
+      if (maxRun >= 4) feats.push(maxRun + " одинаковых подряд");
+      else if (maxRun === 3) feats.push("Тройка одинаковых");
+      if (maxSeq >= 5) feats.push("Последовательность из " + maxSeq + " цифр");
+      if (palin) feats.push("Зеркальный (палиндром)");
+      if (tz >= 4) feats.push("Круглый: " + tz + " нулей в конце");
+      else if (tz >= 2) feats.push("Ровное окончание на нули");
+      if (distinct <= 2) feats.push("Всего " + distinct + " разные цифры");
+      else if (distinct === 3) feats.push("Три разные цифры");
+      if (maxFreq >= 4 && maxRun < 4) feats.push("Цифра повторяется " + maxFreq + " раз");
+    }
+    if (!feats.length) feats.push("Особых закономерностей нет");
+    return { verdict: verdict, cls: cls, feats: feats.slice(0, 5), score: score };
   }
 
   function api(path) {
