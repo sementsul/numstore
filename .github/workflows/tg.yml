@@ -1,0 +1,35 @@
+name: Подборка номеров в Telegram
+
+on:
+  schedule:
+    - cron: "0 8,17 * * *"   # 08:00 и 17:00 UTC (11:00 и 20:00 МСК). Меняй под себя.
+  workflow_dispatch: {}       # можно запустить вручную из вкладки Actions
+
+permissions:
+  contents: write             # чтобы коммитить feed_state.json обратно
+
+concurrency:
+  group: tg-feed
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Пост в Telegram
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHANNEL: ${{ secrets.TELEGRAM_CHANNEL }}
+        run: python3 feed.py
+      - name: Сохранить состояние дедупа
+        run: |
+          if [ -n "$(git status --porcelain feed_state.json)" ]; then
+            git config user.name "feed-bot"
+            git config user.email "feed-bot@users.noreply.github.com"
+            git add feed_state.json
+            git commit -m "chore: обновление feed_state (дедуп номеров)"
+            git push
+          else
+            echo "состояние не менялось"
+          fi
