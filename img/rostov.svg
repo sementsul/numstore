@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 210" fill="none" stroke="#c9a558" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- sun -->
+  <circle cx="158" cy="44" r="14" fill="rgba(201,165,88,.12)"/>
+  <!-- paddle steamer hull -->
+  <path d="M28 150 h120 l-14 26 h-92 z" fill="rgba(201,165,88,.10)"/>
+  <!-- decks -->
+  <rect x="46" y="126" width="84" height="24"/>
+  <rect x="62" y="108" width="52" height="18"/>
+  <!-- windows -->
+  <line x1="56" y1="132" x2="56" y2="144"/><line x1="72" y1="132" x2="72" y2="144"/>
+  <line x1="88" y1="132" x2="88" y2="144"/><line x1="104" y1="132" x2="104" y2="144"/><line x1="120" y1="132" x2="120" y2="144"/>
+  <!-- smokestacks -->
+  <rect x="74" y="80" width="9" height="28"/>
+  <rect x="96" y="80" width="9" height="28"/>
+  <!-- flag -->
+  <line x1="88" y1="108" x2="88" y2="60"/><path d="M88 60 h20 l-6 7 l6 7 h-20 z" fill="rgba(201,165,88,.16)"/>
+  <!-- water -->
+  <path d="M10 182 q12 -9 24 0 t24 0 t24 0 t24 0 t24 0 t24 0"/>
+  <path d="M10 194 q12 -9 24 0 t24 0 t24 0 t24 0 t24 0 t24 0"/>
+</svg>

@@ -148,6 +148,11 @@ body {
 .cube:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,165,88,.18); }
 .cube-actions { display: flex; gap: 12px; margin-top: 16px; }
 .cube-hint { color: var(--muted); font-size: 13px; margin: 12px 0 0; }
+.city-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; margin: 20px 0 8px; }
+.city-card { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 18px 10px; text-decoration: none; color: var(--text); background: linear-gradient(180deg, rgba(201,165,88,.06), transparent); border: 1px solid var(--line); border-radius: 14px; transition: border-color .15s; }
+.city-card:hover { border-color: var(--gold); }
+.city-card img { height: 92px; width: auto; object-fit: contain; }
+.city-card span { font-size: 15px; font-weight: 600; }
 .top .wrap { position: relative; }
 .top-hero-img { position: absolute; right: 72px; bottom: 8px; height: 118px; width: auto; object-fit: contain; pointer-events: none; filter: drop-shadow(0 8px 24px rgba(0,0,0,.45)); }
 @media (max-width: 860px) { .top-hero-img { display: none; } }

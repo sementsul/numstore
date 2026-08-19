@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 210" fill="none" stroke="#c9a558" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+  <!-- sun -->
+  <circle cx="150" cy="52" r="20" fill="rgba(201,165,88,.14)"/>
+  <g stroke-width="2.4">
+    <line x1="150" y1="20" x2="150" y2="10"/><line x1="178" y1="52" x2="190" y2="52"/>
+    <line x1="172" y1="30" x2="180" y2="22"/><line x1="172" y1="74" x2="180" y2="82"/>
+  </g>
+  <!-- palm trunk -->
+  <path d="M70 197 q-6 -70 4 -104"/>
+  <!-- palm leaves -->
+  <g fill="rgba(201,165,88,.10)">
+    <path d="M74 93 q-34 -18 -54 -6 q28 -6 54 6"/>
+    <path d="M74 93 q-8 -38 -30 -50 q16 24 30 50"/>
+    <path d="M74 93 q30 -26 56 -20 q-30 2 -56 20"/>
+    <path d="M74 93 q14 -34 40 -40 q-22 18 -40 40"/>
+  </g>
+  <!-- waves -->
+  <path d="M12 176 q12 -10 24 0 t24 0 t24 0 t24 0 t24 0 t24 0"/>
+  <path d="M12 190 q12 -10 24 0 t24 0 t24 0 t24 0 t24 0 t24 0"/>
+</svg>

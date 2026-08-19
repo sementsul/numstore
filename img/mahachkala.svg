@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 210" fill="none" stroke="#c9a558" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+  <line x1="8" y1="197" x2="192" y2="197"/>
+  <!-- two minarets -->
+  <g>
+    <rect x="34" y="70" width="10" height="127"/>
+    <path d="M33 70 q6 -13 12 0"/>
+    <line x1="39" y1="57" x2="39" y2="45"/><circle cx="39" cy="40" r="4.5"/>
+  </g>
+  <g>
+    <rect x="156" y="70" width="10" height="127"/>
+    <path d="M155 70 q6 -13 12 0"/>
+    <line x1="161" y1="57" x2="161" y2="45"/><circle cx="161" cy="40" r="4.5"/>
+  </g>
+  <!-- central hall with big dome -->
+  <rect x="62" y="120" width="76" height="77"/>
+  <path d="M78 197 v-40 a22 12 0 0 1 44 0 v40"/>
+  <path d="M58 120 q42 -66 84 0 z" fill="rgba(201,165,88,.16)"/>
+  <!-- side small domes -->
+  <path d="M62 120 q10 -16 20 0" fill="rgba(201,165,88,.10)"/>
+  <path d="M118 120 q10 -16 20 0" fill="rgba(201,165,88,.10)"/>
+  <line x1="100" y1="52" x2="100" y2="36"/><circle cx="100" cy="30" r="6.5"/>
+</svg>

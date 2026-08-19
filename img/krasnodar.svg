@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 210" fill="none" stroke="#c9a558" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+  <line x1="8" y1="197" x2="192" y2="197"/>
+  <!-- Triumphal (Tsar) arch -->
+  <rect x="34" y="70" width="132" height="127" fill="rgba(201,165,88,.06)"/>
+  <!-- central archway -->
+  <path d="M78 197 v-70 a22 22 0 0 1 44 0 v70" fill="rgba(11,13,17,1)"/>
+  <!-- side towers -->
+  <rect x="34" y="52" width="26" height="20"/>
+  <rect x="140" y="52" width="26" height="20"/>
+  <!-- tented roofs -->
+  <path d="M32 52 L47 30 L62 52 Z" fill="rgba(201,165,88,.14)"/>
+  <path d="M138 52 L153 30 L168 52 Z" fill="rgba(201,165,88,.14)"/>
+  <line x1="47" y1="30" x2="47" y2="20"/><line x1="153" y1="30" x2="153" y2="20"/>
+  <!-- cornice -->
+  <line x1="30" y1="72" x2="170" y2="72"/>
+  <!-- small icons row -->
+  <line x1="50" y1="86" x2="50" y2="100"/><line x1="150" y1="86" x2="150" y2="100"/>
+</svg>
