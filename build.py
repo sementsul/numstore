@@ -45,6 +45,47 @@ CATEGORIES = [
               "сочетания по минимальной цене. Отличный вариант для второго номера или подарка."},
 ]
 
+# Углублённый уникальный текст по категориям (ниже витрины) — для глубины контента (SEO).
+CAT_TEXT = {
+    "brilliant": (
+        "<h2>Чем особенны бриллиантовые номера</h2>"
+        "<p>Бриллиантовая категория — это верх линейки красивых номеров. Сюда попадают самые «чистые» и редкие "
+        "комбинации: семь одинаковых цифр подряд, идеальные зеркала, номера, где повторяется код и окончание. "
+        "Такие сочетания встречаются в свободной продаже крайне редко, поэтому и ценятся выше всего — от 400 000 ₽ "
+        "и до нескольких миллионов за эксклюзивные варианты.</p>"
+        "<p>Бриллиантовый номер — это статусный аксессуар и одновременно инвестиция: действительно красивые "
+        "комбинации со временем только растут в цене. Его выбирают под личный бренд, для первых лиц компаний и "
+        "как коллекционную ценность. Подобрать конкретную комбинацию удобно маской, а прикинуть бюджет — на "
+        '<a href="/skolko-stoit-nomer/">калькуляторе стоимости</a>.</p>'),
+    "platinum": (
+        "<h2>Платиновые номера: премиум без максимальной наценки</h2>"
+        "<p>Платина — премиальная категория чуть доступнее бриллиантовой. Здесь выраженная симметрия, длинные "
+        "повторы и эффектные окончания, но цена мягче — от 25 000 ₽. Отличный выбор, когда хочется солидный "
+        "запоминающийся номер без перехода в топ-сегмент.</p>"
+        "<p>Платиновые номера хорошо работают и для личного пользования, и как рабочий номер, который клиенты "
+        "запоминают с первого раза. Уточните нужные цифры маской и подберите вариант под свой тариф.</p>"),
+    "gold": (
+        "<h2>Золотые номера — золотая середина</h2>"
+        "<p>Золото — самая популярная категория: оптимальный баланс красоты и стоимости (от 50 000 ₽). "
+        "Узнаваемые повторы, приятные окончания и лёгкие для диктовки комбинации, которые не стоят как "
+        "бриллиантовые, но заметно выделяются на фоне обычного набора цифр.</p>"
+        "<p>Такой номер одинаково уместен для личного телефона и для бизнеса. Отфильтруйте по тарифу и цене, "
+        "добавьте понравившиеся в избранное и забронируйте онлайн.</p>"),
+    "silver": (
+        "<h2>Серебряные номера: доступная красота</h2>"
+        "<p>Серебро — аккуратные, приятные комбинации по доступной цене (от 12 000 ₽). Они заметно удобнее "
+        "случайного набора: легче запоминаются и диктуются, но без премиальной наценки.</p>"
+        "<p>Хороший вариант для второго номера, для работы или в подарок. Подберите комбинацию маской и "
+        "сравните тарифы.</p>"),
+    "bronze": (
+        "<h2>Бронзовые номера: доступный вход</h2>"
+        "<p>Бронза — начальная категория красивых номеров (от 3 000 ₽). Лёгкие сочетания, небольшие повторы и "
+        "пары цифр — минимальная цена за то, чтобы номер было проще запомнить.</p>"
+        "<p>Отличный выбор для второго номера, для бизнеса или в подарок без больших вложений.</p>"),
+}
+for _c in CATEGORIES:
+    _c["text"] = CAT_TEXT.get(_c["slug"], "")
+
 # Паттерны красоты: slug (top-level URL), маска phone_pattern (N=любая, буквы=повтор), имя, SEO-тексты.
 PATTERNS = [
     {"slug": "zerkalnye", "mask": "NNNNabccba", "name": "Зеркальные", "h1": "Зеркальные номера",
@@ -334,6 +375,23 @@ def schema_breadcrumb(active=None):
             '"@type":"BreadcrumbList","itemListElement":[%s]}</script>' % li)
 
 
+def cat_schema(c):
+    prod = ('<script type="application/ld+json">{"@context":"https://schema.org","@type":"Product",'
+            '"name":"%s","category":"Красивые номера телефонов",'
+            '"offers":{"@type":"AggregateOffer","priceCurrency":"RUB","lowPrice":%d,"highPrice":%d,'
+            '"availability":"https://schema.org/InStock"}}</script>') % (esc(c["h1"]), c["pmin"], c["pmax"])
+    return prod + schema_breadcrumb(c)
+
+
+def related_block(exclude_cat=None, exclude_pat=None):
+    cats = [c for c in CATEGORIES if c["slug"] != exclude_cat][:4]
+    pats = [p for p in PATTERNS if p["slug"] != exclude_pat][:5]
+    links = "".join('<a href="/kategoriya/%s/">%s номера</a>' % (c["slug"], esc(c["name"])) for c in cats)
+    links += "".join('<a href="/%s/">%s</a>' % (p["slug"], esc(p["h1"])) for p in pats)
+    links += '<a href="/kody/">Номера по кодам</a><a href="/skolko-stoit-nomer/">Сколько стоит номер</a>'
+    return '<section class="related"><h2>Смотрите также</h2><nav class="rel-links">%s</nav></section>' % links
+
+
 def write(path, content):
     full = os.path.join(DIST, path)
     os.makedirs(os.path.dirname(full), exist_ok=True)
@@ -402,11 +460,11 @@ def render_category(c):
         desc=c["desc"],
         canonical=SITE["base"] + "/kategoriya/%s/" % c["slug"],
         page_js=page_js,
-        schema=schema_breadcrumb(c),
+        schema=cat_schema(c),
         nav=nav_links(c["slug"]),
         header_block=header_block,
         main_top=main_top,
-        vitrina=VITRINA,
+        vitrina=VITRINA + '<section class="seo-text">' + c["text"] + "</section>" + related_block(exclude_cat=c["slug"]),
         footnav=nav_links(c["slug"]) + patnav(),
         scripts=SCRIPTS,
     )
@@ -427,7 +485,7 @@ def render_pattern(p):
         nav=nav_links(None),
         header_block=header_block,
         main_top=main_top,
-        vitrina=VITRINA,
+        vitrina=VITRINA + related_block(exclude_pat=p["slug"]),
         footnav=nav_links(None) + patnav(p["slug"]),
         scripts=SCRIPTS,
     )

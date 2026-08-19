@@ -191,6 +191,12 @@ build.py (кнопка в VITRINA, тексты доставки), styles.css (.
 Плюс Google Analytics (G-R1CLPNLWLD) — склеен в ту же константу METRIKA. Политика: указаны Яндекс.Метрика+Вебвизор и Google Analytics (152-ФЗ). Радиус: build.py
 (METRIKA/{metrika}/render_privacy). Проверить в кабинете Метрики, что данные пошли. + verification-мета Яндекс.Вебмастера (e8b5b765f77b401c) в head всех страниц — для подтверждения прав и отправки sitemap.
 
+## UC-25. SEO-усиление: Product-schema + глубина контента + перелинковка ✅
+Категории: **Product + AggregateOffer** schema (lowPrice/highPrice=pmin/pmax, RUB, InStock) → возможен price-rich-snippet;
++ углублённый уникальный текст (CAT_TEXT, ~200 слов/категория) ниже витрины; + блок «Смотрите также» (related_block:
+4 категории + 5 паттернов + коды + калькулятор). Паттерны — тоже related_block. Радиус: build.py (CAT_TEXT/cat_schema/
+related_block, render_category/render_pattern), styles.css (.related/.rel-links). Дальше по плану: лонгтейл-страницы, блог, Organization contactPoint, preconnect.
+
 ## Открытые долги
 - Поле цены самого номера (разобрать полный объект `phone`).
 - Фильтр по маске/паттерну (эндпоинт `/super-link/phones/filters`).

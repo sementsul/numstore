@@ -312,3 +312,13 @@ body {
 .fav:hover { color: var(--gold); border-color: var(--line-2); }
 .fav.on { color: var(--gold); border-color: var(--gold); }
 .num-phone { margin-top: 8px; }
+
+/* перелинковка */
+.related { margin: 8px 0 40px; padding-top: 22px; border-top: 1px solid var(--line); }
+.related h2 { font-size: 18px; font-weight: 600; margin: 0 0 14px; color: var(--text); }
+.rel-links { display: flex; flex-wrap: wrap; gap: 8px; }
+.rel-links a {
+  padding: 8px 14px; border-radius: 20px; font-size: 14px; text-decoration: none;
+  color: var(--muted); border: 1px solid var(--line); transition: color .12s, border-color .12s;
+}
+.rel-links a:hover { color: var(--gold); border-color: var(--line-2); }
