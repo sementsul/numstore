@@ -159,6 +159,13 @@ body {
 .geo-sel { flex: 0 0 auto; background: #0b0d11; color: var(--text); border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px; font-size: 14px; cursor: pointer; }
 .geo-x { flex: 0 0 auto; width: 32px; height: 32px; font-size: 20px; line-height: 1; background: transparent; color: var(--muted); border: 1px solid var(--line); border-radius: 8px; cursor: pointer; }
 .geo-x:hover { color: var(--text); border-color: var(--gold); }
+.faq-block { margin-top: 8px; }
+.faq-item { border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; margin: 10px 0; background: rgba(255,255,255,.02); }
+.faq-item summary { cursor: pointer; font-weight: 600; color: var(--text); list-style: none; }
+.faq-item summary::-webkit-details-marker { display: none; }
+.faq-item summary::before { content: "+ "; color: var(--gold); font-weight: 700; }
+.faq-item[open] summary::before { content: "− "; }
+.faq-item p { margin: 10px 0 0; color: var(--muted); }
 .city-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; margin: 20px 0 8px; }
 .city-card { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 18px 10px; text-decoration: none; color: var(--text); background: linear-gradient(180deg, rgba(201,165,88,.06), transparent); border: 1px solid var(--line); border-radius: 14px; transition: border-color .15s; }
 .city-card:hover { border-color: var(--gold); }
