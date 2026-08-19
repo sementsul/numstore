@@ -334,7 +334,7 @@ def _dlinks(items):
 
 
 def _build_drawer():
-    other = [("/", "Все номера"), ("/tarify/", "Тарифы"), ("/kody/", "Номера по кодам"), ("/blog/", "Блог"), ("/faq/", "Вопросы и ответы"), ("/skolko-stoit-nomer/", "Сколько стоит номер"), ("/o-servise/", "О сервисе")]
+    other = [("/", "Все номера"), ("/kak-eto-rabotaet/", "Как это работает"), ("/tarify/", "Тарифы"), ("/kody/", "Номера по кодам"), ("/blog/", "Блог"), ("/faq/", "Вопросы и ответы"), ("/skolko-stoit-nomer/", "Сколько стоит номер"), ("/o-servise/", "О сервисе")]
     picks = [("/%s/" % l["slug"], l["h1"]) for l in LANDINGS]
     legal = [("/politika/", "Политика конфиденциальности"), ("/polzovatelskoe-soglashenie/", "Пользовательское соглашение")]
     return (
@@ -663,6 +663,72 @@ def render_landing(l):
         scripts=SCRIPTS,
     )
     write("%s/index.html" % l["slug"], html_out)
+
+
+def render_promo():
+    """Промо-лендинг: инфо-блоки о сервисе + кнопки «Смотреть номера» в каталог (без витрины)."""
+    cat_cards = "".join(
+        '<a class="blog-card" href="/kategoriya/%s/"><h2>%s</h2><p>от %s ₽ · %s</p></a>'
+        % (c["slug"], esc(c["name"]), format(c["pmin"], ",d").replace(",", " "), esc(c["desc"]))
+        for c in CATEGORIES)
+    features = [
+        ("🤝", "Официальный партнёр Безлимит", "Работаем напрямую с оператором. Номера и цены — настоящие, из его базы."),
+        ("🔢", "Точный подбор по маске", "Зафиксируйте нужные цифры — дату, код, повтор — остальное подберём под вас."),
+        ("⚡", "Бронь онлайн за минуту", "Понравился номер — бронируете в пару кликов, оформление у оператора."),
+        ("📦", "Бесплатная доставка + eSIM", "SIM привезут по всей России бесплатно или подключат eSIM без визита в офис."),
+    ]
+    feat_html = "".join(
+        '<div class="feature"><span class="feature-ico">%s</span><h3>%s</h3><p>%s</p></div>' % f
+        for f in features)
+    steps = [
+        ("1", "Выберите номер", "В каталоге — по категории красоты, маске, тарифу или цене."),
+        ("2", "Забронируйте", "Бронь удержит номер за вами, пока оформляете (около часа)."),
+        ("3", "Оформите у оператора", "Паспорт РФ, договор и оплата — на защищённой странице Безлимит."),
+        ("4", "Получите SIM", "Бесплатная доставка по РФ или eSIM — и номер ваш."),
+    ]
+    step_html = "".join(
+        '<div class="p-step"><span class="p-step-n">%s</span><div><h3>%s</h3><p>%s</p></div></div>' % s
+        for s in steps)
+    body = (
+        '<section class="promo-hero">'
+        '<h1>Красивые номера телефонов</h1>'
+        '<p class="promo-sub">Эксклюзивные комбинации от официального партнёра оператора «Безлимит». '
+        'Подбор по маске и категории, честные цены, бронирование онлайн.</p>'
+        '<div class="promo-actions">'
+        '<a class="btn-primary" href="/">Смотреть номера</a>'
+        '<a class="btn-ghost" href="/skolko-stoit-nomer/">Рассчитать стоимость</a>'
+        '</div></section>'
+        '<section class="features">' + feat_html + '</section>'
+        '<section class="promo-block"><h2>Как это работает</h2>'
+        '<div class="p-steps">' + step_html + '</div></section>'
+        '<section class="promo-block"><h2>Категории красивых номеров</h2>'
+        '<div class="blog-list">' + cat_cards + '</div></section>'
+        '<section class="seo-text">'
+        '<h2>Частые вопросы</h2>'
+        '<p><b>Откуда номера?</b> Из официальной базы оператора «Безлимит», партнёром которого мы являемся. '
+        'Ничего не выдумываем — цены и наличие настоящие.</p>'
+        '<p><b>Кто может подключить?</b> Подключение доступно только гражданам РФ по паспорту РФ — это условие оператора.</p>'
+        '<p><b>Сколько стоит?</b> Цена зависит от красоты номера. Прикиньте на '
+        '<a href="/skolko-stoit-nomer/">калькуляторе</a> или посмотрите '
+        '<a href="/blog/kategorii-krasivyh-nomerov/">категории</a>.</p>'
+        '</section>'
+        '<section class="promo-cta"><h2>Готовы выбрать номер?</h2>'
+        '<a class="btn-primary" href="/">Смотреть номера</a></section>')
+    html_out = render_page(metrika=METRIKA, drawer=_DRAWER,
+        title="MagzGold — красивые номера телефонов от партнёра Безлимит",
+        desc="Красивые номера телефонов от официального партнёра «Безлимит»: подбор по маске и категории, честные цены, бронирование онлайн, бесплатная доставка SIM и eSIM.",
+        canonical=SITE["base"] + "/kak-eto-rabotaet/",
+        og_image=OG("home"),
+        page_js="",
+        schema=schema_breadcrumb({"name": "Как это работает", "slug": "kak-eto-rabotaet", "toplevel": True}),
+        nav=nav_links(None),
+        header_block='    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>',
+        main_top=crumbs("Как это работает"),
+        vitrina=body,
+        footnav=nav_links(None) + patnav(),
+        scripts="",
+    )
+    write("kak-eto-rabotaet/index.html", html_out)
 
 
 def render_calc():
@@ -1009,7 +1075,7 @@ def render_sitemap():
     urls = ([SITE["base"] + "/"] + [SITE["base"] + "/kategoriya/%s/" % c["slug"] for c in CATEGORIES]
             + [SITE["base"] + "/%s/" % p["slug"] for p in PATTERNS]
             + [SITE["base"] + "/%s/" % l["slug"] for l in LANDINGS]
-            + [SITE["base"] + "/skolko-stoit-nomer/", SITE["base"] + "/blog/"]
+            + [SITE["base"] + "/kak-eto-rabotaet/", SITE["base"] + "/skolko-stoit-nomer/", SITE["base"] + "/blog/"]
             + [SITE["base"] + "/blog/%s/" % a["slug"] for a in BLOG]
             + [SITE["base"] + "/o-servise/", SITE["base"] + "/tarify/", SITE["base"] + "/politika/", SITE["base"] + "/polzovatelskoe-soglashenie/"]
             + [SITE["base"] + "/tarif/%s/" % t["slug"] for t in TARIFFS]
@@ -1041,6 +1107,7 @@ def main():
         render_pattern(p)
     for l in LANDINGS:
         render_landing(l)
+    render_promo()
     render_calc()
     render_blog_index()
     for a in BLOG:

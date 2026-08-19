@@ -8,6 +8,7 @@
   лонгтейл-лендинги ×5 (LANDINGS: /dlya-biznesa/, /v-podarok/, /legko-zapomnit/, /na-datu-rozhdeniya/, /vip-nomera/ — витрина +
   уникальный текст + перелинковка) + тарифы
   ×10 + `/tarify/` + коды `/kody/`+`/kod/<pfx>/`×16 + `/skolko-stoit-nomer/` + `/blog/`(+6, Article-schema) + `/faq/`(FAQPage) +
+  `/kak-eto-rabotaet/` (промо-лендинг: инфо-блоки + CTA в каталог, без витрины) +
   `/o-servise/` + `/politika/` + `/polzovatelskoe-soglashenie/` + 404 + sitemap(lastmod)/robots/CNAME.
   Скорость: preconnect/dns-prefetch (api Безлимит, Метрика, GTM). Organization schema: description + contactPoint.
   SEO: og:image ПОД ТИП страницы (make_og/PIL → dist/og/<kind>.png ×7; шаблон {og_image}+twitter:image; обёртка
