@@ -44,6 +44,24 @@ CATEGORIES = [
               "сочетания по минимальной цене. Отличный вариант для второго номера или подарка."},
 ]
 
+# Паттерны красоты: slug (top-level URL), маска phone_pattern (N=любая, буквы=повтор), имя, SEO-тексты.
+PATTERNS = [
+    {"slug": "zerkalnye", "mask": "NNNNabccba", "name": "Зеркальные", "h1": "Зеркальные номера",
+     "desc": "Зеркальные номера телефонов — цифры симметричны (…abc-cba). Подбор и бронирование на MagzGold.",
+     "intro": "Зеркальные номера — красивая симметрия: концовка читается одинаково в обе стороны (…abc-cba). "
+              "Легко запоминаются и приятно диктуются. Ниже — доступные зеркальные номера; уточните комбинацию маской."},
+    {"slug": "povtory", "mask": "NNNNNNNaaa", "name": "С повторами", "h1": "Номера с повторами",
+     "desc": "Номера с повторяющимися цифрами (три одинаковые в конце, …-XXX) — купить и забронировать на MagzGold.",
+     "intro": "Номера с повторами — одинаковые цифры подряд (…-XXX). Чем длиннее повтор, тем «чище» и дороже номер. "
+              "Запоминающийся выбор для личного или рабочего номера."},
+    {"slug": "pary", "mask": "NNNNNNabab", "name": "Пары", "h1": "Номера-пары (ABAB)",
+     "desc": "Номера-пары — ритмичное чередование двух цифр (…ABAB). Красивые и запоминающиеся. MagzGold.",
+     "intro": "Номера-пары — чередование двух цифр (…ABAB). Ритмичные, легко диктуются и хорошо смотрятся."},
+    {"slug": "kruglye", "mask": "NNNNNNN000", "name": "Круглые", "h1": "Круглые номера",
+     "desc": "Круглые номера — оканчиваются на нули (…000). Солидно и легко запомнить. Подбор на MagzGold.",
+     "intro": "Круглые номера оканчиваются на нули (…000) — выглядят солидно и запоминаются с первого раза."},
+]
+
 
 def esc(s):
     return html.escape(str(s), quote=True)
@@ -55,6 +73,14 @@ def nav_links(active_slug=None):
         cls = ' class="active"' if c["slug"] == active_slug else ""
         items.append('<a href="/kategoriya/%s/"%s>%s</a>' % (c["slug"], cls, esc(c["name"])))
     return '<nav class="catnav">' + "".join(items) + "</nav>"
+
+
+def patnav(active_slug=None):
+    items = []
+    for p in PATTERNS:
+        cls = ' class="active"' if p["slug"] == active_slug else ""
+        items.append('<a href="/%s/"%s>%s</a>' % (p["slug"], cls, esc(p["name"])))
+    return '<div class="patnav-wrap"><span class="patnav-label">Паттерны:</span><nav class="catnav">' + "".join(items) + "</nav></div>"
 
 
 def crumbs(active=None):
@@ -141,7 +167,8 @@ SCRIPTS = '<script src="/config.js"></script>\n<script src="/app.js"></script>'
 def schema_breadcrumb(active=None):
     items = [{"pos": 1, "name": "Главная", "url": SITE["base"] + "/"}]
     if active:
-        items.append({"pos": 2, "name": active["name"], "url": SITE["base"] + "/kategoriya/%s/" % active["slug"]})
+        url = SITE["base"] + ("/%s/" % active["slug"] if active.get("toplevel") else "/kategoriya/%s/" % active["slug"])
+        items.append({"pos": 2, "name": active["name"], "url": url})
     li = ",".join(
         '{"@type":"ListItem","position":%d,"name":"%s","item":"%s"}' % (i["pos"], esc(i["name"]), i["url"])
         for i in items
@@ -174,7 +201,7 @@ def render_home():
         header_block=header_block,
         main_top='  <p class="page-intro">%s</p>' % intro,
         vitrina=VITRINA,
-        footnav=nav_links(None),
+        footnav=nav_links(None) + patnav(),
         scripts=SCRIPTS,
     )
     write("index.html", html_out)
@@ -195,10 +222,31 @@ def render_category(c):
         header_block=header_block,
         main_top=main_top,
         vitrina=VITRINA,
-        footnav=nav_links(c["slug"]),
+        footnav=nav_links(c["slug"]) + patnav(),
         scripts=SCRIPTS,
     )
     write("kategoriya/%s/index.html" % c["slug"], html_out)
+
+
+def render_pattern(p):
+    page_js = '<script>window.PAGE={mask:"%s"};</script>' % p["mask"]
+    header_block = '    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>'
+    main_top = "%s\n  <h1 class=\"page-h1\">%s</h1>\n  <p class=\"page-intro\">%s</p>" % (
+        crumbs(p["h1"]), esc(p["h1"]), p["intro"])
+    html_out = PAGE_TMPL.format(
+        title="%s — купить и забронировать | MagzGold" % p["h1"],
+        desc=p["desc"],
+        canonical=SITE["base"] + "/%s/" % p["slug"],
+        page_js=page_js,
+        schema=schema_breadcrumb({"name": p["h1"], "slug": p["slug"], "toplevel": True}),
+        nav=nav_links(None),
+        header_block=header_block,
+        main_top=main_top,
+        vitrina=VITRINA,
+        footnav=nav_links(None) + patnav(p["slug"]),
+        scripts=SCRIPTS,
+    )
+    write("%s/index.html" % p["slug"], html_out)
 
 
 def render_404():
@@ -223,7 +271,8 @@ def render_404():
 
 
 def render_sitemap():
-    urls = [SITE["base"] + "/"] + [SITE["base"] + "/kategoriya/%s/" % c["slug"] for c in CATEGORIES]
+    urls = ([SITE["base"] + "/"] + [SITE["base"] + "/kategoriya/%s/" % c["slug"] for c in CATEGORIES]
+            + [SITE["base"] + "/%s/" % p["slug"] for p in PATTERNS])
     body = "".join("<url><loc>%s</loc><changefreq>daily</changefreq></url>" % u for u in urls)
     write("sitemap.xml", '<?xml version="1.0" encoding="UTF-8"?>'
           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">%s</urlset>' % body)
@@ -244,10 +293,12 @@ def main():
     render_home()
     for c in CATEGORIES:
         render_category(c)
+    for p in PATTERNS:
+        render_pattern(p)
     render_404()
     render_sitemap()
     copy_assets()
-    print("✅ dist/: главная + %d категорий + 404 + sitemap/robots" % len(CATEGORIES))
+    print("✅ dist/: главная + %d категорий + %d паттернов + 404 + sitemap/robots" % (len(CATEGORIES), len(PATTERNS)))
 
 
 if __name__ == "__main__":

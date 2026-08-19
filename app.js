@@ -60,6 +60,14 @@
     return m;
   }
   function isEmptyMask(m) { return /^N{10}$/i.test(m); }
+  function setCubes(mask) { // пресет маски для паттерн-страниц (window.PAGE.mask)
+    var cells = cubesEl.querySelectorAll("input");
+    for (var i = 0; i < cells.length; i++) {
+      var ch = (mask && mask[i]) || "";
+      cells[i].value = (ch === "N" || ch === "n" || ch === "") ? "" : ch;
+    }
+    updateRefLink();
+  }
   function updateRefLink() {
     var m = buildCubes();
     if (isEmptyMask(m)) { refBar.hidden = true; return; }
@@ -243,6 +251,7 @@
   if (PAGE.cat) flt.cat = PAGE.cat;
 
   renderCubes();
+  if (PAGE.mask) setCubes(PAGE.mask); // паттерн-страницы задают маску
   loadFilters();
   fetchNumbers();
 })();

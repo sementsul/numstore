@@ -192,7 +192,10 @@ body {
 }
 
 .foot { border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; padding: 26px 0; }
-.foot p { margin: 0; }
+.foot p { margin: 16px 0 0; }
+.foot .catnav { margin-top: 10px; }
+.patnav-wrap { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }
+.patnav-label { color: var(--gold); font-size: 12px; text-transform: uppercase; letter-spacing: 1px; }
 
 @media (max-width: 520px) {
   .top h1 { font-size: 26px; }
