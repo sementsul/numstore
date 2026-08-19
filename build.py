@@ -345,7 +345,7 @@ def _dlinks(items):
 def _build_drawer():
     other = [("/", "Все номера"), ("/kak-eto-rabotaet/", "Как это работает"), ("/tarify/", "Тарифы"), ("/kody/", "Номера по кодам"), ("/blog/", "Блог"), ("/faq/", "Вопросы и ответы"), ("/skolko-stoit-nomer/", "Сколько стоит номер"), ("/o-servise/", "О сервисе")]
     picks = [("/%s/" % l["slug"], l["h1"]) for l in LANDINGS]
-    legal = [("/politika/", "Политика конфиденциальности"), ("/polzovatelskoe-soglashenie/", "Пользовательское соглашение")]
+    legal = [("/dokumenty/", "Документы и партнёрство"), ("/politika/", "Политика конфиденциальности"), ("/polzovatelskoe-soglashenie/", "Пользовательское соглашение")]
     return (
         '<div class="drawer-backdrop" id="drawerBg"></div>'
         '<aside class="drawer" id="drawer" aria-label="Меню сайта">'
@@ -940,6 +940,46 @@ def render_about():
     write("o-servise/index.html", html_out)
 
 
+def render_docs():
+    body = (
+        '<article class="article">'
+        "<p>MagzGold — <b>официальный партнёр оператора связи «Безлимит»</b>. Ниже — подтверждающие документы: "
+        "договор с оператором и доверенность, по которой мы уполномочены оформлять номера.</p>"
+        '<div class="doc-item">'
+        "<h2>Доверенность № С-800848-2026</h2>"
+        "<p>Выдана <b>ООО «Безлимит»</b> (ОГРН 1197746244750, ИНН 9725007063) в рамках агентского договора с "
+        "ПАО «ВымпелКом» («Билайн»). Уполномочивает оформлять и заключать договоры об оказании услуг связи. "
+        "Срок — 12 месяцев. Персональные данные уполномоченного лица (паспорт, дата рождения, адрес) на "
+        "публикуемой копии скрыты в целях безопасности.</p>"
+        '<a href="/docs/doverennost.png" target="_blank" rel="noopener">'
+        '<img class="doc-scan" src="/docs/doverennost.png" alt="Доверенность № С-800848-2026 от ООО «Безлимит»" loading="lazy"></a>'
+        "</div>"
+        '<div class="doc-item">'
+        "<h2>Договор с оператором</h2>"
+        "<p>Договор возмездного оказания услуг (публичная оферта) ООО «Безлимит», на условиях которого работает "
+        "витрина. Открывается для просмотра и скачивания.</p>"
+        '<a class="btn-ghost" href="/docs/dogovor-bezlimit.pdf" target="_blank" rel="noopener">Открыть договор (PDF)</a>'
+        "</div>"
+        "<p>Официальные оферты и политики оператора также опубликованы на его сайте: "
+        '<a href="https://bezlimit.ru/legal" target="_blank" rel="noopener">bezlimit.ru/legal</a>.</p>'
+        "</article>"
+    )
+    html_out = render_page(metrika=METRIKA, drawer=_DRAWER,
+        title="Документы MagzGold — партнёр оператора «Безлимит»",
+        desc="Подтверждающие документы MagzGold: доверенность № С-800848-2026 и договор с оператором ООО «Безлимит». Официальный партнёр.",
+        canonical=SITE["base"] + "/dokumenty/",
+        page_js="",
+        schema=schema_breadcrumb({"name": "Документы", "slug": "dokumenty", "toplevel": True}),
+        nav=nav_links(None),
+        header_block='    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>',
+        main_top='%s\n  <h1 class="page-h1">Документы</h1>' % crumbs("Документы"),
+        vitrina=body,
+        footnav=nav_links(None) + patnav(),
+        scripts="",
+    )
+    write("dokumenty/index.html", html_out)
+
+
 def _legal_page(slug, h1, title, desc, body):
     html_out = render_page(metrika=METRIKA, drawer=_DRAWER, 
         title=title, desc=desc, canonical=SITE["base"] + "/%s/" % slug,
@@ -1099,7 +1139,7 @@ def render_sitemap():
             + [SITE["base"] + "/%s/" % l["slug"] for l in LANDINGS]
             + [SITE["base"] + "/kak-eto-rabotaet/", SITE["base"] + "/skolko-stoit-nomer/", SITE["base"] + "/blog/"]
             + [SITE["base"] + "/blog/%s/" % a["slug"] for a in BLOG]
-            + [SITE["base"] + "/o-servise/", SITE["base"] + "/tarify/", SITE["base"] + "/politika/", SITE["base"] + "/polzovatelskoe-soglashenie/"]
+            + [SITE["base"] + "/o-servise/", SITE["base"] + "/dokumenty/", SITE["base"] + "/tarify/", SITE["base"] + "/politika/", SITE["base"] + "/polzovatelskoe-soglashenie/"]
             + [SITE["base"] + "/tarif/%s/" % t["slug"] for t in TARIFFS]
             + [SITE["base"] + "/kody/", SITE["base"] + "/faq/"]
             + [SITE["base"] + "/kod/%s/" % pfx for pfx in PREFIXES])
@@ -1114,8 +1154,27 @@ def copy_assets():
     for f in ("app.js", "styles.css", "config.js", "calc.js", "nav.js", "favicon.svg"):
         shutil.copy(os.path.join(ROOT, f), os.path.join(DIST, f))
     make_og()
+    copy_docs()
     write("CNAME", "magzgold.ru\n")
     open(os.path.join(DIST, ".nojekyll"), "w").close()
+
+
+# Публикуемые документы: договор-оферта (публичный) + доверенность (КАРТИНКА с закрашенными перс-данными).
+# Источник — _sources/ (gitignore). В dist кладём только публичный договор и уже отредактированный скан.
+DOCS_SRC = [
+    ("dealer_dogovor-okazaniya-uslug.pdf", "dogovor-bezlimit.pdf"),
+    ("dover-public.png", "doverennost.png"),
+]
+
+
+def copy_docs():
+    os.makedirs(os.path.join(DIST, "docs"), exist_ok=True)
+    for src, dst in DOCS_SRC:
+        sp = os.path.join(ROOT, "_sources", src)
+        if os.path.exists(sp):
+            shutil.copy(sp, os.path.join(DIST, "docs", dst))
+        else:
+            print("⚠️  нет исходника документа:", sp)
 
 
 def main():
@@ -1135,6 +1194,7 @@ def main():
     for a in BLOG:
         render_article(a)
     render_about()
+    render_docs()
     render_tariffs_index()
     for t in TARIFFS:
         render_tariff(t)

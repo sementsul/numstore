@@ -455,3 +455,11 @@ body {
   .promo-cta { padding: 26px 16px; border-radius: 14px; }
   .promo-cta .btn-primary { width: 100%; padding: 13px 18px; }
 }
+
+/* Страница «Документы» */
+.doc-item { margin: 8px 0 34px; }
+.doc-scan {
+  display: block; max-width: 100%; width: 640px; margin-top: 14px;
+  border: 1px solid var(--line-2); border-radius: 10px; background: #fff;
+}
+.doc-item .btn-ghost { margin-top: 6px; text-decoration: none; }
