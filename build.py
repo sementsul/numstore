@@ -117,14 +117,12 @@ PAGE_TMPL = """<!doctype html>
 <body>
 <header class="top">
   <div class="wrap">
-    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>
+{header_block}
     {nav}
   </div>
 </header>
 <main class="wrap">
-  {crumbs}
-  <h1 class="page-h1">{h1}</h1>
-  <p class="page-intro">{intro}</p>
+{main_top}
 {vitrina}
 </main>
 <footer class="foot">
@@ -133,11 +131,11 @@ PAGE_TMPL = """<!doctype html>
     <p>MagzGold — информационная витрина красивых номеров. Подбор и бронирование; подключение и оплата на стороне оператора.</p>
   </div>
 </footer>
-<script src="/config.js"></script>
-<script src="/app.js"></script>
+{scripts}
 </body>
 </html>
 """
+SCRIPTS = '<script src="/config.js"></script>\n<script src="/app.js"></script>'
 
 
 def schema_breadcrumb(active=None):
@@ -160,6 +158,11 @@ def write(path, content):
 
 
 def render_home():
+    header_block = ('    <h1 class="hero">Magz<span class="brand-gold">Gold</span>'
+                    ' <span class="hero-tag">— премиальные номера</span></h1>')
+    intro = ("MagzGold — витрина красивых номеров телефонов. Соберите нужную комбинацию маской или выберите "
+             "категорию: бриллиантовые, платиновые, золотые, серебряные, бронзовые. Каждый номер — с тарифом "
+             "и мгновенной бронью онлайн.")
     html_out = PAGE_TMPL.format(
         title="MagzGold — красивые номера: купить и забронировать онлайн",
         desc="MagzGold — красивые и премиальные номера телефонов: подбор по маске и категориям, тарифы, "
@@ -168,19 +171,20 @@ def render_home():
         page_js="",
         schema=schema_breadcrumb(),
         nav=nav_links(None),
-        crumbs="",
-        h1="Красивые номера",
-        intro="MagzGold — витрина красивых номеров телефонов. Соберите нужную комбинацию маской или выберите "
-              "категорию слева: бриллиантовые, платиновые, золотые, серебряные, бронзовые. Каждый номер — с "
-              "тарифом и мгновенной бронью онлайн.",
+        header_block=header_block,
+        main_top='  <p class="page-intro">%s</p>' % intro,
         vitrina=VITRINA,
         footnav=nav_links(None),
+        scripts=SCRIPTS,
     )
     write("index.html", html_out)
 
 
 def render_category(c):
     page_js = '<script>window.PAGE={cat:"%s"};</script>' % c["code"]
+    header_block = '    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>'
+    main_top = "%s\n  <h1 class=\"page-h1\">%s</h1>\n  <p class=\"page-intro\">%s</p>" % (
+        crumbs(c["name"]), esc(c["h1"]), c["intro"])
     html_out = PAGE_TMPL.format(
         title="%s номера — купить и забронировать | MagzGold" % c["name"],
         desc=c["desc"],
@@ -188,13 +192,34 @@ def render_category(c):
         page_js=page_js,
         schema=schema_breadcrumb(c),
         nav=nav_links(c["slug"]),
-        crumbs=crumbs(c["name"]),
-        h1=c["h1"],
-        intro=c["intro"],
+        header_block=header_block,
+        main_top=main_top,
         vitrina=VITRINA,
         footnav=nav_links(c["slug"]),
+        scripts=SCRIPTS,
     )
     write("kategoriya/%s/index.html" % c["slug"], html_out)
+
+
+def render_404():
+    err = ('<div class="err"><div class="err-code">404</div>'
+           '<h1>Страница не найдена</h1>'
+           '<p>Похоже, такой страницы нет или она переехала.</p>'
+           '<a class="btn-primary" href="/">На главную</a></div>')
+    html_out = PAGE_TMPL.format(
+        title="Страница не найдена — MagzGold",
+        desc="Страница не найдена.",
+        canonical=SITE["base"] + "/404.html",
+        page_js="",
+        schema='<meta name="robots" content="noindex">',
+        nav=nav_links(None),
+        header_block='    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>',
+        main_top="",
+        vitrina=err,
+        footnav=nav_links(None),
+        scripts="",
+    )
+    write("404.html", html_out)
 
 
 def render_sitemap():
@@ -219,9 +244,10 @@ def main():
     render_home()
     for c in CATEGORIES:
         render_category(c)
+    render_404()
     render_sitemap()
     copy_assets()
-    print("✅ dist/: главная + %d категорий + sitemap/robots" % len(CATEGORIES))
+    print("✅ dist/: главная + %d категорий + 404 + sitemap/robots" % len(CATEGORIES))
 
 
 if __name__ == "__main__":

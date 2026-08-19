@@ -106,6 +106,9 @@ BreadcrumbList schema + навигация по категориям. Катег
 app.js (чтение window.PAGE), index.html/styles.css (.catnav/.crumbs/.page-h1/.page-intro/.brand-ссылка).
 Витрина внутри страниц — та же клиентская (ban-proof). **Превью:** `cd dist && python3 -m http.server 5173`.
 Проверено: главная/gold/sitemap → 200, gold имеет свой title+PAGE+H1.
+Главная: hero-строка «MagzGold — премиальные номера» (H1, одна строка; ключ «красивые номера» — в title/intro
+для SEO). Категории: brand-ссылка + катнав + свой H1. Есть стилизованная **404.html** (noindex, без витрины —
+слот `{scripts}` пустой, чтобы app.js не падал). Заголовки шапки настраиваются через header_block/main_top.
 
 ## Открытые долги
 - Поле цены самого номера (разобрать полный объект `phone`).

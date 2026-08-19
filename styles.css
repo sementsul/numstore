@@ -30,6 +30,17 @@ body {
   background: linear-gradient(180deg, rgba(201,165,88,.06), transparent);
 }
 .brand { font-size: 26px; font-weight: 700; letter-spacing: .5px; color: var(--text); text-decoration: none; display: inline-block; }
+.hero { margin: 0; font-size: 30px; font-weight: 700; letter-spacing: .5px; color: var(--text); }
+.hero-tag { font-weight: 400; color: var(--muted); font-size: 26px; }
+@media (max-width: 520px) { .hero, .hero-tag { font-size: 23px; } }
+
+/* 404 */
+.err { text-align: center; padding: 70px 0 90px; }
+.err-code { font-size: 88px; font-weight: 700; line-height: 1;
+  background: linear-gradient(180deg, var(--gold-hi), var(--gold)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.err h1 { margin: 18px 0 8px; font-size: 24px; font-weight: 600; }
+.err p { color: var(--muted); margin: 0 0 24px; }
+.err .btn-primary { text-decoration: none; }
 .brand-gold {
   background: linear-gradient(180deg, var(--gold-hi), var(--gold));
   -webkit-background-clip: text; background-clip: text; color: transparent;
