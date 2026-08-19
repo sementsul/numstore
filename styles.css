@@ -573,3 +573,4 @@ body {
 .calc-total { display: flex; justify-content: space-between; gap: 12px; padding: 14px 0 6px; font-size: 20px; font-weight: 700; }
 .calc-total b { color: var(--gold); }
 .calc-cta { display: inline-block; margin-top: 16px; text-decoration: none; }
+.calc-free { color: #7fd18b; font-weight: 700; }
