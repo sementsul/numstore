@@ -316,6 +316,8 @@ PAGE_TMPL = """<!doctype html>
 """
 SCRIPTS = '<script src="/config.js"></script>\n<script src="/app.js"></script>'
 METRIKA = '<!-- Yandex.Metrika counter -->\n<script type="text/javascript">\n    (function(m,e,t,r,i,k,a){\n        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};\n        m[i].l=1*new Date();\n        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}\n        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)\n    })(window, document,\'script\',\'https://mc.yandex.ru/metrika/tag.js?id=111737982\', \'ym\');\n\n    ym(111737982, \'init\', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});\n</script>\n<noscript><div><img src="https://mc.yandex.ru/watch/111737982" style="position:absolute; left:-9999px;" alt="" /></div></noscript>\n<!-- /Yandex.Metrika counter -->'
+GTAG = '<!-- Google tag (gtag.js) -->\n<script async src="https://www.googletagmanager.com/gtag/js?id=G-R1CLPNLWLD"></script>\n<script>\n  window.dataLayer = window.dataLayer || [];\n  function gtag(){dataLayer.push(arguments);}\n  gtag(\'js\', new Date());\n  gtag(\'config\', \'G-R1CLPNLWLD\');\n</script>\n<!-- /Google tag -->'
+METRIKA = METRIKA + "\n" + GTAG
 
 
 def schema_breadcrumb(active=None):
@@ -636,11 +638,12 @@ def render_privacy():
         "Семенцул Максим Геннадиевич, ИНН 381616884622, "
         '<a href="mailto:sementsul.maksim@yandex.ru">sementsul.maksim@yandex.ru</a>.</p>'
         "<h2>Какие данные обрабатываются</h2>"
-        "<p>Сайт статический и не требует регистрации. Для улучшения работы сайта мы используем "
-        "<b>Яндекс.Метрику</b> (включая технологию Вебвизор — запись обезличенных действий на страницах: клики, "
-        "прокрутка, движение курсора), которая собирает обезличенные cookie и технические данные (тип устройства, "
-        "просмотренные страницы, источник перехода). Персональные данные для покупки и оформления номера "
-        "собираются и обрабатываются оператором связи на его стороне и по его политике.</p>"
+        "<p>Сайт статический и не требует регистрации. Для улучшения работы сайта мы используем сервисы "
+        "веб-аналитики <b>Яндекс.Метрика</b> (включая технологию Вебвизор — запись обезличенных действий на "
+        "страницах: клики, прокрутка, движение курсора) и <b>Google Analytics</b>. Они собирают обезличенные "
+        "cookie и технические данные (тип устройства, просмотренные страницы, источник перехода). Персональные "
+        "данные для покупки и оформления номера собираются и обрабатываются оператором связи на его стороне и "
+        "по его политике.</p>"
         "<h2>Цели и правовые основания</h2>"
         "<p>Технические и аналитические данные обрабатываются для функционирования и улучшения сайта на "
         "основании законного интереса и согласия, выражаемого использованием сайта (152-ФЗ).</p>"
