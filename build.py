@@ -345,7 +345,7 @@ def _dlinks(items):
 
 
 def _build_drawer():
-    other = [("/", "Все номера"), ("/kak-eto-rabotaet/", "Как это работает"), ("/tarify/", "Тарифы"), ("/kody/", "Номера по кодам"), ("/blog/", "Блог"), ("/faq/", "Вопросы и ответы"), ("/skolko-stoit-nomer/", "Сколько стоит номер"), ("/o-servise/", "О сервисе")]
+    other = [("/", "Все номера"), ("/kak-eto-rabotaet/", "Как это работает"), ("/tarify/", "Тарифы"), ("/kody/", "Номера по кодам"), ("/blog/", "Блог"), ("/faq/", "Вопросы и ответы"), ("/skolko-stoit-nomer/", "Сколько стоит номер"), ("/proverit-nomer/", "Проверить красоту номера"), ("/o-servise/", "О сервисе")]
     picks = [("/%s/" % l["slug"], l["h1"]) for l in LANDINGS]
     legal = [("/dokumenty/", "Документы и партнёрство"), ("/politika/", "Политика конфиденциальности"), ("/polzovatelskoe-soglashenie/", "Пользовательское соглашение")]
     tg = ('<a href="https://t.me/magzgoldmg" target="_blank" rel="noopener">📢 Канал с номерами</a>'
@@ -787,6 +787,47 @@ def render_app():
     write("app/index.html", html_out)
 
 
+def render_checker():
+    """Инструмент проверки «красоты» номера: свой анализатор паттернов + наличие в каталоге."""
+    body = (
+        '<div class="chk">'
+        '<div class="chk-form">'
+        '<span class="chk-prefix">+7</span>'
+        '<input id="chkInput" class="chk-input" inputmode="numeric" maxlength="14" placeholder="999 888-77-66" autocomplete="off">'
+        '<button id="chkBtn" class="btn-primary">Проверить</button>'
+        '</div>'
+        '<div id="chkOut" class="chk-out"></div>'
+        '</div>'
+        '<section class="seo-text">'
+        '<h2>Как мы оцениваем красоту номера</h2>'
+        '<p>Инструмент разбирает номер по закономерностям, которые ценятся на рынке: одинаковые цифры подряд, '
+        'зеркальность (палиндром), круглые окончания на нули, повторяющиеся пары, последовательности и малое '
+        'число разных цифр. Чем больше «чистых» комбинаций — тем выше оценка: <b>обычный → приятный → красивый → '
+        'премиальный</b>.</p>'
+        '<p>Оценка ориентировочная — это наш анализатор, а не официальная категория оператора. Если номер есть в '
+        'каталоге MagzGold, ниже покажем его реальную категорию, тариф и цену, а также ссылку на бронирование. '
+        'Не нашли нужный — <a href="/">подберите похожий в каталоге</a> или прикиньте бюджет на '
+        '<a href="/skolko-stoit-nomer/">калькуляторе</a>.</p>'
+        '</section>')
+    html_out = render_page(metrika=METRIKA, drawer=_DRAWER,
+        title="Проверить красивый ли номер — оценка онлайн | MagzGold",
+        desc="Проверьте, красивый ли номер телефона: онлайн-анализ паттернов (повторы, зеркальность, круглые, пары) + наличие в каталоге MagzGold.",
+        canonical=SITE["base"] + "/proverit-nomer/",
+        og_image=OG("home"),
+        page_js="",
+        schema=schema_breadcrumb({"name": "Проверить номер", "slug": "proverit-nomer", "toplevel": True}),
+        nav=nav_links(None),
+        header_block='    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>',
+        main_top='%s\n  <h1 class="page-h1">Проверить красоту номера</h1>\n'
+                 '  <p class="page-intro">Введите любой номер — покажем, насколько он «красивый» по закономерностям, '
+                 'и есть ли он в каталоге MagzGold.</p>' % crumbs("Проверить номер"),
+        vitrina=body,
+        footnav=nav_links(None) + patnav(),
+        scripts='<script src="/config.js%s"></script>\n<script src="/checker.js%s"></script>' % (_ver("config.js"), _ver("checker.js")),
+    )
+    write("proverit-nomer/index.html", html_out)
+
+
 def render_number_page():
     """Страница одного номера /nomer/?p=<цифры> — данные тянет nomer.js из API в браузере."""
     html_out = render_page(metrika=METRIKA, drawer=_DRAWER,
@@ -1193,7 +1234,7 @@ def render_sitemap():
     urls = ([SITE["base"] + "/"] + [SITE["base"] + "/kategoriya/%s/" % c["slug"] for c in CATEGORIES]
             + [SITE["base"] + "/%s/" % p["slug"] for p in PATTERNS]
             + [SITE["base"] + "/%s/" % l["slug"] for l in LANDINGS]
-            + [SITE["base"] + "/kak-eto-rabotaet/", SITE["base"] + "/skolko-stoit-nomer/", SITE["base"] + "/blog/"]
+            + [SITE["base"] + "/kak-eto-rabotaet/", SITE["base"] + "/proverit-nomer/", SITE["base"] + "/skolko-stoit-nomer/", SITE["base"] + "/blog/"]
             + [SITE["base"] + "/blog/%s/" % a["slug"] for a in BLOG]
             + [SITE["base"] + "/o-servise/", SITE["base"] + "/dokumenty/", SITE["base"] + "/tarify/", SITE["base"] + "/politika/", SITE["base"] + "/polzovatelskoe-soglashenie/"]
             + [SITE["base"] + "/tarif/%s/" % t["slug"] for t in TARIFFS]
@@ -1207,7 +1248,7 @@ def render_sitemap():
 
 
 def copy_assets():
-    for f in ("app.js", "styles.css", "config.js", "calc.js", "nav.js", "nomer.js", "favicon.svg"):
+    for f in ("app.js", "styles.css", "config.js", "calc.js", "nav.js", "nomer.js", "checker.js", "favicon.svg"):
         shutil.copy(os.path.join(ROOT, f), os.path.join(DIST, f))
     make_og()
     copy_docs()
@@ -1247,6 +1288,7 @@ def main():
     render_promo()
     render_app()
     render_number_page()
+    render_checker()
     render_calc()
     render_blog_index()
     for a in BLOG:

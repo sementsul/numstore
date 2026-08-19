@@ -531,3 +531,31 @@ body {
 .tg-links { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 14px; }
 .tg-links a { color: var(--gold); text-decoration: none; font-size: 14px; }
 .tg-links a:hover { color: var(--gold-hi); }
+
+/* Проверка красоты номера (/proverit-nomer/) */
+.chk { max-width: 640px; margin: 8px 0 26px; }
+.chk-form { display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  background: linear-gradient(180deg, var(--card-hi), var(--card)); border: 1px solid var(--line);
+  border-radius: 14px; padding: 16px; }
+.chk-prefix { font-size: 20px; font-weight: 600; color: var(--gold); }
+.chk-input { flex: 1 1 200px; min-width: 0; padding: 12px 14px; font-size: 18px; letter-spacing: 1px;
+  background: #0f121a; border: 1px solid var(--line); border-radius: 10px; color: var(--text);
+  font-variant-numeric: tabular-nums; }
+.chk-input:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,165,88,.18); }
+.chk-out { margin-top: 16px; }
+.chk-err { color: #e98b8b; }
+.chk-card { background: linear-gradient(180deg, var(--card-hi), var(--card)); border: 1px solid var(--line-2);
+  border-radius: 14px; padding: 20px; }
+.chk-phone { font-size: 26px; font-weight: 700; letter-spacing: 1px; color: var(--text); font-variant-numeric: tabular-nums; }
+.chk-verdict { display: inline-flex; align-items: baseline; gap: 10px; margin-top: 8px; font-size: 20px; font-weight: 700; }
+.chk-verdict.v-top { color: var(--gold-hi); }
+.chk-verdict.v-nice { color: var(--gold); }
+.chk-verdict.v-ok { color: #cdd3df; }
+.chk-verdict.v-plain { color: var(--muted); }
+.chk-score { font-size: 13px; font-weight: 400; color: var(--muted); }
+.chk-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.chk-chip { padding: 6px 12px; border-radius: 20px; font-size: 13px; color: var(--gold);
+  border: 1px solid var(--line-2); background: rgba(201,165,88,.06); }
+.chk-avail { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 14px; color: var(--muted); }
+.chk-avail a { color: var(--gold); text-decoration: none; }
+.chk-avail b { color: var(--text); }
