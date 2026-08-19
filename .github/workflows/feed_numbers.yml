@@ -1,0 +1,35 @@
+name: Обновление JSON-фида номеров
+
+on:
+  schedule:
+    - cron: "0 */4 * * *"     # каждые 4 часа
+  workflow_dispatch: {}
+
+concurrency:
+  group: feed-numbers
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Сгенерировать numbers.json
+        run: python3 gen_numbers.py numbers.json
+      - name: Запушить фид на сайт (magzgold)
+        env:
+          TOK: ${{ secrets.DEPLOY_TOKEN }}
+        run: |
+          git clone --depth 1 "https://x-access-token:${TOK}@github.com/sementsul/magzgold.git" site
+          mkdir -p site/api
+          cp numbers.json site/api/numbers.json
+          cd site
+          if [ -n "$(git status --porcelain api/numbers.json)" ]; then
+            git config user.name "feed-bot"
+            git config user.email "feed-bot@users.noreply.github.com"
+            git add api/numbers.json
+            git commit -m "chore: авто-обновление numbers.json"
+            git push
+          else
+            echo "фид не изменился"
+          fi
