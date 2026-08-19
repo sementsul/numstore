@@ -154,6 +154,7 @@ PAGE_TMPL = """<!doctype html>
 <footer class="foot">
   <div class="wrap">
     {footnav}
+    <nav class="catnav footlinks"><a href="/skolko-stoit-nomer/">Сколько стоит номер</a></nav>
     <p>MagzGold — информационная витрина красивых номеров. Подбор и бронирование; подключение и оплата на стороне оператора.</p>
   </div>
 </footer>
@@ -249,6 +250,60 @@ def render_pattern(p):
     write("%s/index.html" % p["slug"], html_out)
 
 
+def render_calc():
+    cats_js = "[" + ",".join(
+        '{"slug":"%s","code":"%s","name":"%s"}' % (c["slug"], c["code"], c["name"]) for c in CATEGORIES) + "]"
+    page_js = "<script>window.CALC_CATS=%s;</script>" % cats_js
+    cat_opts = "".join('<option value="%s">%s</option>' % (c["slug"], esc(c["name"])) for c in CATEGORIES)
+    reg_opts = ('<option value="msk">Москва (495 / 499)</option>'
+                '<option value="mob" selected>Мобильный (9XX)</option>'
+                '<option value="spb">Санкт-Петербург (812)</option>'
+                '<option value="reg">Регионы</option>')
+    body = (
+        '<div class="calc">'
+        '<div class="calc-form">'
+        '<label>Красота номера<select id="calcCat">' + cat_opts + '</select></label>'
+        '<label>Регион / код<select id="calcReg">' + reg_opts + '</select></label>'
+        '</div>'
+        '<div class="calc-out" id="calcOut"></div>'
+        '<a id="calcLink" class="btn-primary" hidden>Показать такие номера</a>'
+        '</div>'
+        '<section class="seo-text">'
+        '<h2>От чего зависит цена красивого номера</h2>'
+        '<p><b>Категория красоты.</b> Чем «чище» комбинация — повторы, зеркальность, круглые окончания — тем '
+        'выше категория (бронза → серебро → золото → платина → бриллиант) и стоимость. Бриллиантовые номера '
+        'встречаются редко и стоят заметно дороже бронзовых.</p>'
+        '<p><b>Редкость комбинации.</b> Три и более одинаковых цифры подряд, «зеркала», ровные окончания на нули '
+        'и легко запоминаемые сочетания ценятся выше случайного набора.</p>'
+        '<p><b>Регион и код.</b> Столичные коды (495/499) традиционно дороже за счёт спроса и статуса; '
+        'региональные — доступнее. Это рыночный фактор, а не фиксированный тариф.</p>'
+        '<p><b>Тариф.</b> В нашей витрине стоимость номера — это абонентская плата выбранного тарифа. Красивые '
+        'номера чаще идут с более ёмкими тарифами. Точные условия и итоговую сумму вы видите при бронировании '
+        'у оператора.</p>'
+        '<p class="calc-disc">Калькулятор показывает <b>ориентировочный</b> диапазон на основе реальных тарифов '
+        'категории и оценочного регионального коэффициента. Это не оферта; финальная стоимость — у оператора.</p>'
+        '</section>'
+    )
+    html_out = PAGE_TMPL.format(
+        title="Сколько стоит красивый номер — калькулятор стоимости | MagzGold",
+        desc="Сколько стоит красивый номер телефона: онлайн-калькулятор ориентировочной стоимости по категории "
+             "красоты и региону. Реальные тарифы и факторы цены — MagzGold.",
+        canonical=SITE["base"] + "/skolko-stoit-nomer/",
+        page_js=page_js,
+        schema=schema_breadcrumb({"name": "Сколько стоит номер", "slug": "skolko-stoit-nomer", "toplevel": True}),
+        nav=nav_links(None),
+        header_block='    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>',
+        main_top='%s\n  <h1 class="page-h1">Сколько стоит красивый номер</h1>\n'
+                 '  <p class="page-intro">Оцените ориентировочную стоимость красивого номера по категории красоты '
+                 'и региону — расчёт на основе реальных тарифов. Ниже — из чего складывается цена.</p>'
+                 % crumbs("Сколько стоит номер"),
+        vitrina=body,
+        footnav=nav_links(None) + patnav(),
+        scripts='<script src="/config.js"></script>\n<script src="/calc.js"></script>',
+    )
+    write("skolko-stoit-nomer/index.html", html_out)
+
+
 def render_404():
     err = ('<div class="err"><div class="err-code">404</div>'
            '<h1>Страница не найдена</h1>'
@@ -272,7 +327,8 @@ def render_404():
 
 def render_sitemap():
     urls = ([SITE["base"] + "/"] + [SITE["base"] + "/kategoriya/%s/" % c["slug"] for c in CATEGORIES]
-            + [SITE["base"] + "/%s/" % p["slug"] for p in PATTERNS])
+            + [SITE["base"] + "/%s/" % p["slug"] for p in PATTERNS]
+            + [SITE["base"] + "/skolko-stoit-nomer/"])
     body = "".join("<url><loc>%s</loc><changefreq>daily</changefreq></url>" % u for u in urls)
     write("sitemap.xml", '<?xml version="1.0" encoding="UTF-8"?>'
           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">%s</urlset>' % body)
@@ -280,7 +336,7 @@ def render_sitemap():
 
 
 def copy_assets():
-    for f in ("app.js", "styles.css", "config.js"):
+    for f in ("app.js", "styles.css", "config.js", "calc.js"):
         shutil.copy(os.path.join(ROOT, f), os.path.join(DIST, f))
     write("CNAME", "magzgold.ru\n")
     open(os.path.join(DIST, ".nojekyll"), "w").close()
@@ -295,10 +351,11 @@ def main():
         render_category(c)
     for p in PATTERNS:
         render_pattern(p)
+    render_calc()
     render_404()
     render_sitemap()
     copy_assets()
-    print("✅ dist/: главная + %d категорий + %d паттернов + 404 + sitemap/robots" % (len(CATEGORIES), len(PATTERNS)))
+    print("✅ dist/: главная + %d категорий + %d паттернов + калькулятор + 404 + sitemap/robots" % (len(CATEGORIES), len(PATTERNS)))
 
 
 if __name__ == "__main__":
