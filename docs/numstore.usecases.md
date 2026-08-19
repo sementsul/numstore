@@ -197,6 +197,14 @@ build.py (кнопка в VITRINA, тексты доставки), styles.css (.
 4 категории + 5 паттернов + коды + калькулятор). Паттерны — тоже related_block. Радиус: build.py (CAT_TEXT/cat_schema/
 related_block, render_category/render_pattern), styles.css (.related/.rel-links). Дальше по плану: лонгтейл-страницы, блог, Organization contactPoint, preconnect.
 
+## UC-26. SEO-усиление ч.2: preconnect + Organization contactPoint + лонгтейл-лендинги ✅
+Скорость: `preconnect` к api.store.bezlimit.ru и mc.yandex.ru + `dns-prefetch` к googletagmanager.com в head всех страниц.
+Organization-schema (home_schema) обогащён: `description` (партнёр Безлимит) + `contactPoint` (email support). Лонгтейл: 4
+интент-лендинга (LANDINGS) — **/dlya-biznesa/**, **/v-podarok/**, **/legko-zapomnit/**, **/na-datu-rozhdeniya/** — витрина
++ уникальный SEO-текст с внутренними ссылками на категории/паттерны + related_block. Заведены в sitemap и в шторку
+(группа «Подборки»). Радиус: build.py (PAGE_TMPL head, home_schema, LANDINGS/render_landing, _build_drawer picks,
+main/render_sitemap). Проверено: 4 страницы собраны, canonical/search-box/seo-text на месте, sitemap содержит лендинги.
+
 ## Открытые долги
 - Поле цены самого номера (разобрать полный объект `phone`).
 - Фильтр по маске/паттерну (эндпоинт `/super-link/phones/filters`).

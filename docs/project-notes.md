@@ -4,14 +4,17 @@
 Истина по задаче: `TZ.md`. Живые сценарии: `docs/numstore.usecases.md`.
 
 ## Что где (архитектура v4 — SEO-каркас)
-- `build.py` — **источник HTML** (~50 страниц): главная + категории ×5 + паттерны ×7 (вкл. 777/888/999) + тарифы
+- `build.py` — **источник HTML** (~50 страниц): главная + категории ×5 + паттерны ×7 (вкл. 777/888/999) +
+  лонгтейл-лендинги ×4 (LANDINGS: /dlya-biznesa/, /v-podarok/, /legko-zapomnit/, /na-datu-rozhdeniya/ — витрина +
+  уникальный текст + перелинковка) + тарифы
   ×10 + `/tarify/` + коды `/kody/`+`/kod/<pfx>/`×16 + `/skolko-stoit-nomer/` + `/blog/`(+3) + `/faq/`(FAQPage) +
   `/o-servise/` + `/politika/` + `/polzovatelskoe-soglashenie/` + 404 + sitemap(lastmod)/robots/CNAME.
+  Скорость: preconnect/dns-prefetch (api Безлимит, Метрика, GTM). Organization schema: description + contactPoint.
   SEO: og:image (make_og/PIL), favicon.svg, Organization+WebSite schema (home_schema), Breadcrumb/FAQPage.
   Пресеты страниц: `window.PAGE` = {cat|mask|tariff}. Данные: CATEGORIES/PATTERNS/BLOG. PAGE_TMPL+VITRINA; header_block/
   main_top/scripts настраивают страницу (контентные — scripts=""). Паттерны: `window.PAGE.mask`
   (🔴 буквы-маски на API не подтверждены). Категории: `window.PAGE.cat`.
-- `nav.js` — шторка (выдвижное меню, на всех страницах). `_DRAWER` в build.py прокинут во все страницы; шторка = Разделы+Документы (категории/паттерны/тарифы — в шапке/футере).
+- `nav.js` — шторка (выдвижное меню, на всех страницах). `_DRAWER` в build.py прокинут во все страницы; шторка = Разделы+Подборки(лонгтейл)+Документы (категории/паттерны/тарифы — в шапке/футере).
 - `deploy.sh` — сборка+пуш dist в public Pages-репо (`GH_TOKEN=… ./deploy.sh`). Токен из env, не хардкод.
 - `calc.js` — калькулятор: цена НОМЕРА из офиц. прайса (pmin/pmax в CATEGORIES: brilliant 400к–4М,
   platinum 25к–600к, gold 50к–200к, silver 12к–100к, bronze 3к–12к ₽) + живая абонплата тарифа/мес из API.

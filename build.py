@@ -140,6 +140,42 @@ FAQ = [
      "можно оформить вообще без пластиковой карты и ожидания — прямо на устройстве."),
 ]
 
+# Лонгтейл-лендинги: витрина + уникальный текст под интент-запрос.
+LANDINGS = [
+    {"slug": "dlya-biznesa", "h1": "Красивые номера для бизнеса",
+     "title": "Красивые номера для бизнеса — купить корпоративный номер | MagzGold",
+     "desc": "Красивые номера для бизнеса: запоминающийся номер для рекламы, визиток и клиентов. Подбор по маске и категории, бронирование онлайн — MagzGold.",
+     "text": ("<p>Красивый номер для бизнеса — это рабочий инструмент: его проще запомнить с рекламы, вывески или "
+              "визитки, он повышает доверие и упрощает входящие обращения. Хороший корпоративный номер окупается "
+              "ростом звонков от клиентов.</p>"
+              "<p>Для компании обычно берут <a href=\"/kategoriya/gold/\">золотые</a> или "
+              "<a href=\"/kategoriya/platinum/\">платиновые</a> номера с ровным окончанием или повтором. Подберите "
+              "комбинацию маской — например, зафиксируйте окончание на <a href=\"/kruglye/\">нули</a> или "
+              "<a href=\"/na-777/\">777</a>.</p>")},
+    {"slug": "v-podarok", "h1": "Номер в подарок",
+     "title": "Красивый номер в подарок — оригинальный подарок | MagzGold",
+     "desc": "Красивый номер телефона в подарок — оригинально и статусно. Выберите номер по маске или дате, забронируйте онлайн — MagzGold.",
+     "text": ("<p>Красивый номер — необычный и запоминающийся подарок: близкому человеку, партнёру или руководителю. "
+              "Можно подобрать номер с личными цифрами — датой рождения, годом или счастливой комбинацией.</p>"
+              "<p>Выберите категорию по бюджету — от доступной <a href=\"/kategoriya/bronze/\">бронзы</a> до "
+              "<a href=\"/kategoriya/brilliant/\">бриллиантовой</a>, — и задайте нужные цифры маской.</p>")},
+    {"slug": "legko-zapomnit", "h1": "Номера, которые легко запомнить",
+     "title": "Легко запоминающиеся номера телефонов — купить | MagzGold",
+     "desc": "Номера, которые легко запомнить: повторы, пары, круглые окончания. Подбор по маске и категории, бронирование онлайн — MagzGold.",
+     "text": ("<p>Легко запоминающийся номер экономит время и вам, и тем, кто вам звонит. Проще всего запоминаются "
+              "номера с <a href=\"/povtory/\">повторами</a>, <a href=\"/pary/\">парами</a> цифр и "
+              "<a href=\"/kruglye/\">круглыми</a> окончаниями.</p>"
+              "<p>Соберите комбинацию маской из привычных цифр — и номер будет отскакивать от зубов.</p>")},
+    {"slug": "na-datu-rozhdeniya", "h1": "Номер с датой рождения",
+     "title": "Номер телефона с датой рождения — подобрать | MagzGold",
+     "desc": "Подберите красивый номер с вашей датой рождения или годом. Гибкая маска по позициям, бронирование онлайн — MagzGold.",
+     "text": ("<p>Номер с датой рождения — личный и его невозможно забыть. В каталоге задайте маску: впишите день, "
+              "месяц или год на нужные позиции, а остальные цифры оставьте любыми — система покажет подходящие "
+              "варианты.</p>"
+              "<p>Так же можно искать номер с годом (например, 2000) или другими значимыми цифрами. "
+              "Понравившийся вариант добавьте в избранное и забронируйте.</p>")},
+]
+
 # Гайды/блог: slug, title, desc, h1, body (HTML).
 BLOG = [
     {"slug": "kak-vybrat-krasivyy-nomer", "h1": "Как выбрать красивый номер",
@@ -231,6 +267,7 @@ def _dlinks(items):
 
 def _build_drawer():
     other = [("/", "Все номера"), ("/tarify/", "Тарифы"), ("/kody/", "Номера по кодам"), ("/blog/", "Блог"), ("/faq/", "Вопросы и ответы"), ("/skolko-stoit-nomer/", "Сколько стоит номер"), ("/o-servise/", "О сервисе")]
+    picks = [("/%s/" % l["slug"], l["h1"]) for l in LANDINGS]
     legal = [("/politika/", "Политика конфиденциальности"), ("/polzovatelskoe-soglashenie/", "Пользовательское соглашение")]
     return (
         '<div class="drawer-backdrop" id="drawerBg"></div>'
@@ -238,9 +275,10 @@ def _build_drawer():
         '<button class="drawer-close" aria-label="Закрыть">\u00d7</button>'
         '<a class="drawer-brand" href="/">Magz<span class="brand-gold">Gold</span></a>'
         '<div class="drawer-group"><h4>Разделы</h4>%s</div>'
+        '<div class="drawer-group"><h4>Подборки</h4>%s</div>'
         '<div class="drawer-group"><h4>Документы</h4>%s</div>'
         '</aside>'
-    ) % (_dlinks(other), _dlinks(legal))
+    ) % (_dlinks(other), _dlinks(picks), _dlinks(legal))
 
 
 _DRAWER = _build_drawer()
@@ -326,6 +364,9 @@ PAGE_TMPL = """<!doctype html>
 <meta property="og:site_name" content="MagzGold">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://api.store.bezlimit.ru">
+<link rel="preconnect" href="https://mc.yandex.ru">
+<link rel="dns-prefetch" href="https://www.googletagmanager.com">
 <link rel="stylesheet" href="/styles.css">
 {metrika}
 {page_js}
@@ -401,7 +442,10 @@ def write(path, content):
 
 def home_schema():
     org = ('<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization",'
-           '"name":"MagzGold","url":"%s/","logo":"%s/og.png"}</script>') % (SITE["base"], SITE["base"])
+           '"name":"MagzGold","url":"%s/","logo":"%s/og.png",'
+           '"description":"Витрина красивых номеров телефонов, официальный партнёр оператора Безлимит",'
+           '"contactPoint":{"@type":"ContactPoint","email":"sementsul.maksim@yandex.ru","contactType":"customer support"}}'
+           "</script>") % (SITE["base"], SITE["base"])
     web = ('<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite",'
            '"name":"MagzGold","url":"%s/"}</script>') % SITE["base"]
     return org + web + schema_breadcrumb()
@@ -490,6 +534,25 @@ def render_pattern(p):
         scripts=SCRIPTS,
     )
     write("%s/index.html" % p["slug"], html_out)
+
+
+def render_landing(l):
+    header_block = '    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>'
+    main_top = "%s\n  <h1 class=\"page-h1\">%s</h1>" % (crumbs(l["h1"]), esc(l["h1"]))
+    html_out = PAGE_TMPL.format(metrika=METRIKA, drawer=_DRAWER,
+        title=l["title"],
+        desc=l["desc"],
+        canonical=SITE["base"] + "/%s/" % l["slug"],
+        page_js="",
+        schema=schema_breadcrumb({"name": l["h1"], "slug": l["slug"], "toplevel": True}),
+        nav=nav_links(None),
+        header_block=header_block,
+        main_top=main_top,
+        vitrina=VITRINA + '<section class="seo-text">' + l["text"] + "</section>" + related_block(),
+        footnav=nav_links(None) + patnav(),
+        scripts=SCRIPTS,
+    )
+    write("%s/index.html" % l["slug"], html_out)
 
 
 def render_calc():
@@ -830,6 +893,7 @@ def render_404():
 def render_sitemap():
     urls = ([SITE["base"] + "/"] + [SITE["base"] + "/kategoriya/%s/" % c["slug"] for c in CATEGORIES]
             + [SITE["base"] + "/%s/" % p["slug"] for p in PATTERNS]
+            + [SITE["base"] + "/%s/" % l["slug"] for l in LANDINGS]
             + [SITE["base"] + "/skolko-stoit-nomer/", SITE["base"] + "/blog/"]
             + [SITE["base"] + "/blog/%s/" % a["slug"] for a in BLOG]
             + [SITE["base"] + "/o-servise/", SITE["base"] + "/tarify/", SITE["base"] + "/politika/", SITE["base"] + "/polzovatelskoe-soglashenie/"]
@@ -860,6 +924,8 @@ def main():
         render_category(c)
     for p in PATTERNS:
         render_pattern(p)
+    for l in LANDINGS:
+        render_landing(l)
     render_calc()
     render_blog_index()
     for a in BLOG:
