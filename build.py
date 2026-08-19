@@ -390,12 +390,21 @@ def crumbs(active=None):
 
 # Разметка витрины (общая для всех страниц) — маска-поиск + сайдбар-фильтры + сетка.
 VITRINA = """    <section class="search-box">
-      <div class="cubes" id="cubes" aria-label="Маска номера из 10 цифр"><span class="cube-prefix">+7</span></div>
-      <div class="cube-actions">
-        <button id="find" class="btn-primary">Найти по маске</button>
-        <button id="reset" class="btn-ghost">Сбросить</button>
+      <div class="search-main">
+        <div class="cubes" id="cubes" aria-label="Маска номера из 10 цифр"><span class="cube-prefix">+7</span></div>
+        <div class="cube-actions">
+          <button id="find" class="btn-primary">Найти по маске</button>
+          <button id="reset" class="btn-ghost">Сбросить</button>
+        </div>
+        <p class="cube-hint">Цифра — точная позиция · пусто — любая · буква (a, b, …) — повторяющаяся цифра</p>
       </div>
-      <p class="cube-hint">Цифра — точная позиция · пусто — любая · буква (a, b, …) — повторяющаяся цифра</p>
+      <aside class="search-aside">
+        <h3>Быстрый выбор</h3>
+        <div class="qpick">
+          <a href="/na-777/">777</a><a href="/na-999/">999</a><a href="/na-888/">888</a>
+          <a href="/kruglye/">Круглые</a><a href="/zerkalnye/">Зеркальные</a><a href="/povtory/">Повторы</a><a href="/pary/">Пары</a>
+        </div>
+      </aside>
     </section>
     <div class="layout">
       <aside class="sidebar">
