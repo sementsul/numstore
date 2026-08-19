@@ -14,7 +14,7 @@
   var BAD_TARIFF = /Анадыр|Норильск/i;
   function okTariff(p) { return !(p && p.tariff && p.tariff.name && BAD_TARIFF.test(p.tariff.name)); }
   var CATS = [], TARIFFS = [];
-  var flt = { cat: null, tariff: null, price: null, code: null }; // cat/tariff/price/code — code=первые 3 цифры (клиент)
+  var flt = { cat: null, tariff: null, price: null, code: null, tariffPrice: null }; // tariffPrice — пресет тарифной страницы (по цене)
 
   // Избранное (localStorage): digits -> {phone, tariff}
   var FAV = {}, favMode = false;
@@ -184,6 +184,7 @@
     if (PRESET.tmin && !(p.tariff && (p.tariff.price || 0) > PRESET.tmin)) return false; // порог тарифа (vip/бизнес)
     if (flt.code && digitsOf(p.phone).slice(0, 3) !== flt.code) return false; // код — первые 3 цифры
     if (flt.tariff && !(p.tariff && p.tariff.id === flt.tariff)) return false; // тариф — клиентский фильтр
+    if (flt.tariffPrice && !(p.tariff && p.tariff.price === flt.tariffPrice)) return false; // тарифная страница — по цене
     if (flt.price) {
       var tr = PRICE_TIERS.filter(function (t) { return t.key === flt.price; })[0];
       var pr = p.tariff && p.tariff.price;
@@ -366,6 +367,7 @@
   var PRESET = window.PAGE || {};
   if (PRESET.cat) flt.cat = PRESET.cat;
   if (PRESET.tariff) flt.tariff = PRESET.tariff; // тарифные страницы задают тариф (клиентский фильтр)
+  if (PRESET.tariffPrice) flt.tariffPrice = PRESET.tariffPrice; // тарифная страница по цене
   if (PRESET.hidePrice && fPrice) { var _pg = fPrice.closest && fPrice.closest(".filter-group"); if (_pg) _pg.style.display = "none"; } // vip/бизнес: раздел «Цена тарифа» не нужен
 
   renderCubes();

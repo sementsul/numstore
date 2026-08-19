@@ -324,7 +324,6 @@ BLOG = [
 
 # Тарифы (из /filters mask_tariff): slug, id, цена (= число в названии). Специфику не выдумываем.
 TARIFFS = [
-    {"slug": "ultra-399", "id": 16194, "price": 399},
     {"slug": "ultra-550", "id": 16184, "price": 550},
     {"slug": "ultra-750", "id": 16185, "price": 750},
     {"slug": "ultra-950", "id": 16186, "price": 950},
@@ -1334,7 +1333,7 @@ def render_article(a):
 
 
 def render_tariff(t):
-    page_js = "<script>window.PAGE={tariff:%d};</script>" % t["id"]
+    page_js = "<script>window.PAGE={tariffPrice:%d};</script>" % t["price"]  # фильтр по цене (стабильнее id)
     intro = ("Номера с тарифом %s — абонентская плата %d ₽/мес с ёмким пакетом минут, SMS и интернета, а "
              "звонки на номера Безлимит и Билайн — безлимитные. Ниже — красивые номера, доступные на этом "
              "тарифе; уточните комбинацию маской и забронируйте онлайн." % (t["name"], t["price"]))
@@ -1373,9 +1372,9 @@ def render_tariffs_index():
         main_top='%s\n  <h1 class="page-h1">Тарифы Безлимит ULTRA</h1>\n'
                  '  <p class="page-intro">Линейка тарифов Безлимит ULTRA — от 399 до 5000 ₽/мес. Выберите тариф, '
                  'чтобы посмотреть красивые номера на нём.</p>' % crumbs("Тарифы"),
-        vitrina='<div class="blog-list">%s</div>' % rows,
+        vitrina='<div class="blog-list" id="tariffGrid">%s</div>' % rows,
         footnav=nav_links(None) + patnav(),
-        scripts="",
+        scripts='<script src="/config.js%s"></script>\n<script src="/tarify.js%s"></script>' % (_ver("config.js"), _ver("tarify.js")),
     )
     write("tarify/index.html", html_out)
 
@@ -1677,7 +1676,7 @@ def make_numbers_json():
 
 
 def copy_assets():
-    for f in ("app.js", "styles.css", "config.js", "calc.js", "nav.js", "geo.js", "nomer.js", "checker.js", "widget.js", "favicon.svg"):
+    for f in ("app.js", "styles.css", "config.js", "calc.js", "nav.js", "geo.js", "nomer.js", "checker.js", "widget.js", "tarify.js", "favicon.svg"):
         shutil.copy(os.path.join(ROOT, f), os.path.join(DIST, f))
     if os.path.isdir(os.path.join(ROOT, "img")):
         shutil.copytree(os.path.join(ROOT, "img"), os.path.join(DIST, "img"), dirs_exist_ok=True)
