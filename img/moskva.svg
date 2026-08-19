@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 210" fill="none" stroke="#c9a558" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+  <line x1="8" y1="197" x2="192" y2="197"/>
+  <!-- left wall with swallowtail merlons -->
+  <path d="M12 197 v-44 h56 v44"/>
+  <path d="M12 153 l7 -9 l7 9 l7 -9 l7 9 l7 -9 l7 9 l7 -9 l7 9" fill="rgba(201,165,88,.10)"/>
+  <!-- right wall -->
+  <path d="M132 197 v-44 h56 v44"/>
+  <path d="M132 153 l7 -9 l7 9 l7 -9 l7 9 l7 -9 l7 9 l7 -9 l7 9" fill="rgba(201,165,88,.10)"/>
+  <!-- Spasskaya tower body -->
+  <rect x="76" y="96" width="48" height="101" fill="rgba(201,165,88,.06)"/>
+  <rect x="83" y="70" width="34" height="26"/>
+  <!-- clock -->
+  <circle cx="100" cy="118" r="13" fill="rgba(11,13,17,1)"/>
+  <line x1="100" y1="118" x2="100" y2="110"/><line x1="100" y1="118" x2="106" y2="118"/>
+  <!-- tented roof -->
+  <path d="M81 70 L100 34 L119 70 Z" fill="rgba(201,165,88,.16)"/>
+  <line x1="100" y1="34" x2="100" y2="22"/>
+  <!-- ruby star -->
+  <path d="M100 8 L102.4 15 L109.5 15 L103.8 19.4 L106 26.4 L100 22 L94 26.4 L96.2 19.4 L90.5 15 L97.6 15 Z" fill="rgba(201,165,88,.22)"/>
+  <!-- gate -->
+  <path d="M90 197 v-30 a10 10 0 0 1 20 0 v30" fill="rgba(11,13,17,1)"/>
+</svg>
