@@ -96,6 +96,17 @@ index.html (#fCat/#fPrice/#fTariff), styles.css (.filter-*).
 только те, по которым есть номера. При смене тарифов Безлимитом обновятся сами. Цена — клиентский пост-фильтр.
 Заменяет клиентские фильтры UC-11.
 
+## UC-13. SEO-каркас: генератор страниц (главная + категории) ✅
+**Предусловие:** `python3 build.py`. **Шаги:** сборка → `dist/`.
+**Ожидаемо:** генерятся `dist/index.html` (главная) + `dist/kategoriya/<slug>/index.html` на каждую из 5
+категорий (brilliant/platinum/gold/silver/bronze) с УНИКАЛЬНЫМИ title/description/H1/intro + canonical +
+BreadcrumbList schema + навигация по категориям. Категорийная страница задаёт `window.PAGE={cat:"<код>"}` →
+`app.js` на старте ставит `flt.cat` и грузит номера этой категории. Плюс `sitemap.xml`, `robots.txt`, CNAME
+(magzgold.ru), .nojekyll. Ассеты (app.js/styles.css/config.js) копируются в dist. **Радиус:** build.py (новый),
+app.js (чтение window.PAGE), index.html/styles.css (.catnav/.crumbs/.page-h1/.page-intro/.brand-ссылка).
+Витрина внутри страниц — та же клиентская (ban-proof). **Превью:** `cd dist && python3 -m http.server 5173`.
+Проверено: главная/gold/sitemap → 200, gold имеет свой title+PAGE+H1.
+
 ## Открытые долги
 - Поле цены самого номера (разобрать полный объект `phone`).
 - Фильтр по маске/паттерну (эндпоинт `/super-link/phones/filters`).

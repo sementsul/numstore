@@ -29,7 +29,7 @@ body {
   border-bottom: 1px solid var(--line);
   background: linear-gradient(180deg, rgba(201,165,88,.06), transparent);
 }
-.brand { font-size: 26px; font-weight: 700; letter-spacing: .5px; color: var(--text); }
+.brand { font-size: 26px; font-weight: 700; letter-spacing: .5px; color: var(--text); text-decoration: none; display: inline-block; }
 .brand-gold {
   background: linear-gradient(180deg, var(--gold-hi), var(--gold));
   -webkit-background-clip: text; background-clip: text; color: transparent;
@@ -42,6 +42,21 @@ body {
   background: linear-gradient(90deg, var(--gold), transparent);
 }
 .top .sub { margin: 14px 0 0; color: var(--muted); font-size: 15px; letter-spacing: .3px; }
+
+/* навигация по категориям */
+.catnav { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 18px; }
+.catnav a {
+  padding: 7px 14px; border-radius: 20px; font-size: 14px; text-decoration: none;
+  color: var(--muted); border: 1px solid var(--line); transition: color .12s, border-color .12s;
+}
+.catnav a:hover { color: var(--text); border-color: var(--line-2); }
+.catnav a.active { color: #1a1608; background: linear-gradient(180deg, var(--gold-hi), var(--gold)); border-color: transparent; font-weight: 600; }
+
+.crumbs { margin: 22px 0 6px; font-size: 13px; color: var(--muted); }
+.crumbs a { color: var(--gold); text-decoration: none; }
+.crumbs a:hover { color: var(--gold-hi); }
+.page-h1 { margin: 8px 0 10px; font-size: 30px; font-weight: 600; letter-spacing: .5px; }
+.page-intro { margin: 0 0 22px; color: var(--muted); font-size: 15px; line-height: 1.6; max-width: 760px; }
 
 /* ---- поиск по маске ---- */
 .search-box {

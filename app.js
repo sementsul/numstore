@@ -238,6 +238,10 @@
     if (p) reserve(p);
   });
 
+  // Пресет страницы (категорийные SEO-страницы задают window.PAGE = {cat:"<код>"}).
+  var PAGE = window.PAGE || {};
+  if (PAGE.cat) flt.cat = PAGE.cat;
+
   renderCubes();
   loadFilters();
   fetchNumbers();
