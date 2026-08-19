@@ -411,6 +411,7 @@ VITRINA = """    <section class="search-box">
           <button id="reset" class="btn-ghost">Сбросить</button>
         </div>
         <p class="cube-hint">Цифра — точная позиция · пусто — любая · буква (a, b, …) — повторяющаяся цифра</p>
+        <label class="code-filter">Код номера: <select id="fCode"><option value="">Все коды</option></select></label>
       </div>
       <aside class="search-aside">
         <h3>Как искать</h3>
@@ -706,7 +707,7 @@ def render_landing(l):
 # а «регион» здесь чисто поисковый разрез: уникальный текст + локальная доставка. Номер федеральный.
 CITIES = [
     {
-        "slug": "moskva", "name": "Москве", "name_nom": "Москва",
+        "slug": "moskva", "name": "Москве", "name_nom": "Москва", "img": "moskva.png",
         "h1": "Красивые номера в Москве",
         "title": "Красивые номера в Москве — купить и забронировать | MagzGold",
         "desc": "Красивые и премиальные номера телефонов в Москве: бриллиантовые, платиновые, "
@@ -731,8 +732,10 @@ CITIES = [
 
 def render_city(c):
     header_block = '    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>'
-    main_top = "%s\n  <h1 class=\"page-h1\">%s</h1>\n  <p class=\"page-intro\">%s</p>" % (
-        crumbs(c["h1"]), esc(c["h1"]), c["intro"])
+    img_html = ('<img class="city-hero-img" src="/img/%s" alt="%s" loading="lazy">' % (c["img"], esc(c["h1"]))) if c.get("img") else ""
+    main_top = ('%s\n  <div class="city-hero">\n    <div class="city-hero-txt">'
+                '<h1 class="page-h1">%s</h1><p class="page-intro">%s</p></div>\n    %s\n  </div>') % (
+        crumbs(c["h1"]), esc(c["h1"]), c["intro"], img_html)
     delivery = ('<section class="seo-text"><h2>Доставка в %s</h2>'
                 '<p>Бесплатная доставка SIM по %s или eSIM за минуты. Номер федеральный — '
                 'работает по всей России.</p></section>') % (esc(c["name"]), esc(c["name"]))
@@ -1492,6 +1495,8 @@ def make_numbers_json():
 def copy_assets():
     for f in ("app.js", "styles.css", "config.js", "calc.js", "nav.js", "nomer.js", "checker.js", "widget.js", "favicon.svg"):
         shutil.copy(os.path.join(ROOT, f), os.path.join(DIST, f))
+    if os.path.isdir(os.path.join(ROOT, "img")):
+        shutil.copytree(os.path.join(ROOT, "img"), os.path.join(DIST, "img"), dirs_exist_ok=True)
     make_og()
     make_numbers_json()
     copy_docs()

@@ -6,7 +6,7 @@
   var statusEl = $("status"), gridEl = $("grid"), countEl = $("count"), moreBtn = $("more");
   var sortEl = $("sort");
   var cubesEl = $("cubes"), findBtn = $("find"), resetBtn = $("reset");
-  var fCat = $("fCat"), fPrice = $("fPrice"), fTariff = $("fTariff");
+  var fCat = $("fCat"), fPrice = $("fPrice"), fTariff = $("fTariff"), fCode = $("fCode");
 
   var CUBES = 10, PAGE = 60, DEFAULT_MASK = "9NNNNNNNNN";
   var ALL = [], BY_PHONE = {}, shown = PAGE, searchTimer = null;
@@ -14,7 +14,7 @@
   var BAD_TARIFF = /Анадыр|Норильск/i;
   function okTariff(p) { return !(p && p.tariff && p.tariff.name && BAD_TARIFF.test(p.tariff.name)); }
   var CATS = [], TARIFFS = [];
-  var flt = { cat: null, tariff: null, price: null }; // cat=код mask_categories, tariff=id mask_tariff, price=тир (клиент)
+  var flt = { cat: null, tariff: null, price: null, code: null }; // cat/tariff/price/code — code=первые 3 цифры (клиент)
 
   // Избранное (localStorage): digits -> {phone, tariff}
   var FAV = {}, favMode = false;
@@ -130,6 +130,18 @@
     if (flt.tariff && !m[flt.tariff]) flt.tariff = null; // выбранный тариф исчез из выдачи
     fillList(fTariff, [{ v: null, t: "Все тарифы" }].concat(list.map(function (t) { return { v: t.id, t: t.name }; })), "tariff", false);
   }
+  // Коды (первые 3 цифры) — из фактических номеров, только те, где есть номера. С счётчиком.
+  function buildCodeFilter() {
+    if (!fCode) return;
+    var m = {};
+    ALL.forEach(function (p) { var d = digitsOf(p.phone); if (d.length === 10) { var c = d.slice(0, 3); m[c] = (m[c] || 0) + 1; } });
+    var codes = Object.keys(m).sort();
+    if (flt.code && !m[flt.code]) flt.code = null; // выбранный код исчез из выдачи
+    fCode.innerHTML = '<option value="">Все коды</option>' + codes.map(function (c) {
+      return '<option value="' + c + '"' + (c === flt.code ? " selected" : "") + ">" + c + " (" + m[c] + ")</option>";
+    }).join("");
+    fCode.value = flt.code || "";
+  }
   function fillList(ul, items, key, refetch) {
     ul.innerHTML = "";
     items.forEach(function (it) {
@@ -162,12 +174,14 @@
         ALL = f; BY_PHONE = {};
         f.forEach(function (p) { BY_PHONE[digitsOf(p.phone)] = p; });
         buildTariffFilter(); // список тарифов из фактических номеров
+        buildCodeFilter();   // список кодов (первые 3 цифры) из фактических номеров
         render();
       })
       .catch(function (e) { showStatus("Ошибка загрузки (" + e.message + ")."); });
   }
 
   function matchesClient(p) {
+    if (flt.code && digitsOf(p.phone).slice(0, 3) !== flt.code) return false; // код — первые 3 цифры
     if (flt.tariff && !(p.tariff && p.tariff.id === flt.tariff)) return false; // тариф — клиентский фильтр
     if (flt.price) {
       var tr = PRICE_TIERS.filter(function (t) { return t.key === flt.price; })[0];
@@ -329,6 +343,7 @@
     buildSidebar(); fetchNumbers();
   });
   sortEl.addEventListener("change", function () { shown = PAGE; render(); });
+  if (fCode) fCode.addEventListener("change", function () { flt.code = fCode.value || null; shown = PAGE; render(); });
   moreBtn.addEventListener("click", function () { shown += PAGE; render(); });
   gridEl.addEventListener("click", function (e) {
     if (!e.target.closest) return;
