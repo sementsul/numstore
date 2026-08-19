@@ -295,19 +295,26 @@
     if (!tariffId) { alert("У номера не указан тариф — бронь недоступна."); return; }
     var tg = window.Telegram && window.Telegram.WebApp;   // внутри Telegram Mini App
     var w = tg ? null : window.open("", "_blank");         // в браузере — окно заранее (антипопап)
-    var fd = new FormData();
-    fd.append("phone", digits); fd.append("tariff_id", tariffId);
-    fd.append("type", "store"); fd.append("user_id", CFG.REF_ID); fd.append("filter", "professional");
-    fetch(CFG.API_BASE + "/super-link/reservations?expand=super_link_uuid",
-          { method: "POST", headers: { Authorization: CFG.API_TOKEN }, body: fd })
-      .then(function (r) { return r.json(); })
+    // 1) ЖИВАЯ пере-проверка: номер ещё свободен прямо сейчас? (защита от оформления проданного номера)
+    api("/super-link/phones/mask-category?expand=tariff&is_reserved=false&per_page=100&phone_pattern=" + digits)
+      .then(function (data) {
+        var free = false;
+        flatten(data).forEach(function (x) { if (digitsOf(x.phone) === digits) free = true; });
+        if (!free) { if (w) w.close(); alert("Этот номер уже заняли — выберите другой из каталога."); removeSold(digits); throw "sold"; }
+        // 2) свободен → создаём бронь
+        var fd = new FormData();
+        fd.append("phone", digits); fd.append("tariff_id", tariffId);
+        fd.append("type", "store"); fd.append("user_id", CFG.REF_ID); fd.append("filter", "professional");
+        return fetch(CFG.API_BASE + "/super-link/reservations?expand=super_link_uuid",
+              { method: "POST", headers: { Authorization: CFG.API_TOKEN }, body: fd }).then(function (r) { return r.json(); });
+      })
       .then(function (d) {
         var uuid = deepUuid(d);
         if (!uuid) { if (w) w.close(); alert("Похоже, этот номер только что заняли — выберите другой из каталога."); removeSold(digits); return; }
         var url = CFG.REF_STORE_URL + "?type=p&cubes=" + digits + "&uuid=" + encodeURIComponent(uuid);
         if (tg) tg.openLink(url); else if (w) w.location = url; else window.open(url, "_blank", "noopener");
       })
-      .catch(function (e) { if (w) w.close(); alert("Ошибка брони: " + e.message); });
+      .catch(function (e) { if (e === "sold") return; if (w) w.close(); alert("Ошибка брони: " + (e && e.message ? e.message : e)); });
   }
 
   /* ---------- события ---------- */
