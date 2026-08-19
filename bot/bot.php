@@ -70,6 +70,23 @@ function tg($method, $params = [])
 }
 function kb($rows) { return ['inline_keyboard' => $rows]; }
 
+/* Само-цепочка: в конце окна запускаем следующий заход (fire-and-forget) → бот работает непрерывно.
+   Браузерный UA обязателен (анти-бот Бегета). flock в новом процессе не даст задвоения. */
+function trigger_self()
+{
+    global $KEY;
+    $host = $_SERVER['HTTP_HOST'] ?? 'd96179xw.beget.tech';
+    $script = $_SERVER['SCRIPT_NAME'] ?? '/bot.php';
+    $url = 'http://' . $host . $script . '?key=' . rawurlencode($KEY) . '&chain=1';
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true, CURLOPT_NOSIGNAL => 1,
+        CURLOPT_CONNECTTIMEOUT => 3, CURLOPT_TIMEOUT_MS => 700,   // не ждём ответа
+        CURLOPT_USERAGENT => 'Mozilla/5.0',
+    ]);
+    curl_exec($ch); curl_close($ch);
+}
+
 /* ---------- утилиты ---------- */
 function digits_of($p) { return substr(preg_replace('/\D/', '', (string)$p), -10); }
 function fmt_phone($p)
@@ -228,4 +245,5 @@ while (time() < $deadline) {
     }
 }
 flock($lock, LOCK_UN); fclose($lock);
+trigger_self();   // запускаем следующий заход → непрерывная работа (cron-job.org — лишь страховка)
 echo 'ok';
