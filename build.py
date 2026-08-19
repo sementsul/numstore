@@ -496,6 +496,7 @@ PAGE_TMPL = """<!doctype html>
 </footer>
 {drawer}
 <script src="/nav.js"></script>
+<script src="/geo.js"></script>
 {scripts}
 </body>
 </html>
@@ -503,7 +504,8 @@ PAGE_TMPL = """<!doctype html>
 # Кэш-бастинг: версии по хешу содержимого ассетов (после деплоя браузер тянет свежие CSS/JS).
 PAGE_TMPL = (PAGE_TMPL
              .replace('/styles.css"', '/styles.css%s"' % _ver("styles.css"))
-             .replace('/nav.js"', '/nav.js%s"' % _ver("nav.js")))
+             .replace('/nav.js"', '/nav.js%s"' % _ver("nav.js"))
+             .replace('/geo.js"', '/geo.js%s"' % _ver("geo.js")))
 SCRIPTS = '<script src="/config.js%s"></script>\n<script src="/app.js%s"></script>' % (_ver("config.js"), _ver("app.js"))
 METRIKA = '<!-- Yandex.Metrika counter -->\n<script type="text/javascript">\n    (function(m,e,t,r,i,k,a){\n        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};\n        m[i].l=1*new Date();\n        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}\n        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)\n    })(window, document,\'script\',\'https://mc.yandex.ru/metrika/tag.js?id=111737982\', \'ym\');\n\n    ym(111737982, \'init\', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});\n</script>\n<noscript><div><img src="https://mc.yandex.ru/watch/111737982" style="position:absolute; left:-9999px;" alt="" /></div></noscript>\n<!-- /Yandex.Metrika counter -->'
 GTAG = '<!-- Google tag (gtag.js) -->\n<script async src="https://www.googletagmanager.com/gtag/js?id=G-R1CLPNLWLD"></script>\n<script>\n  window.dataLayer = window.dataLayer || [];\n  function gtag(){dataLayer.push(arguments);}\n  gtag(\'js\', new Date());\n  gtag(\'config\', \'G-R1CLPNLWLD\');\n</script>\n<!-- /Google tag -->'
@@ -1455,6 +1457,9 @@ def render_privacy():
         "cookie и технические данные (тип устройства, просмотренные страницы, источник перехода). Персональные "
         "данные для покупки и оформления номера собираются и обрабатываются оператором связи на его стороне и "
         "по его политике.</p>"
+        "<p>Чтобы предложить релевантный город, сайт может однократно определить ваш примерный регион по "
+        "IP-адресу через сторонний сервис геолокации (ipwho.is). IP при этом не сохраняется на сайте; "
+        "показ подсказки можно закрыть, и она больше не появится.</p>"
         "<h2>Цели и правовые основания</h2>"
         "<p>Технические и аналитические данные обрабатываются для функционирования и улучшения сайта на "
         "основании законного интереса и согласия, выражаемого использованием сайта (152-ФЗ).</p>"
@@ -1639,7 +1644,7 @@ def make_numbers_json():
 
 
 def copy_assets():
-    for f in ("app.js", "styles.css", "config.js", "calc.js", "nav.js", "nomer.js", "checker.js", "widget.js", "favicon.svg"):
+    for f in ("app.js", "styles.css", "config.js", "calc.js", "nav.js", "geo.js", "nomer.js", "checker.js", "widget.js", "favicon.svg"):
         shutil.copy(os.path.join(ROOT, f), os.path.join(DIST, f))
     if os.path.isdir(os.path.join(ROOT, "img")):
         shutil.copytree(os.path.join(ROOT, "img"), os.path.join(DIST, "img"), dirs_exist_ok=True)
