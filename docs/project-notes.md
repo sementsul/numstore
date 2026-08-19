@@ -9,6 +9,8 @@
   `/polzovatelskoe-soglashenie/` + 404 + sitemap/robots/CNAME. Данные: CATEGORIES/PATTERNS/BLOG. PAGE_TMPL+VITRINA; header_block/
   main_top/scripts настраивают страницу (контентные — scripts=""). Паттерны: `window.PAGE.mask`
   (🔴 буквы-маски на API не подтверждены). Категории: `window.PAGE.cat`.
+- `nav.js` — шторка (выдвижное меню, на всех страницах). `_DRAWER` в build.py прокинут во все страницы; шторка = Разделы+Документы (категории/паттерны/тарифы — в шапке/футере).
+- `deploy.sh` — сборка+пуш dist в public Pages-репо (`GH_TOKEN=… ./deploy.sh`). Токен из env, не хардкод.
 - `calc.js` — калькулятор: цена НОМЕРА из офиц. прайса (pmin/pmax в CATEGORIES: brilliant 400к–4М,
   platinum 25к–600к, gold 50к–200к, silver 12к–100к, bronze 3к–12к ₽) + живая абонплата тарифа/мес из API.
 - `_sources/` (gitignore) — офиц. прайс «Стоимость номеров.pdf» (скан, читан через fitz→PNG→Read) + юр-доки
@@ -84,8 +86,8 @@
 
 ## Деплой (GitHub Pages)
 - **Публичный deploy-репо: github.com/sementsul/magzgold** (только собранный dist/, БЕЗ исходников/доков).
-  Источник — приватный `numstore`. Pages: source main/root, CNAME=magzgold.ru, статус built.
-- **Редеплой:** `python3 build.py` → `cd dist && git add -A && git commit -m ... && git push -f https://<token>@github.com/sementsul/magzgold.git HEAD:main` (в dist свой git, identity sementsul).
+  Источник — приватный `numstore`. Pages: source main/root, CNAME=magzgold.ru. 🟢 ЖИВОЙ: https://magzgold.ru, HTTPS enforced, сертификат approved.
+- **Редеплой:** `GH_TOKEN=ghp_… ./deploy.sh` (build.py каждый раз сносит dist/.git → скрипт заново init+push).
 - **DNS (делает владелец у регистратора):** apex magzgold.ru → A 185.199.108-111.153 (+AAAA 2606:50c0:8000-8003::153); www → CNAME sementsul.github.io. После DNS GitHub выпустит HTTPS (Let's Encrypt) → включить Enforce HTTPS.
 
 ## Статус
