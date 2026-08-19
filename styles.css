@@ -322,3 +322,36 @@ body {
   color: var(--muted); border: 1px solid var(--line); transition: color .12s, border-color .12s;
 }
 .rel-links a:hover { color: var(--gold); border-color: var(--line-2); }
+
+/* Памятка перед бронью (4 шага + важное про паспорт РФ) */
+.book-modal {
+  position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center;
+  padding: 20px; background: rgba(6,7,10,.72); backdrop-filter: blur(3px);
+  opacity: 0; visibility: hidden; transition: opacity .15s;
+}
+.book-modal.open { opacity: 1; visibility: visible; }
+.book-card {
+  position: relative; width: 100%; max-width: 460px; background: var(--card);
+  border: 1px solid var(--line-2); border-radius: 16px; padding: 26px 24px 22px;
+  box-shadow: 0 24px 60px rgba(0,0,0,.55); max-height: 92vh; overflow-y: auto;
+}
+.book-x {
+  position: absolute; top: 12px; right: 14px; background: none; border: none;
+  font-size: 26px; line-height: 1; color: var(--muted); cursor: pointer;
+}
+.book-x:hover { color: var(--gold); }
+.book-card h3 { font-size: 21px; margin: 0 34px 8px 0; color: var(--text); }
+.book-sub { color: var(--muted); font-size: 14px; margin: 0 0 12px; }
+.book-num { color: var(--gold); font-weight: 600; font-size: 15px; margin: 0 0 14px; }
+.book-steps { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 8px; }
+.book-steps li {
+  background: var(--card-hi); border: 1px solid var(--line); border-radius: 10px;
+  padding: 10px 12px; font-size: 14px; color: var(--text);
+}
+.book-steps b { color: var(--gold); }
+.book-warn {
+  background: rgba(220,60,60,.10); border: 1px solid rgba(220,60,60,.35); border-radius: 10px;
+  padding: 11px 12px; font-size: 14px; color: var(--text); margin: 0 0 18px;
+}
+.book-actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+.book-actions .btn-primary, .book-actions .btn-ghost { flex: 1 1 auto; }

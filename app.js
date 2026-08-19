@@ -232,10 +232,57 @@
     }
     return null;
   }
-  function reserve(p) {
+  /* Памятка перед бронью (то, что Безлимит показывает ДО загрузки паспорта):
+     4 шага оформления + важное ограничение «только граждане РФ». */
+  function bookingInfo(p) {
+    var tariffId = p.tariff && p.tariff.id;
+    if (!tariffId) { alert("У номера не указан тариф — бронь недоступна."); return; }
+    var back = document.getElementById("bookModal");
+    if (!back) {
+      back = document.createElement("div");
+      back.id = "bookModal";
+      back.className = "book-modal";
+      back.innerHTML =
+        '<div class="book-card" role="dialog" aria-modal="true" aria-labelledby="bookTitle">' +
+          '<button class="book-x" aria-label="Закрыть">×</button>' +
+          '<h3 id="bookTitle">Давайте оформим всё по правилам</h3>' +
+          '<p class="book-sub">Это займёт пару минут. Оформление и оплата — на защищённой странице оператора Безлимит.</p>' +
+          '<p class="book-num" id="bookNum"></p>' +
+          '<ol class="book-steps">' +
+            '<li><b>Шаг 1.</b> Загрузить фото паспорта РФ</li>' +
+            '<li><b>Шаг 2.</b> Подписать документы</li>' +
+            '<li><b>Шаг 3.</b> Оплатить тарифный план</li>' +
+            '<li><b>Шаг 4.</b> Получить SIM-карту</li>' +
+          '</ol>' +
+          '<p class="book-warn">🔴 <b>Важно:</b> подключение доступно только гражданам РФ. Паспорт другого государства не подходит.</p>' +
+          '<div class="book-actions">' +
+            '<button class="btn-ghost book-cancel">Отмена</button>' +
+            '<button class="btn-primary book-go">Забронировать и продолжить</button>' +
+          '</div>' +
+        '</div>';
+      document.body.appendChild(back);
+      back.addEventListener("click", function (e) {
+        if (e.target === back || e.target.closest(".book-x") || e.target.closest(".book-cancel")) closeBook();
+      });
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && back.classList.contains("open")) closeBook();
+      });
+    }
+    document.getElementById("bookNum").textContent = fmtPhone(p.phone) + " · бронь держится ~1 час";
+    var go = back.querySelector(".book-go");
+    go.onclick = function () { closeBook(); doReserve(p); };
+    back.classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+  function closeBook() {
+    var b = document.getElementById("bookModal");
+    if (b) b.classList.remove("open");
+    document.body.style.overflow = "";
+  }
+
+  function doReserve(p) {
     var tariffId = p.tariff && p.tariff.id, digits = digitsOf(p.phone);
     if (!tariffId) { alert("У номера не указан тариф — бронь недоступна."); return; }
-    if (!confirm("Забронировать номер " + fmtPhone(p.phone) + "?\nБронь держится ~1 час.")) return;
     var w = window.open("", "_blank");
     var fd = new FormData();
     fd.append("phone", digits); fd.append("tariff_id", tariffId);
@@ -272,7 +319,7 @@
     var fav = e.target.closest(".fav");
     if (fav) { var d = fav.getAttribute("data-fav"); var pf = BY_PHONE[d] || FAV[d]; if (pf) toggleFav(pf); return; }
     var b = e.target.closest(".num-buy");
-    if (b) { var d2 = b.getAttribute("data-phone"), pb = BY_PHONE[d2] || FAV[d2]; if (pb) reserve(pb); }
+    if (b) { var d2 = b.getAttribute("data-phone"), pb = BY_PHONE[d2] || FAV[d2]; if (pb) bookingInfo(pb); }
   });
   var favBtn = document.getElementById("favToggle");
   if (favBtn) favBtn.addEventListener("click", function () {
