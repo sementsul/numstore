@@ -62,6 +62,73 @@ PATTERNS = [
      "intro": "Круглые номера оканчиваются на нули (…000) — выглядят солидно и запоминаются с первого раза."},
 ]
 
+# Гайды/блог: slug, title, desc, h1, body (HTML).
+BLOG = [
+    {"slug": "kak-vybrat-krasivyy-nomer", "h1": "Как выбрать красивый номер",
+     "title": "Как выбрать красивый номер телефона — гайд | MagzGold",
+     "desc": "Как выбрать красивый номер: категории красоты, паттерны (зеркальные, повторы, круглые), на что смотреть и как не переплатить. Пошаговый гайд MagzGold.",
+     "body": (
+        "<p>Красивый номер — это не просто набор цифр, а комбинация, которую легко запомнить и приятно "
+        "диктовать. Разберём, из чего складывается «красота» и как выбрать номер под задачу и бюджет.</p>"
+        "<h2>1. Определите категорию красоты</h2>"
+        "<p>Все красивые номера делятся на категории — от доступных до премиальных: "
+        '<a href="/kategoriya/bronze/">бронзовые</a>, <a href="/kategoriya/silver/">серебряные</a>, '
+        '<a href="/kategoriya/gold/">золотые</a>, <a href="/kategoriya/platinum/">платиновые</a> и '
+        '<a href="/kategoriya/brilliant/">бриллиантовые</a>. Чем «чище» комбинация, тем выше категория и цена.</p>'
+        "<h2>2. Выберите тип комбинации (паттерн)</h2>"
+        "<p>Подумайте, какой рисунок вам ближе: "
+        '<a href="/zerkalnye/">зеркальные</a> (симметрия), <a href="/povtory/">с повторами</a> (одинаковые цифры), '
+        '<a href="/pary/">пары</a> (ABAB) или <a href="/kruglye/">круглые</a> (окончание на нули). '
+        "Паттерн влияет и на запоминаемость, и на стоимость.</p>"
+        "<h2>3. Прикиньте бюджет</h2>"
+        '<p>Стоимость сильно зависит от красоты. Оцените диапазон на <a href="/skolko-stoit-nomer/">калькуляторе '
+        "стоимости</a>: он покажет цену номера по категории и текущую абонплату тарифа.</p>"
+        "<h2>4. Подберите точную комбинацию маской</h2>"
+        "<p>В каталоге можно задать маску: зафиксировать нужные цифры на позициях, оставить остальные любыми "
+        "или отметить повторы буквами. Так вы найдёте номер с личными датами или любимыми цифрами.</p>"
+        "<h2>5. Забронируйте онлайн</h2>"
+        '<p>Понравившийся номер бронируется в пару кликов — подробнее в гайде '
+        '<a href="/blog/kak-zabronirovat-nomer/">как забронировать номер</a>.</p>'),
+     },
+    {"slug": "kategorii-krasivyh-nomerov", "h1": "Категории красивых номеров",
+     "title": "Категории красивых номеров: бронза, серебро, золото, платина, бриллиант | MagzGold",
+     "desc": "Категории красивых номеров и их отличия: бронза, серебро, золото, платина, бриллиант — что означают и сколько стоят. Гайд MagzGold.",
+     "body": (
+        "<p>Красивые номера ранжируют по категориям — они отражают редкость комбинации и определяют цену. "
+        "Разберём каждую от доступной к премиальной.</p>"
+        '<h2><a href="/kategoriya/bronze/">Бронзовые</a> — от 3 000 ₽</h2>'
+        "<p>Начальная категория: лёгкие для запоминания сочетания, пары и небольшие повторы. Доступный вход "
+        "в красивые номера, хороший вариант для второго номера.</p>"
+        '<h2><a href="/kategoriya/silver/">Серебряные</a> — от 12 000 ₽</h2>'
+        "<p>Аккуратные комбинации заметно приятнее случайного набора, но без премиальной наценки.</p>"
+        '<h2><a href="/kategoriya/gold/">Золотые</a> — от 50 000 ₽</h2>'
+        "<p>Оптимальный баланс красоты и статуса: узнаваемые повторы и ровные окончания. Популярный выбор.</p>"
+        '<h2><a href="/kategoriya/platinum/">Платиновые</a> — от 25 000 ₽</h2>'
+        "<p>Премиальные комбинации с выраженной симметрией и длинными повторами.</p>"
+        '<h2><a href="/kategoriya/brilliant/">Бриллиантовые</a> — от 400 000 ₽</h2>'
+        "<p>Вершина: максимально «чистые» номера (например, семь одинаковых цифр). Встречаются редко и "
+        "подчёркивают статус.</p>"
+        '<p>Точную цену конкретного номера удобно прикинуть на <a href="/skolko-stoit-nomer/">калькуляторе</a>.</p>'),
+     },
+    {"slug": "kak-zabronirovat-nomer", "h1": "Как забронировать и купить красивый номер",
+     "title": "Как забронировать и купить красивый номер — инструкция | MagzGold",
+     "desc": "Как забронировать красивый номер онлайн: поиск по маске, выбор, бронь и оформление у оператора. Простая инструкция MagzGold.",
+     "body": (
+        "<p>Забронировать красивый номер можно за несколько минут, не выходя из дома. Разберём по шагам.</p>"
+        "<h2>Шаг 1. Найдите номер</h2>"
+        '<p>Откройте <a href="/">каталог</a>, выберите категорию слева или задайте маску: зафиксируйте нужные '
+        "цифры, остальное оставьте любыми. Отфильтруйте по тарифу и цене.</p>"
+        "<h2>Шаг 2. Забронируйте</h2>"
+        "<p>Нажмите «Забронировать» на карточке номера. Бронь удерживает номер за вами ограниченное время "
+        "(обычно около часа), чтобы его не занял другой покупатель.</p>"
+        "<h2>Шаг 3. Оформите у оператора</h2>"
+        "<p>Дальше оформление и оплата проходят на стороне оператора связи по его условиям. Абонентская плата "
+        "тарифа списывается ежемесячно, стоимость самого номера — единоразово.</p>"
+        '<p>Не уверены в бюджете? Сначала загляните на <a href="/skolko-stoit-nomer/">калькулятор стоимости</a> '
+        'или почитайте, <a href="/blog/kak-vybrat-krasivyy-nomer/">как выбрать красивый номер</a>.</p>'),
+     },
+]
+
 
 def esc(s):
     return html.escape(str(s), quote=True)
@@ -154,7 +221,7 @@ PAGE_TMPL = """<!doctype html>
 <footer class="foot">
   <div class="wrap">
     {footnav}
-    <nav class="catnav footlinks"><a href="/skolko-stoit-nomer/">Сколько стоит номер</a></nav>
+    <nav class="catnav footlinks"><a href="/blog/">Блог</a><a href="/skolko-stoit-nomer/">Сколько стоит номер</a></nav>
     <p>MagzGold — информационная витрина красивых номеров. Подбор и бронирование; подключение и оплата на стороне оператора.</p>
   </div>
 </footer>
@@ -302,6 +369,50 @@ def render_calc():
     write("skolko-stoit-nomer/index.html", html_out)
 
 
+def render_blog_index():
+    cards = "".join(
+        '<a class="blog-card" href="/blog/%s/"><h2>%s</h2><p>%s</p></a>' % (a["slug"], esc(a["h1"]), esc(a["desc"]))
+        for a in BLOG)
+    html_out = PAGE_TMPL.format(
+        title="Блог о красивых номерах — гайды и советы | MagzGold",
+        desc="Блог MagzGold: как выбрать красивый номер, категории красоты, как забронировать и сколько стоит номер.",
+        canonical=SITE["base"] + "/blog/",
+        page_js="",
+        schema=schema_breadcrumb({"name": "Блог", "slug": "blog", "toplevel": True}),
+        nav=nav_links(None),
+        header_block='    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>',
+        main_top='%s\n  <h1 class="page-h1">Блог о красивых номерах</h1>\n'
+                 '  <p class="page-intro">Гайды: как выбрать номер, что означают категории красоты и как оформить бронь.</p>'
+                 % crumbs("Блог"),
+        vitrina='<div class="blog-list">%s</div>' % cards,
+        footnav=nav_links(None) + patnav(),
+        scripts="",
+    )
+    write("blog/index.html", html_out)
+
+
+def render_article(a):
+    art_ld = ('<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article",'
+              '"headline":"%s","publisher":{"@type":"Organization","name":"MagzGold"},'
+              '"mainEntityOfPage":"%s/blog/%s/"}</script>' % (esc(a["h1"]), SITE["base"], a["slug"]))
+    bc = ('<nav class="crumbs"><a href="/">Главная</a> / <a href="/blog/">Блог</a> / <span>%s</span></nav>'
+          % esc(a["h1"]))
+    html_out = PAGE_TMPL.format(
+        title=a["title"],
+        desc=a["desc"],
+        canonical=SITE["base"] + "/blog/%s/" % a["slug"],
+        page_js="",
+        schema=art_ld,
+        nav=nav_links(None),
+        header_block='    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>',
+        main_top='%s\n  <h1 class="page-h1">%s</h1>' % (bc, esc(a["h1"])),
+        vitrina='<article class="article">%s</article>' % a["body"],
+        footnav=nav_links(None) + patnav(),
+        scripts="",
+    )
+    write("blog/%s/index.html" % a["slug"], html_out)
+
+
 def render_404():
     err = ('<div class="err"><div class="err-code">404</div>'
            '<h1>Страница не найдена</h1>'
@@ -326,7 +437,8 @@ def render_404():
 def render_sitemap():
     urls = ([SITE["base"] + "/"] + [SITE["base"] + "/kategoriya/%s/" % c["slug"] for c in CATEGORIES]
             + [SITE["base"] + "/%s/" % p["slug"] for p in PATTERNS]
-            + [SITE["base"] + "/skolko-stoit-nomer/"])
+            + [SITE["base"] + "/skolko-stoit-nomer/", SITE["base"] + "/blog/"]
+            + [SITE["base"] + "/blog/%s/" % a["slug"] for a in BLOG])
     body = "".join("<url><loc>%s</loc><changefreq>daily</changefreq></url>" % u for u in urls)
     write("sitemap.xml", '<?xml version="1.0" encoding="UTF-8"?>'
           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">%s</urlset>' % body)
@@ -350,10 +462,13 @@ def main():
     for p in PATTERNS:
         render_pattern(p)
     render_calc()
+    render_blog_index()
+    for a in BLOG:
+        render_article(a)
     render_404()
     render_sitemap()
     copy_assets()
-    print("✅ dist/: главная + %d категорий + %d паттернов + калькулятор + 404 + sitemap/robots" % (len(CATEGORIES), len(PATTERNS)))
+    print("✅ dist/: главная + %d кат + %d паттернов + калькулятор + %d статей + 404 + sitemap" % (len(CATEGORIES), len(PATTERNS), len(BLOG)))
 
 
 if __name__ == "__main__":

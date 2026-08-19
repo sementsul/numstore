@@ -223,6 +223,24 @@ body {
 .calc-load { color: var(--muted); }
 .calc #calcLink { margin-top: 18px; text-decoration: none; }
 
+/* блог */
+.blog-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; padding-bottom: 48px; }
+.blog-card {
+  display: block; text-decoration: none; padding: 22px;
+  background: linear-gradient(180deg, var(--card-hi), var(--card));
+  border: 1px solid var(--line); border-radius: 14px; transition: transform .18s, border-color .18s;
+}
+.blog-card:hover { transform: translateY(-3px); border-color: var(--line-2); }
+.blog-card h2 { margin: 0 0 8px; font-size: 18px; font-weight: 600; color: var(--text); }
+.blog-card p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.55; }
+
+.article { max-width: 760px; padding-bottom: 48px; }
+.article h2 { font-size: 20px; font-weight: 600; margin: 26px 0 10px; color: var(--text); }
+.article h2 a { color: var(--gold); text-decoration: none; }
+.article p { color: var(--muted); font-size: 15px; line-height: 1.7; margin: 0 0 14px; }
+.article a { color: var(--gold); text-decoration: none; }
+.article a:hover { color: var(--gold-hi); text-decoration: underline; }
+
 .seo-text { max-width: 780px; margin-bottom: 40px; }
 .seo-text h2 { font-size: 20px; font-weight: 600; margin: 22px 0 10px; }
 .seo-text p { color: var(--muted); font-size: 15px; line-height: 1.65; margin: 0 0 12px; }

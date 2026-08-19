@@ -132,6 +132,13 @@ app.js (чтение window.PAGE), index.html/styles.css (.catnav/.crumbs/.page-
 (pmin/pmax в CATEGORIES → CALC_CATS). Калькулятор: осн. цифра = цена номера из прайса; строкой ниже — живая
 абонплата тарифа (мес) + наличие из API. Прайс: маска внутри категории уточняет цену (ссылка на PDF).
 
+## UC-16. Блог/гайды ✅
+**Предусловие:** `python3 build.py`. **Шаги:** открыть `/blog/` и статьи.
+**Ожидаемо:** хаб `/blog/` (карточки статей) + 3 статьи (`kak-vybrat-krasivyy-nomer`, `kategorii-krasivyh-nomerov`,
+`kak-zabronirovat-nomer`) с уникальным title/desc/H1, Article+Breadcrumb schema, внутренними ссылками на
+категории/паттерны/калькулятор. Контентные страницы (без витрины, scripts=""). В sitemap + футер-ссылка «Блог».
+**Радиус:** build.py (BLOG/render_blog_index/render_article/main/sitemap/футер), styles.css (.blog-list/.blog-card/.article).
+
 ## Открытые долги
 - Поле цены самого номера (разобрать полный объект `phone`).
 - Фильтр по маске/паттерну (эндпоинт `/super-link/phones/filters`).
