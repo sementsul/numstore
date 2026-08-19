@@ -4,9 +4,11 @@
 Истина по задаче: `TZ.md`. Живые сценарии: `docs/numstore.usecases.md`.
 
 ## Что где (архитектура v4 — SEO-каркас)
-- `build.py` — **источник HTML** (~29 страниц в `dist/`): главная + категории ×5 + паттерны ×4 + `/skolko-stoit-nomer/`
-  + `/blog/`(хаб+3) + `/o-servise/` + `/tarify/`(хаб) + `/tarif/<slug>/`×10 (window.PAGE.tariff) + `/politika/` +
-  `/polzovatelskoe-soglashenie/` + 404 + sitemap/robots/CNAME. Данные: CATEGORIES/PATTERNS/BLOG. PAGE_TMPL+VITRINA; header_block/
+- `build.py` — **источник HTML** (~50 страниц): главная + категории ×5 + паттерны ×7 (вкл. 777/888/999) + тарифы
+  ×10 + `/tarify/` + коды `/kody/`+`/kod/<pfx>/`×16 + `/skolko-stoit-nomer/` + `/blog/`(+3) + `/faq/`(FAQPage) +
+  `/o-servise/` + `/politika/` + `/polzovatelskoe-soglashenie/` + 404 + sitemap(lastmod)/robots/CNAME.
+  SEO: og:image (make_og/PIL), favicon.svg, Organization+WebSite schema (home_schema), Breadcrumb/FAQPage.
+  Пресеты страниц: `window.PAGE` = {cat|mask|tariff}. Данные: CATEGORIES/PATTERNS/BLOG. PAGE_TMPL+VITRINA; header_block/
   main_top/scripts настраивают страницу (контентные — scripts=""). Паттерны: `window.PAGE.mask`
   (🔴 буквы-маски на API не подтверждены). Категории: `window.PAGE.cat`.
 - `nav.js` — шторка (выдвижное меню, на всех страницах). `_DRAWER` в build.py прокинут во все страницы; шторка = Разделы+Документы (категории/паттерны/тарифы — в шапке/футере).
@@ -23,7 +25,7 @@
 - `app.js` — витрина (клиентский fetch, фильтры, бронь) + читает `window.PAGE={cat}` для категорийных страниц.
 - `config.js` — `API_BASE`, публичный Basic-токен Безлимит, `REF_STORE_URL`, `REF_ID` (=800848, идёт в user_id брони).
 - `app.js` — клиентский fetch (mask-category, широкий пул `9NNNNNNNNN`), `flatten` в плоский список с `._cat`,
-  сайдбар-фильтры (`buildFilters`/`matches`/`sorted`), пагинация (PAGE=60), маска-поиск, прямая бронь `reserve`.
+  сайдбар-фильтры, пагинация, маска-поиск, прямая бронь `reserve`, ИЗБРАННОЕ (FAV/localStorage magz_fav, ♥, режим favMode), бейджи категорий (catBadge).
 - `styles.css` — тёмная премиум-тема (графит+золото), `.layout/.sidebar/.filter-*/.num*`.
 - `docs/` — project-notes (эта карта), numstore.usecases.md (живые сценарии UC-1..11), DEFINITION_OF_DONE.
 - **Превью:** `python3 -m http.server 5173 --bind 0.0.0.0` → http://localhost:5173.
@@ -91,7 +93,9 @@
 - **DNS (делает владелец у регистратора):** apex magzgold.ru → A 185.199.108-111.153 (+AAAA 2606:50c0:8000-8003::153); www → CNAME sementsul.github.io. После DNS GitHub выпустит HTTPS (Let's Encrypt) → включить Enforce HTTPS.
 
 ## Статус
-v4: бренд **MagzGold (magzgold.ru)**, тёмный люкс, маркетплейс-витрина (сайдбар-фильтры категория[сервер]/
+🟢 ПРОД https://magzgold.ru (HTTPS). v5: ~50 SEO-страниц (категории/паттерны/тарифы/коды/FAQ/блог/калькулятор/юр),
+шторка, избранное, SEO-обвес (og/schema/favicon/lastmod), УТП «бесплатная доставка SIM по РФ + eSIM».
+Беклог: Метрика/Вебмастер ID, проверка буквенных масок, юр-ревью, авто-токен. --- v4 (история): бренд MagzGold, тёмный люкс, маркетплейс-витрина (сайдбар-фильтры категория[сервер]/
 тариф[клиент]/цена + густая сетка + «показать ещё» + маска-поиск + прямая бронь). SEO-каркас: сборщик build.py →
 главная + 5 категорий + 404 + sitemap/robots/schema. Всё в git + github.com/sementsul/numstore (private).
 Готово: паттерны, калькулятор (реальные цены из прайса), блог (3 статьи), «О сервисе». Всего ~16 страниц.
