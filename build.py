@@ -19,6 +19,8 @@ def _ver(fname):
 SITE = {
     "name": "MagzGold",
     "base": "https://magzgold.ru",
+    "tg_channel": "https://t.me/magzgoldmg",
+    "tg_bot": "https://t.me/magzgoldbot",
 }
 
 # Категории: slug, код для API (mask_categories), витринное имя, SEO-тексты.
@@ -346,6 +348,8 @@ def _build_drawer():
     other = [("/", "Все номера"), ("/kak-eto-rabotaet/", "Как это работает"), ("/tarify/", "Тарифы"), ("/kody/", "Номера по кодам"), ("/blog/", "Блог"), ("/faq/", "Вопросы и ответы"), ("/skolko-stoit-nomer/", "Сколько стоит номер"), ("/o-servise/", "О сервисе")]
     picks = [("/%s/" % l["slug"], l["h1"]) for l in LANDINGS]
     legal = [("/dokumenty/", "Документы и партнёрство"), ("/politika/", "Политика конфиденциальности"), ("/polzovatelskoe-soglashenie/", "Пользовательское соглашение")]
+    tg = ('<a href="https://t.me/magzgoldmg" target="_blank" rel="noopener">📢 Канал с номерами</a>'
+          '<a href="https://t.me/magzgoldbot" target="_blank" rel="noopener">🤖 Бот подбора и брони</a>')
     return (
         '<div class="drawer-backdrop" id="drawerBg"></div>'
         '<aside class="drawer" id="drawer" aria-label="Меню сайта">'
@@ -353,9 +357,10 @@ def _build_drawer():
         '<a class="drawer-brand" href="/">Magz<span class="brand-gold">Gold</span></a>'
         '<div class="drawer-group"><h4>Разделы</h4>%s</div>'
         '<div class="drawer-group"><h4>Подборки</h4>%s</div>'
+        '<div class="drawer-group"><h4>Telegram</h4>%s</div>'
         '<div class="drawer-group"><h4>Документы</h4>%s</div>'
         '</aside>'
-    ) % (_dlinks(other), _dlinks(picks), _dlinks(legal))
+    ) % (_dlinks(other), _dlinks(picks), tg, _dlinks(legal))
 
 
 _DRAWER = _build_drawer()
@@ -475,6 +480,7 @@ PAGE_TMPL = """<!doctype html>
   <div class="wrap">
     {footnav}
     <nav class="catnav footlinks"><a href="/blog/">Блог</a><a href="/skolko-stoit-nomer/">Сколько стоит номер</a><a href="/tarify/">Тарифы</a><a href="/kody/">Коды</a><a href="/faq/">FAQ</a><a href="/o-servise/">О сервисе</a><a href="/politika/">Политика</a><a href="/polzovatelskoe-soglashenie/">Соглашение</a></nav>
+    <div class="tg-links"><a href="https://t.me/magzgoldmg" target="_blank" rel="noopener">📢 Telegram-канал с номерами</a><a href="https://t.me/magzgoldbot" target="_blank" rel="noopener">🤖 Бот подбора и брони</a></div>
     <p>MagzGold — официальный партнёр оператора «Безлимит». Информационная витрина красивых номеров; подключение и оплата на стороне оператора.</p>
   </div>
 </footer>

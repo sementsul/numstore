@@ -526,3 +526,8 @@ body {
 .in-tg .tma-head .brand { font-size: 24px; font-weight: 700; letter-spacing: .5px; }
 .in-tg .tma-head .tma-sub { color: var(--muted); font-size: 14px; }
 .in-tg .crumbs { display: none; }
+
+/* Telegram-ссылки в подвале */
+.tg-links { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 14px; }
+.tg-links a { color: var(--gold); text-decoration: none; font-size: 14px; }
+.tg-links a:hover { color: var(--gold-hi); }
