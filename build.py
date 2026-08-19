@@ -479,6 +479,7 @@ PAGE_TMPL = """<!doctype html>
     <button class="burger" id="burger" aria-label="Открыть меню">≡</button>
 {header_block}
     {nav}
+{header_extra}
   </div>
 </header>
 <main class="wrap">
@@ -611,6 +612,7 @@ def OG(kind):
 def render_page(**kw):
     """Обёртка над PAGE_TMPL.format с дефолтной OG-картинкой (переопределяется og_image=...)."""
     kw.setdefault("og_image", DEFAULT_OG)
+    kw.setdefault("header_extra", "")  # правый декор в шапке (гео-страницы)
     return PAGE_TMPL.format(**kw)
 
 
@@ -732,10 +734,9 @@ CITIES = [
 
 def render_city(c):
     header_block = '    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>'
-    img_html = ('<img class="city-hero-img" src="/img/%s" alt="%s" loading="lazy">' % (c["img"], esc(c["h1"]))) if c.get("img") else ""
-    main_top = ('%s\n  <div class="city-hero">\n    <div class="city-hero-txt">'
-                '<h1 class="page-h1">%s</h1><p class="page-intro">%s</p></div>\n    %s\n  </div>') % (
-        crumbs(c["h1"]), esc(c["h1"]), c["intro"], img_html)
+    header_extra = ('    <img class="top-hero-img" src="/img/%s" alt="%s" loading="lazy">' % (c["img"], esc(c["h1"]))) if c.get("img") else ""
+    main_top = "%s\n  <h1 class=\"page-h1\">%s</h1>\n  <p class=\"page-intro\">%s</p>" % (
+        crumbs(c["h1"]), esc(c["h1"]), c["intro"])
     delivery = ('<section class="seo-text"><h2>Доставка в %s</h2>'
                 '<p>Бесплатная доставка SIM по %s или eSIM за минуты. Номер федеральный — '
                 'работает по всей России.</p></section>') % (esc(c["name"]), esc(c["name"]))
@@ -748,6 +749,7 @@ def render_city(c):
         schema=schema_breadcrumb({"name": c["h1"], "slug": "krasivye-nomera/%s" % c["slug"], "toplevel": True}),
         nav=nav_links(None),
         header_block=header_block,
+        header_extra=header_extra,
         main_top=main_top,
         vitrina=VITRINA + '<section class="seo-text">' + c["text"] + "</section>" + delivery + related_block(),
         footnav=nav_links(None) + patnav(),

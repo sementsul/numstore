@@ -148,10 +148,9 @@ body {
 .cube:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(201,165,88,.18); }
 .cube-actions { display: flex; gap: 12px; margin-top: 16px; }
 .cube-hint { color: var(--muted); font-size: 13px; margin: 12px 0 0; }
-.city-hero { display: flex; align-items: center; gap: 24px; justify-content: space-between; }
-.city-hero-txt { flex: 1 1 auto; min-width: 0; }
-.city-hero-img { flex: 0 0 auto; height: 200px; width: auto; max-width: 42%; object-fit: contain; filter: drop-shadow(0 8px 24px rgba(0,0,0,.45)); }
-@media (max-width: 680px) { .city-hero-img { display: none; } }
+.top .wrap { position: relative; }
+.top-hero-img { position: absolute; right: 72px; bottom: 8px; height: 118px; width: auto; object-fit: contain; pointer-events: none; filter: drop-shadow(0 8px 24px rgba(0,0,0,.45)); }
+@media (max-width: 860px) { .top-hero-img { display: none; } }
 .code-filter { display: inline-flex; align-items: center; gap: 8px; margin: 12px 0 0; color: var(--muted); font-size: 13px; }
 .code-filter select { background: var(--card, #14171d); color: var(--text); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; font-size: 14px; cursor: pointer; }
 
