@@ -202,13 +202,15 @@
     return (
       '<article class="num">' +
         '<button class="fav' + (FAV[d] ? " on" : "") + '" data-fav="' + esc(d) + '" aria-label="В избранное" type="button">♥</button>' +
+        '<button class="share-ic" data-share="' + esc(d) + '" title="Поделиться номером" aria-label="Поделиться номером" type="button">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"></line><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"></line></svg>' +
+        "</button>" +
         (badge ? '<span class="num-badge">' + esc(badge) + "</span>" : "") +
         '<div class="num-phone">' + esc(fmtPhone(p.phone)) + "</div>" +
         (t.name ? '<div class="num-tariff">' + esc(t.name) + "</div>" : "") +
         (specs.length ? '<div class="num-specs">' + esc(specs.join(" · ")) + "</div>" : "") +
         (t.price != null ? '<div class="num-price">' + esc(fmtMoney(t.price)) + "<span>/мес</span></div>" : "") +
         '<button class="num-buy" data-phone="' + esc(digitsOf(p.phone)) + '">Забронировать</button>' +
-        '<button class="num-share" data-share="' + esc(d) + '" type="button">Поделиться номером</button>' +
       "</article>"
     );
   }
@@ -216,7 +218,7 @@
     var url = location.origin + "/nomer/?p=" + d;
     if (navigator.share) { navigator.share({ title: "Красивый номер " + fmtPhone(d), url: url }).catch(function () {}); return; }
     try { navigator.clipboard.writeText(url); } catch (e) {}
-    if (btn) { var o = btn.textContent; btn.textContent = "Ссылка скопирована ✓"; setTimeout(function () { btn.textContent = o; }, 1600); }
+    if (btn) { var o = btn.innerHTML; btn.innerHTML = "✓"; btn.classList.add("copied"); setTimeout(function () { btn.innerHTML = o; btn.classList.remove("copied"); }, 1500); }
   }
 
   /* ---------- бронь ---------- */
@@ -313,7 +315,7 @@
     if (fav) { var d = fav.getAttribute("data-fav"); var pf = BY_PHONE[d] || FAV[d]; if (pf) toggleFav(pf); return; }
     var b = e.target.closest(".num-buy");
     if (b) { var d2 = b.getAttribute("data-phone"), pb = BY_PHONE[d2] || FAV[d2]; if (pb) bookingInfo(pb); return; }
-    var sh = e.target.closest(".num-share");
+    var sh = e.target.closest(".share-ic");
     if (sh) { shareNumber(sh.getAttribute("data-share"), sh); }
   });
   var favBtn = document.getElementById("favToggle");
