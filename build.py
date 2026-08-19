@@ -1,11 +1,20 @@
 #!/usr/bin/env python3
 # MagzGold — генератор статических SEO-страниц (главная + категории + sitemap/robots).
 # Витрина (номера) остаётся клиентской (ban-proof); вокруг — уникальный текст под запросы.
-import os, shutil, html
+import os, shutil, html, hashlib
 from datetime import date
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 DIST = os.path.join(ROOT, "dist")
+
+
+def _ver(fname):
+    """?v=<md5[:8]> по содержимому файла — кэш-бастинг: браузер тянет свежий ассет только при изменении."""
+    try:
+        h = hashlib.md5(open(os.path.join(ROOT, fname), "rb").read()).hexdigest()[:8]
+        return "?v=" + h
+    except OSError:
+        return ""
 
 SITE = {
     "name": "MagzGold",
@@ -466,7 +475,11 @@ PAGE_TMPL = """<!doctype html>
 </body>
 </html>
 """
-SCRIPTS = '<script src="/config.js"></script>\n<script src="/app.js"></script>'
+# Кэш-бастинг: версии по хешу содержимого ассетов (после деплоя браузер тянет свежие CSS/JS).
+PAGE_TMPL = (PAGE_TMPL
+             .replace('/styles.css"', '/styles.css%s"' % _ver("styles.css"))
+             .replace('/nav.js"', '/nav.js%s"' % _ver("nav.js")))
+SCRIPTS = '<script src="/config.js%s"></script>\n<script src="/app.js%s"></script>' % (_ver("config.js"), _ver("app.js"))
 METRIKA = '<!-- Yandex.Metrika counter -->\n<script type="text/javascript">\n    (function(m,e,t,r,i,k,a){\n        m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};\n        m[i].l=1*new Date();\n        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}\n        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)\n    })(window, document,\'script\',\'https://mc.yandex.ru/metrika/tag.js?id=111737982\', \'ym\');\n\n    ym(111737982, \'init\', {ssr:true, webvisor:true, clickmap:true, ecommerce:"dataLayer", referrer: document.referrer, url: location.href, accurateTrackBounce:true, trackLinks:true});\n</script>\n<noscript><div><img src="https://mc.yandex.ru/watch/111737982" style="position:absolute; left:-9999px;" alt="" /></div></noscript>\n<!-- /Yandex.Metrika counter -->'
 GTAG = '<!-- Google tag (gtag.js) -->\n<script async src="https://www.googletagmanager.com/gtag/js?id=G-R1CLPNLWLD"></script>\n<script>\n  window.dataLayer = window.dataLayer || [];\n  function gtag(){dataLayer.push(arguments);}\n  gtag(\'js\', new Date());\n  gtag(\'config\', \'G-R1CLPNLWLD\');\n</script>\n<!-- /Google tag -->'
 METRIKA = METRIKA + "\n" + GTAG
@@ -778,7 +791,7 @@ def render_calc():
                  % crumbs("Сколько стоит номер"),
         vitrina=body,
         footnav=nav_links(None) + patnav(),
-        scripts='<script src="/config.js"></script>\n<script src="/calc.js"></script>',
+        scripts='<script src="/config.js%s"></script>\n<script src="/calc.js%s"></script>' % (_ver("config.js"), _ver("calc.js")),
     )
     write("skolko-stoit-nomer/index.html", html_out)
 
