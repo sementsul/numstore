@@ -105,7 +105,7 @@
       .then(function (r) { return r.json(); })
       .then(function (d) {
         var uuid = deepUuid(d);
-        if (!uuid) { if (w) w.close(); alert("Не удалось забронировать: " + ((d && d.message) || "нет сессии") + "."); return; }
+        if (!uuid) { if (w) w.close(); alert("Похоже, этот номер только что заняли. Обновите страницу или выберите другой в каталоге."); return; }
         var url = CFG.REF_STORE_URL + "?type=p&cubes=" + digits + "&uuid=" + encodeURIComponent(uuid);
         if (w) w.location = url; else window.open(url, "_blank", "noopener");
       })

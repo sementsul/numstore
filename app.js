@@ -283,6 +283,13 @@
     document.body.style.overflow = "";
   }
 
+  function removeSold(digits) {   // номер заняли между загрузкой и кликом — убираем из выдачи
+    delete BY_PHONE[digits];
+    ALL = ALL.filter(function (x) { return digitsOf(x.phone) !== digits; });
+    var btn = gridEl.querySelector('.num-buy[data-phone="' + digits + '"]');
+    if (btn && btn.closest) { var art = btn.closest(".num"); if (art) art.remove(); }
+  }
+
   function doReserve(p) {
     var tariffId = p.tariff && p.tariff.id, digits = digitsOf(p.phone);
     if (!tariffId) { alert("У номера не указан тариф — бронь недоступна."); return; }
@@ -296,7 +303,7 @@
       .then(function (r) { return r.json(); })
       .then(function (d) {
         var uuid = deepUuid(d);
-        if (!uuid) { if (w) w.close(); alert("Не удалось забронировать: " + ((d && d.message) || "нет сессии") + "."); return; }
+        if (!uuid) { if (w) w.close(); alert("Похоже, этот номер только что заняли — выберите другой из каталога."); removeSold(digits); return; }
         var url = CFG.REF_STORE_URL + "?type=p&cubes=" + digits + "&uuid=" + encodeURIComponent(uuid);
         if (tg) tg.openLink(url); else if (w) w.location = url; else window.open(url, "_blank", "noopener");
       })
