@@ -558,6 +558,17 @@ dlya-biznesa → золото+платина (номера genuinely разли�
 в HTML, FAQPage, замер. ❌ визуал — руками. Осталось однотипным: v-podarok/legko-zapomnit/na-datu-rozhdeniya без
 cat-фильтра (framing, каталог полный) — приемлемо, текст+FAQ уникальны.
 
+## UC-53. VIP/Бизнес: порог тарифа + чистый сайдбар/катнав ✅
+Юзер: на vip/бизнес убрать лишние тарифы из сайдбара и лишние кнопки-категории из шапки. Реализовано пресетами в
+LANDINGS: `tmin` (порог цены тарифа: vip=2000 → остаются >2000, бизнес=1300 → остаются >1600), `hidePrice`
+(скрыть блок «Цена тарифа»), `cats` (какие категории показывать в шапке-катнаве). app.js: matchesClient и
+buildTariffFilter отсекают тарифы с price<=PRESET.tmin (и номера, и список фильтра); PRESET.hidePrice прячет
+.filter-group у #fPrice. build.py: nav_links(only=[...]) фильтрует катнав; render_landing собирает window.PAGE из
+cat/tmin/hidePrice и передаёт cats в nav. Итог: vip → катнав Бриллиантовые/Платиновые, тарифы >2000; бизнес →
+Платиновые/Золотые, тарифы >1600; «Цена тарифа» скрыта на обеих. **Радиус:** app.js (matchesClient/buildTariffFilter/
+PRESET.hidePrice), build.py (nav_links only, render_landing page_js+nav, LANDINGS vip/бизнес +cats/tmin/hidePrice).
+Проверено: пресеты и катнав в HTML. ❌ каталог/сайдбар вживую — руками (API в контейнере забанен).
+
 ## Дальше (бэклог)
 - Поле цены самого номера (разобрать полный объект `phone`).
 - Фильтр по маске/паттерну (эндпоинт `/super-link/phones/filters`).
