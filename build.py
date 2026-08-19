@@ -765,7 +765,10 @@ def render_number_page():
         nav=nav_links(None),
         header_block='    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>',
         main_top='%s\n  <h1 class="page-h1">Красивый номер</h1>' % crumbs("Номер"),
-        vitrina='<div id="numView" class="num-view"><p class="status">Загружаю номер…</p></div>',
+        vitrina=('<div class="num-page">'
+                 '<div id="numView" class="num-view"><p class="status">Загружаю номер…</p></div>'
+                 '<aside id="numSimilar" class="num-similar" hidden></aside>'
+                 '</div>'),
         footnav=nav_links(None) + patnav(),
         scripts='<script src="/config.js%s"></script>\n<script src="/nomer.js%s"></script>' % (_ver("config.js"), _ver("nomer.js")),
     )

@@ -484,8 +484,28 @@ body {
 .num-share:hover { color: var(--gold); }
 
 /* Страница одного номера /nomer/ */
-.num-view { padding: 8px 0 48px; }
+.num-page { display: flex; gap: 28px; align-items: flex-start; padding-bottom: 48px; }
+.num-view { padding: 8px 0 0; flex: 0 0 460px; max-width: 460px; }
 .num-solo { max-width: 460px; }
+/* Похожие по маске (правая колонка на десктопе) */
+.num-similar { flex: 1 1 auto; min-width: 0; padding-top: 8px; }
+.num-similar h3 {
+  margin: 0 0 12px; font-size: 12px; font-weight: 600; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--gold);
+}
+.sim-item {
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  padding: 12px 14px; margin-bottom: 8px; text-decoration: none;
+  background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+  transition: border-color .12s, transform .12s;
+}
+.sim-item:hover { border-color: var(--line-2); transform: translateX(2px); }
+.sim-phone { color: var(--text); font-weight: 600; font-size: 16px; letter-spacing: .5px; font-variant-numeric: tabular-nums; }
+.sim-price { color: var(--gold); font-size: 14px; white-space: nowrap; }
+@media (max-width: 720px) {
+  .num-page { flex-direction: column; gap: 20px; }
+  .num-view { flex: 1 1 auto; max-width: 100%; }
+}
 .num-solo .num-phone { font-size: 30px; }
 .num-solo-desc { color: var(--muted); font-size: 14px; line-height: 1.6; margin: 12px 0 4px; }
 .num-buy-solo { display: block; text-align: center; text-decoration: none; margin-top: 14px; }

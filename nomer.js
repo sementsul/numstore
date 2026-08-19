@@ -4,6 +4,7 @@
 (function () {
   var CFG = window.NUMSTORE_CONFIG;
   var view = document.getElementById("numView");
+  var simEl = document.getElementById("numSimilar");
   if (!view) return;
 
   function digitsOf(p) { return String(p).replace(/\D/g, "").slice(-10); }
@@ -156,20 +157,43 @@
   function renderError() {
     view.innerHTML = '<p class="status">Не удалось загрузить номер. Обновите страницу или откройте <a href="/">каталог</a>.</p>';
   }
+  function renderSimilar(list, d) {
+    if (!simEl) return;
+    var items = list.filter(function (p) { return digitsOf(p.phone) !== d; }).slice(0, 8);
+    if (!items.length) return;
+    simEl.innerHTML = "<h3>Похожие номера</h3>" + items.map(function (p) {
+      var t = p.tariff || {}, dd = digitsOf(p.phone);
+      return '<a class="sim-item" href="/nomer/?p=' + dd + '">' +
+        '<span class="sim-phone">' + esc(fmtPhone(p.phone)) + "</span>" +
+        (t.price != null ? '<span class="sim-price">' + esc(fmtMoney(t.price)) + "</span>" : "") +
+        "</a>";
+    }).join("");
+    simEl.hidden = false;
+  }
 
   function param(name) {
     var m = new RegExp("[?&]" + name + "=([^&]+)").exec(location.search);
     return m ? decodeURIComponent(m[1]) : "";
   }
 
+  var BASE = "/super-link/phones/mask-category?expand=tariff&is_reserved=false&per_page=100&phone_pattern=";
+
   var d = digitsOf(param("p"));
   if (d.length !== 10) { renderUnavailable(param("p") || "—"); return; }
   view.innerHTML = '<p class="status">Загружаю номер…</p>';
-  api("/super-link/phones/mask-category?expand=tariff&is_reserved=false&per_page=100&phone_pattern=" + d)
+
+  // точный номер: доступен → карточка, иначе «недоступен»
+  api(BASE + d)
     .then(function (data) {
       var list = flatten(data), match = null;
       list.forEach(function (p) { if (digitsOf(p.phone) === d) match = p; });
       if (match) renderCard(match, d); else renderUnavailable(d);
     })
     .catch(renderError);
+
+  // похожие: «снимаем маску» — фиксируем окончание (последние 4 цифры), остальное любое
+  var simMask = "NNNNNN" + d.slice(6);
+  api(BASE + simMask)
+    .then(function (data) { renderSimilar(flatten(data), d); })
+    .catch(function () {});
 })();
