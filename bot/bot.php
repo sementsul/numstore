@@ -212,17 +212,19 @@ $lock = fopen($LOCK_FILE, 'c');
 if (!$lock || !flock($lock, LOCK_EX | LOCK_NB)) { exit('busy'); }   // другой заход активен
 
 $offset = is_file($OFFSET_FILE) ? (int)file_get_contents($OFFSET_FILE) : 0;
-$deadline = time() + 20;
-do {
-    $q = ['timeout' => 5];
+// Держим соединение ~25с (под таймаут пингера) и НЕПРЕРЫВНО long-poll'им: сообщение ловится
+// почти мгновенно, пока окно активно. С пингером раз в минуту покрываем ~25 из 60 сек.
+$deadline = time() + 25;
+while (time() < $deadline) {
+    $t = max(1, min(25, $deadline - time()));   // long-poll на остаток окна
+    $q = ['timeout' => $t];
     if ($offset > 0) { $q['offset'] = $offset; }
     $resp = http_get('https://api.telegram.org/bot' . $TOKEN . '/getUpdates?' . http_build_query($q));
-    $got = $resp['result'] ?? [];
-    foreach ($got as $u) {
+    foreach (($resp['result'] ?? []) as $u) {
         $offset = $u['update_id'] + 1;
         file_put_contents($OFFSET_FILE, (string)$offset);
         try { handle_update($u); } catch (\Throwable $e) { error_log('handle: ' . $e->getMessage()); }
     }
-} while (!empty($got) && time() < $deadline);
+}
 flock($lock, LOCK_UN); fclose($lock);
 echo 'ok';
