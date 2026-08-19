@@ -152,23 +152,17 @@ def _dlinks(items):
 
 
 def _build_drawer():
-    cats = [("/kategoriya/%s/" % c["slug"], c["name"]) for c in CATEGORIES]
-    pats = [("/%s/" % p["slug"], p["name"]) for p in PATTERNS]
-    tars = [("/tarif/%s/" % t["slug"], t["name"]) for t in TARIFFS]
-    other = [("/", "Все номера"), ("/blog/", "Блог"), ("/skolko-stoit-nomer/", "Сколько стоит номер"), ("/o-servise/", "О сервисе")]
+    other = [("/", "Все номера"), ("/tarify/", "Тарифы"), ("/blog/", "Блог"), ("/skolko-stoit-nomer/", "Сколько стоит номер"), ("/o-servise/", "О сервисе")]
     legal = [("/politika/", "Политика конфиденциальности"), ("/polzovatelskoe-soglashenie/", "Пользовательское соглашение")]
     return (
         '<div class="drawer-backdrop" id="drawerBg"></div>'
         '<aside class="drawer" id="drawer" aria-label="Меню сайта">'
         '<button class="drawer-close" aria-label="Закрыть">\u00d7</button>'
         '<a class="drawer-brand" href="/">Magz<span class="brand-gold">Gold</span></a>'
-        '<div class="drawer-group"><h4>Категории</h4>%s</div>'
-        '<div class="drawer-group"><h4>Паттерны</h4>%s</div>'
-        '<div class="drawer-group"><h4>Тарифы</h4>%s</div>'
         '<div class="drawer-group"><h4>Разделы</h4>%s</div>'
         '<div class="drawer-group"><h4>Документы</h4>%s</div>'
         '</aside>'
-    ) % (_dlinks(cats), _dlinks(pats), _dlinks(tars), _dlinks(other), _dlinks(legal))
+    ) % (_dlinks(other), _dlinks(legal))
 
 
 _DRAWER = _build_drawer()
