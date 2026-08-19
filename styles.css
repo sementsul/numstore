@@ -30,6 +30,42 @@ body {
   background: linear-gradient(180deg, rgba(201,165,88,.06), transparent);
 }
 .brand { font-size: 26px; font-weight: 700; letter-spacing: .5px; color: var(--text); text-decoration: none; display: inline-block; }
+
+/* бургер + шторка */
+.burger {
+  position: absolute; top: 22px; right: 20px; z-index: 30;
+  width: 44px; height: 40px; font-size: 24px; line-height: 1;
+  background: transparent; color: var(--gold); border: 1px solid var(--line-2);
+  border-radius: 10px; cursor: pointer;
+}
+.burger:hover { border-color: var(--gold); }
+.drawer-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,.6); opacity: 0; visibility: hidden;
+  transition: opacity .25s; z-index: 40;
+}
+.drawer-backdrop.open { opacity: 1; visibility: visible; }
+.drawer {
+  position: fixed; top: 0; right: 0; height: 100%; width: 320px; max-width: 86vw; z-index: 50;
+  background: linear-gradient(180deg, var(--card-hi), var(--bg)); border-left: 1px solid var(--line-2);
+  padding: 24px 22px 40px; overflow-y: auto; transform: translateX(100%); transition: transform .25s ease;
+  box-shadow: -20px 0 60px -20px rgba(0,0,0,.8);
+}
+.drawer.open { transform: translateX(0); }
+.drawer-close {
+  position: absolute; top: 14px; right: 16px; width: 36px; height: 36px; font-size: 26px; line-height: 1;
+  background: transparent; color: var(--muted); border: none; cursor: pointer;
+}
+.drawer-close:hover { color: var(--gold); }
+.drawer-brand { font-size: 22px; font-weight: 700; color: var(--text); text-decoration: none; display: inline-block; margin-bottom: 14px; }
+.drawer-group { margin-top: 18px; }
+.drawer-group h4 {
+  margin: 0 0 8px; font-size: 12px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--gold);
+}
+.drawer-group a {
+  display: block; padding: 8px 10px; border-radius: 8px; color: var(--muted); text-decoration: none; font-size: 15px;
+  transition: background .12s, color .12s;
+}
+.drawer-group a:hover { color: var(--text); background: rgba(255,255,255,.05); }
 .hero { margin: 0; font-size: 30px; font-weight: 700; letter-spacing: .5px; color: var(--text); }
 .hero-tag { font-weight: 400; color: var(--muted); font-size: 26px; }
 @media (max-width: 520px) { .hero, .hero-tag { font-size: 23px; } }

@@ -147,6 +147,33 @@ for _t in TARIFFS:
     _t["name"] = "Безлимит ULTRA %d" % _t["price"]
 
 
+def _dlinks(items):
+    return "".join('<a href="%s">%s</a>' % (h, html.escape(t)) for h, t in items)
+
+
+def _build_drawer():
+    cats = [("/kategoriya/%s/" % c["slug"], c["name"]) for c in CATEGORIES]
+    pats = [("/%s/" % p["slug"], p["name"]) for p in PATTERNS]
+    tars = [("/tarif/%s/" % t["slug"], t["name"]) for t in TARIFFS]
+    other = [("/", "Все номера"), ("/blog/", "Блог"), ("/skolko-stoit-nomer/", "Сколько стоит номер"), ("/o-servise/", "О сервисе")]
+    legal = [("/politika/", "Политика конфиденциальности"), ("/polzovatelskoe-soglashenie/", "Пользовательское соглашение")]
+    return (
+        '<div class="drawer-backdrop" id="drawerBg"></div>'
+        '<aside class="drawer" id="drawer" aria-label="Меню сайта">'
+        '<button class="drawer-close" aria-label="Закрыть">\u00d7</button>'
+        '<a class="drawer-brand" href="/">Magz<span class="brand-gold">Gold</span></a>'
+        '<div class="drawer-group"><h4>Категории</h4>%s</div>'
+        '<div class="drawer-group"><h4>Паттерны</h4>%s</div>'
+        '<div class="drawer-group"><h4>Тарифы</h4>%s</div>'
+        '<div class="drawer-group"><h4>Разделы</h4>%s</div>'
+        '<div class="drawer-group"><h4>Документы</h4>%s</div>'
+        '</aside>'
+    ) % (_dlinks(cats), _dlinks(pats), _dlinks(tars), _dlinks(other), _dlinks(legal))
+
+
+_DRAWER = _build_drawer()
+
+
 def esc(s):
     return html.escape(str(s), quote=True)
 
@@ -227,6 +254,7 @@ PAGE_TMPL = """<!doctype html>
 <body>
 <header class="top">
   <div class="wrap">
+    <button class="burger" id="burger" aria-label="Открыть меню">≡</button>
 {header_block}
     {nav}
   </div>
@@ -242,6 +270,8 @@ PAGE_TMPL = """<!doctype html>
     <p>MagzGold — информационная витрина красивых номеров. Подбор и бронирование; подключение и оплата на стороне оператора.</p>
   </div>
 </footer>
+{drawer}
+<script src="/nav.js"></script>
 {scripts}
 </body>
 </html>
@@ -275,7 +305,7 @@ def render_home():
     intro = ("MagzGold — витрина красивых номеров телефонов. Соберите нужную комбинацию маской или выберите "
              "категорию: бриллиантовые, платиновые, золотые, серебряные, бронзовые. Каждый номер — с тарифом "
              "и мгновенной бронью онлайн.")
-    html_out = PAGE_TMPL.format(
+    html_out = PAGE_TMPL.format(drawer=_DRAWER, 
         title="MagzGold — красивые номера: купить и забронировать онлайн",
         desc="MagzGold — красивые и премиальные номера телефонов: подбор по маске и категориям, тарифы, "
              "бронирование онлайн. Бриллиантовые, платиновые, золотые, серебряные и бронзовые номера.",
@@ -297,7 +327,7 @@ def render_category(c):
     header_block = '    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>'
     main_top = "%s\n  <h1 class=\"page-h1\">%s</h1>\n  <p class=\"page-intro\">%s</p>" % (
         crumbs(c["name"]), esc(c["h1"]), c["intro"])
-    html_out = PAGE_TMPL.format(
+    html_out = PAGE_TMPL.format(drawer=_DRAWER, 
         title="%s номера — купить и забронировать | MagzGold" % c["name"],
         desc=c["desc"],
         canonical=SITE["base"] + "/kategoriya/%s/" % c["slug"],
@@ -318,7 +348,7 @@ def render_pattern(p):
     header_block = '    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>'
     main_top = "%s\n  <h1 class=\"page-h1\">%s</h1>\n  <p class=\"page-intro\">%s</p>" % (
         crumbs(p["h1"]), esc(p["h1"]), p["intro"])
-    html_out = PAGE_TMPL.format(
+    html_out = PAGE_TMPL.format(drawer=_DRAWER, 
         title="%s — купить и забронировать | MagzGold" % p["h1"],
         desc=p["desc"],
         canonical=SITE["base"] + "/%s/" % p["slug"],
@@ -366,7 +396,7 @@ def render_calc():
         'Это не оферта; итоговая сумма — у оператора при оформлении.</p>'
         '</section>'
     )
-    html_out = PAGE_TMPL.format(
+    html_out = PAGE_TMPL.format(drawer=_DRAWER, 
         title="Сколько стоит красивый номер — калькулятор стоимости | MagzGold",
         desc="Сколько стоит красивый номер телефона: онлайн-калькулятор ориентировочной стоимости по категории "
              "красоты и региону. Реальные тарифы и факторы цены — MagzGold.",
@@ -390,7 +420,7 @@ def render_blog_index():
     cards = "".join(
         '<a class="blog-card" href="/blog/%s/"><h2>%s</h2><p>%s</p></a>' % (a["slug"], esc(a["h1"]), esc(a["desc"]))
         for a in BLOG)
-    html_out = PAGE_TMPL.format(
+    html_out = PAGE_TMPL.format(drawer=_DRAWER, 
         title="Блог о красивых номерах — гайды и советы | MagzGold",
         desc="Блог MagzGold: как выбрать красивый номер, категории красоты, как забронировать и сколько стоит номер.",
         canonical=SITE["base"] + "/blog/",
@@ -414,7 +444,7 @@ def render_article(a):
               '"mainEntityOfPage":"%s/blog/%s/"}</script>' % (esc(a["h1"]), SITE["base"], a["slug"]))
     bc = ('<nav class="crumbs"><a href="/">Главная</a> / <a href="/blog/">Блог</a> / <span>%s</span></nav>'
           % esc(a["h1"]))
-    html_out = PAGE_TMPL.format(
+    html_out = PAGE_TMPL.format(drawer=_DRAWER, 
         title=a["title"],
         desc=a["desc"],
         canonical=SITE["base"] + "/blog/%s/" % a["slug"],
@@ -435,7 +465,7 @@ def render_tariff(t):
     intro = ("Номера с тарифом %s — абонентская плата %d ₽/мес с ёмким пакетом минут, SMS и интернета. "
              "Ниже — красивые номера, доступные на этом тарифе; уточните комбинацию маской и забронируйте онлайн."
              % (t["name"], t["price"]))
-    html_out = PAGE_TMPL.format(
+    html_out = PAGE_TMPL.format(drawer=_DRAWER, 
         title="Номера с тарифом %s (%d ₽/мес) | MagzGold" % (t["name"], t["price"]),
         desc="Красивые номера с тарифом %s — абонплата %d ₽/мес. Подбор по маске, категории, бронирование онлайн — MagzGold."
              % (t["name"], t["price"]),
@@ -457,7 +487,7 @@ def render_tariffs_index():
     rows = "".join(
         '<a class="blog-card" href="/tarif/%s/"><h2>%s</h2><p>Абонплата %d ₽/мес · красивые номера на этом тарифе</p></a>'
         % (t["slug"], esc(t["name"]), t["price"]) for t in TARIFFS)
-    html_out = PAGE_TMPL.format(
+    html_out = PAGE_TMPL.format(drawer=_DRAWER, 
         title="Тарифы Безлимит ULTRA — номера по тарифам | MagzGold",
         desc="Тарифы Безлимит ULTRA (от 399 до 5000 ₽/мес) и красивые номера на каждом из них. Подбор и бронирование — MagzGold.",
         canonical=SITE["base"] + "/tarify/",
@@ -499,7 +529,7 @@ def render_about():
         "оформлении. Наличие номеров ограничено.</p>"
         "</article>"
     )
-    html_out = PAGE_TMPL.format(
+    html_out = PAGE_TMPL.format(drawer=_DRAWER, 
         title="О сервисе MagzGold — витрина красивых номеров",
         desc="О сервисе MagzGold: информационная витрина красивых номеров, как работает подбор и бронь, оператор связи и официальные документы.",
         canonical=SITE["base"] + "/o-servise/",
@@ -516,7 +546,7 @@ def render_about():
 
 
 def _legal_page(slug, h1, title, desc, body):
-    html_out = PAGE_TMPL.format(
+    html_out = PAGE_TMPL.format(drawer=_DRAWER, 
         title=title, desc=desc, canonical=SITE["base"] + "/%s/" % slug,
         page_js="", schema=schema_breadcrumb({"name": h1, "slug": slug, "toplevel": True}),
         nav=nav_links(None),
@@ -587,7 +617,7 @@ def render_404():
            '<h1>Страница не найдена</h1>'
            '<p>Похоже, такой страницы нет или она переехала.</p>'
            '<a class="btn-primary" href="/">На главную</a></div>')
-    html_out = PAGE_TMPL.format(
+    html_out = PAGE_TMPL.format(drawer=_DRAWER, 
         title="Страница не найдена — MagzGold",
         desc="Страница не найдена.",
         canonical=SITE["base"] + "/404.html",
@@ -617,7 +647,7 @@ def render_sitemap():
 
 
 def copy_assets():
-    for f in ("app.js", "styles.css", "config.js", "calc.js"):
+    for f in ("app.js", "styles.css", "config.js", "calc.js", "nav.js"):
         shutil.copy(os.path.join(ROOT, f), os.path.join(DIST, f))
     write("CNAME", "magzgold.ru\n")
     open(os.path.join(DIST, ".nojekyll"), "w").close()

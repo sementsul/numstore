@@ -158,6 +158,12 @@ identity sementsul), build.py (о-сервисе: реквизиты владе�
 оператора bezlimit.ru/legal. Всё в sitemap + футер. Радиус: build.py (TARIFFS/render_tariff/render_tariffs_index/
 render_privacy/render_terms/_legal_page), app.js (PAGE.tariff). 🔺 Юр-тексты базовые — для боевого лучше ревью юриста.
 
+## UC-20. Шторка (выдвижное меню) ✅
+**Шаги:** клик по бургеру «≡» (справа в шапке) → выезжает панель со ВСЕМИ ссылками (Категории/Паттерны/Тарифы/
+Разделы/Документы). Закрытие: ×, клик по фону, Esc. **Радиус:** nav.js (тоггл, на всех страницах), build.py
+(_build_drawer/_DRAWER прокинут во все PAGE_TMPL.format, бургер в шапке, nav.js в scripts+copy_assets),
+styles.css (.burger/.drawer/.drawer-backdrop/.drawer-group). Плюс к UX и внутренней перелинковке (SEO).
+
 ## Открытые долги
 - Поле цены самого номера (разобрать полный объект `phone`).
 - Фильтр по маске/паттерну (эндпоинт `/super-link/phones/filters`).
