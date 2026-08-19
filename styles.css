@@ -218,6 +218,8 @@ body {
 .calc-range span { font-size: 16px; color: var(--muted); -webkit-text-fill-color: var(--muted); }
 .calc-sub { margin-top: 4px; color: var(--text); font-size: 14px; }
 .calc-note { margin-top: 10px; color: var(--muted); font-size: 13px; line-height: 1.55; }
+.calc-live { margin-top: 8px; color: var(--text); font-size: 15px; }
+.calc-live b { color: var(--gold); }
 .calc-load { color: var(--muted); }
 .calc #calcLink { margin-top: 18px; text-decoration: none; }
 
