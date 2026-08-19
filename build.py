@@ -221,7 +221,7 @@ PAGE_TMPL = """<!doctype html>
 <footer class="foot">
   <div class="wrap">
     {footnav}
-    <nav class="catnav footlinks"><a href="/blog/">Блог</a><a href="/skolko-stoit-nomer/">Сколько стоит номер</a></nav>
+    <nav class="catnav footlinks"><a href="/blog/">Блог</a><a href="/skolko-stoit-nomer/">Сколько стоит номер</a><a href="/o-servise/">О сервисе</a></nav>
     <p>MagzGold — информационная витрина красивых номеров. Подбор и бронирование; подключение и оплата на стороне оператора.</p>
   </div>
 </footer>
@@ -413,6 +413,44 @@ def render_article(a):
     write("blog/%s/index.html" % a["slug"], html_out)
 
 
+def render_about():
+    body = (
+        '<article class="article">'
+        "<p>MagzGold — информационная витрина красивых номеров телефонов. Мы помогаем подобрать номер по маске "
+        "или категории красоты и оформить бронь онлайн. MagzGold не является оператором связи и не оказывает "
+        "услуги связи самостоятельно.</p>"
+        "<h2>Как это работает</h2>"
+        '<p>Вы выбираете номер в <a href="/">каталоге</a> (по маске, категории, тарифу или цене), бронируете его '
+        "в пару кликов, а регистрация и оплата проходят на стороне оператора связи по его условиям.</p>"
+        "<h2>Оператор</h2>"
+        "<p>Услуги связи и продажу номеров осуществляет оператор <b>ООО «Безлимит»</b> "
+        "(ИНН 9725007063, ОГРН 1197746244750, г. Москва). Актуальные условия, тарифы, оферты и правила — "
+        'в официальных документах оператора: <a href="https://bezlimit.ru/files/" target="_blank" rel="noopener">'
+        "bezlimit.ru/files</a>, стоимость номеров — в "
+        '<a href="https://bezlimit.ru/files/%D0%A1%D1%82%D0%BE%D0%B8%D0%BC%D0%BE%D1%81%D1%82%D1%8C%20%D0%BD%D0%BE%D0%BC%D0%B5%D1%80%D0%BE%D0%B2.pdf" '
+        'target="_blank" rel="noopener">официальном прайсе</a>.</p>'
+        "<h2>Дисклеймер</h2>"
+        "<p>Информация на сайте носит справочный характер и не является публичной офертой. Стоимость номеров, "
+        "тарифы и условия обслуживания определяются оператором и могут меняться; итоговые условия вы видите при "
+        "оформлении. Наличие номеров ограничено.</p>"
+        "</article>"
+    )
+    html_out = PAGE_TMPL.format(
+        title="О сервисе MagzGold — витрина красивых номеров",
+        desc="О сервисе MagzGold: информационная витрина красивых номеров, как работает подбор и бронь, оператор связи и официальные документы.",
+        canonical=SITE["base"] + "/o-servise/",
+        page_js="",
+        schema=schema_breadcrumb({"name": "О сервисе", "slug": "o-servise", "toplevel": True}),
+        nav=nav_links(None),
+        header_block='    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>',
+        main_top='%s\n  <h1 class="page-h1">О сервисе</h1>' % crumbs("О сервисе"),
+        vitrina=body,
+        footnav=nav_links(None) + patnav(),
+        scripts="",
+    )
+    write("o-servise/index.html", html_out)
+
+
 def render_404():
     err = ('<div class="err"><div class="err-code">404</div>'
            '<h1>Страница не найдена</h1>'
@@ -438,7 +476,8 @@ def render_sitemap():
     urls = ([SITE["base"] + "/"] + [SITE["base"] + "/kategoriya/%s/" % c["slug"] for c in CATEGORIES]
             + [SITE["base"] + "/%s/" % p["slug"] for p in PATTERNS]
             + [SITE["base"] + "/skolko-stoit-nomer/", SITE["base"] + "/blog/"]
-            + [SITE["base"] + "/blog/%s/" % a["slug"] for a in BLOG])
+            + [SITE["base"] + "/blog/%s/" % a["slug"] for a in BLOG]
+            + [SITE["base"] + "/o-servise/"])
     body = "".join("<url><loc>%s</loc><changefreq>daily</changefreq></url>" % u for u in urls)
     write("sitemap.xml", '<?xml version="1.0" encoding="UTF-8"?>'
           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">%s</urlset>' % body)
@@ -465,6 +504,7 @@ def main():
     render_blog_index()
     for a in BLOG:
         render_article(a)
+    render_about()
     render_404()
     render_sitemap()
     copy_assets()

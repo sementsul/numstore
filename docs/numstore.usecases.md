@@ -139,6 +139,11 @@ app.js (чтение window.PAGE), index.html/styles.css (.catnav/.crumbs/.page-
 категории/паттерны/калькулятор. Контентные страницы (без витрины, scripts=""). В sitemap + футер-ссылка «Блог».
 **Радиус:** build.py (BLOG/render_blog_index/render_article/main/sitemap/футер), styles.css (.blog-list/.blog-card/.article).
 
+## UC-17. Инфо-страница «О сервисе» ✅
+`/o-servise/` — честный текст: MagzGold = информационная витрина (не оператор), как работает подбор+бронь,
+реквизиты оператора ООО «Безлимит» (ИНН 9725007063), ссылки на офиц. документы (bezlimit.ru/files + прайс),
+дисклеймер (не оферта). БЕЗ выдуманной легалки. В sitemap + футер. Радиус: build.py (render_about).
+
 ## Открытые долги
 - Поле цены самого номера (разобрать полный объект `phone`).
 - Фильтр по маске/паттерну (эндпоинт `/super-link/phones/filters`).
