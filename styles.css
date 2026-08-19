@@ -398,6 +398,10 @@ body {
 
   /* карточки/панели — тоньше паддинги и радиусы */
   .search-box { padding: 16px; margin: 18px 0; border-radius: 14px; }
+  /* виджет маски: 10 кубиков делят ширину и НЕ переносятся на новую строку */
+  .cubes { flex-wrap: nowrap; gap: 4px; }
+  .cube-prefix { font-size: 18px; margin-right: 5px; }
+  .cube { flex: 1 1 0; width: auto; min-width: 0; height: 46px; font-size: 16px; padding: 0; border-radius: 8px; }
   .cube-actions { gap: 8px; }
   .cube-actions .btn-primary, .cube-actions .btn-ghost { flex: 1 1 auto; text-align: center; }
   .num { padding: 18px 16px 15px; border-radius: 12px; }
