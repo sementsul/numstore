@@ -433,6 +433,13 @@ category/tariff/price/url-на-бронь), referral-safe. Страница `/ap
 (вместо отдельных). Радиус: build.py (render_tools_hub/render_api_docs/render_widget_docs/make_numbers_json, +json
 import, main/copy_assets/sitemap/drawer), widget.js (новый), checker.js, styles.css (.chk-*/.code/.mgw в widget.js).
 Проверено live: numbers.json 200 (250 номеров), 4 страницы 200, widget.js 200, хаб отрисован (headless).
+АВТО-ОБНОВЛЕНИЕ ФИДА: деплой ручной (в сессиях), поэтому numbers.json устаревал → добавлен GH Actions крон
+`feed_numbers.yml` (каждые 4ч + dispatch): `gen_numbers.py` тянет номера (браузерный UA) → клонирует magzgold
+(секрет DEPLOY_TOKEN=ghp с доступом к magzgold) → кладёт api/numbers.json → commit+push (обновляет ТОЛЬКО фид,
+не трогая сайт). gen_numbers.py добавляет `updated_at` (UTC). Проверено: dispatch → через ~50с live-фид получил
+updated_at ✅. Виджет и так живой (fetch в браузере), крон нужен только сырому JSON-фиду. Живёт в numstore
+(private). 🔶 РИСК: полный деплой (force-push orphan) может пересечься с пушем крона (редко) → тот цикл падает,
+следующий чинит. Пересмотреть если: участятся конфликты.
 
 - Поле цены самого номера (разобрать полный объект `phone`).
 - Фильтр по маске/паттерну (эндпоинт `/super-link/phones/filters`).
