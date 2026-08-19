@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # MagzGold — генератор статических SEO-страниц (главная + категории + sitemap/robots).
 # Витрина (номера) остаётся клиентской (ban-proof); вокруг — уникальный текст под запросы.
-import os, shutil, html, hashlib
+import os, shutil, html, hashlib, json
 from datetime import date
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -345,7 +345,7 @@ def _dlinks(items):
 
 
 def _build_drawer():
-    other = [("/", "Все номера"), ("/kak-eto-rabotaet/", "Как это работает"), ("/tarify/", "Тарифы"), ("/kody/", "Номера по кодам"), ("/blog/", "Блог"), ("/faq/", "Вопросы и ответы"), ("/skolko-stoit-nomer/", "Сколько стоит номер"), ("/proverit-nomer/", "Проверить красоту номера"), ("/o-servise/", "О сервисе")]
+    other = [("/", "Все номера"), ("/kak-eto-rabotaet/", "Как это работает"), ("/tarify/", "Тарифы"), ("/kody/", "Номера по кодам"), ("/blog/", "Блог"), ("/faq/", "Вопросы и ответы"), ("/skolko-stoit-nomer/", "Сколько стоит номер"), ("/api-i-vidzhety/", "API и виджеты"), ("/o-servise/", "О сервисе")]
     picks = [("/%s/" % l["slug"], l["h1"]) for l in LANDINGS]
     legal = [("/dokumenty/", "Документы и партнёрство"), ("/politika/", "Политика конфиденциальности"), ("/polzovatelskoe-soglashenie/", "Пользовательское соглашение")]
     tg = ('<a href="https://t.me/magzgoldmg" target="_blank" rel="noopener">📢 Канал с номерами</a>'
@@ -785,6 +785,130 @@ def render_app():
         scripts=tg_scripts,
     )
     write("app/index.html", html_out)
+
+
+def render_tools_hub():
+    """Хаб «API и виджеты» — с него ссылки на виджет и API."""
+    cards = (
+        '<a class="blog-card" href="/vidzhet/"><h2>🧩 Виджет для сайта</h2>'
+        '<p>Одна строка кода — и блок красивых номеров у вас на сайте. Оформление ведёт на MagzGold. '
+        'Проще всего для не-разработчиков.</p></a>'
+        '<a class="blog-card" href="/api/"><h2>⚙️ API для разработчиков</h2>'
+        '<p>JSON-фид актуальных номеров на нашем HTTPS. Для своих интеграций, ботов, витрин. '
+        'Бронь — через ссылки на MagzGold.</p></a>'
+        '<a class="blog-card" href="/proverit-nomer/"><h2>🔎 Проверка красоты номера</h2>'
+        '<p>Инструмент: вставь номер — оценка «красоты» и наличие в каталоге. Можно давать посетителям.</p></a>')
+    html_out = render_page(metrika=METRIKA, drawer=_DRAWER,
+        title="API и виджеты MagzGold — интеграция красивых номеров",
+        desc="Инструменты MagzGold для сайтов и разработчиков: встраиваемый виджет красивых номеров и JSON-API. Бесплатно.",
+        canonical=SITE["base"] + "/api-i-vidzhety/",
+        og_image=OG("home"),
+        page_js="",
+        schema=schema_breadcrumb({"name": "API и виджеты", "slug": "api-i-vidzhety", "toplevel": True}),
+        nav=nav_links(None),
+        header_block='    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>',
+        main_top='%s\n  <h1 class="page-h1">API и виджеты</h1>\n'
+                 '  <p class="page-intro">Встройте красивые номера MagzGold к себе: готовый виджет, JSON-API '
+                 'или инструмент проверки. Всё бесплатно, оформление — на стороне оператора.</p>' % crumbs("API и виджеты"),
+        vitrina='<div class="blog-list">%s</div>' % cards,
+        footnav=nav_links(None) + patnav(),
+        scripts="",
+    )
+    write("api-i-vidzhety/index.html", html_out)
+
+
+def render_api_docs():
+    """Страница API: JSON-фид номеров + как встроить (referral-safe)."""
+    ex = ('fetch("https://magzgold.ru/api/numbers.json")\n'
+          '  .then(r => r.json())\n'
+          '  .then(d => {\n'
+          '    d.numbers.forEach(n => {\n'
+          '      // n.phone, n.category, n.price, n.url\n'
+          '      console.log(n.phone, n.category, n.url);\n'
+          '    });\n'
+          '  });')
+    sample = ('{\n  "site": "https://magzgold.ru",\n  "generated": "2026-08-19",\n  "count": 100,\n'
+              '  "numbers": [\n    {\n      "digits": "9998887766",\n      "phone": "+7 999 888-77-66",\n'
+              '      "category": "Золото",\n      "tariff": "Безлимит ULTRA 1600",\n      "price": 1600,\n'
+              '      "url": "https://magzgold.ru/nomer/?p=9998887766"\n    }\n  ]\n}')
+    body = (
+        '<section class="seo-text">'
+        '<p>Простой JSON-API актуальных красивых номеров MagzGold — для сайтов, ботов и своих витрин. '
+        'Отдаётся по HTTPS, без ключей и регистрации. Бронь ведите на поле <code>url</code> каждого номера — '
+        'так оформление проходит через MagzGold у оператора.</p>'
+        '<h2>Эндпоинт</h2>'
+        '<pre class="code">GET https://magzgold.ru/api/numbers.json</pre>'
+        '<p>Возвращает снимок каталога (обновляется при каждом обновлении сайта). Поля номера: '
+        '<code>digits</code>, <code>phone</code>, <code>category</code>, <code>tariff</code>, '
+        '<code>price</code> (₽/мес), <code>url</code> (ссылка на бронь).</p>'
+        '<h2>Пример ответа</h2>'
+        '<pre class="code">' + esc(sample) + '</pre>'
+        '<h2>Пример использования (JS)</h2>'
+        '<pre class="code">' + esc(ex) + '</pre>'
+        '<h2>Не хотите кодить?</h2>'
+        '<p>Возьмите готовый <a href="/vidzhet/">виджет для сайта</a> — вставляется одной строкой и рендерит '
+        'номера сам. А проверить «красоту» конкретного номера можно на <a href="/proverit-nomer/">странице проверки</a>.</p>'
+        '<p class="calc-disc">Данные и наличие номеров определяет оператор и могут меняться; поле '
+        '<code>url</code> всегда показывает актуальный статус номера и условия оформления.</p>'
+        '</section>')
+    html_out = render_page(metrika=METRIKA, drawer=_DRAWER,
+        title="API красивых номеров (JSON) — для разработчиков | MagzGold",
+        desc="Бесплатный JSON-API красивых номеров MagzGold по HTTPS: список номеров с категорией, тарифом, ценой и ссылкой на бронь. Без ключей.",
+        canonical=SITE["base"] + "/api/",
+        og_image=OG("home"),
+        page_js="",
+        schema=schema_breadcrumb({"name": "API", "slug": "api", "toplevel": True}),
+        nav=nav_links(None),
+        header_block='    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>',
+        main_top='%s\n  <h1 class="page-h1">API красивых номеров</h1>' % crumbs("API"),
+        vitrina=body,
+        footnav=nav_links(None) + patnav(),
+        scripts="",
+    )
+    write("api/index.html", html_out)
+
+
+def render_widget_docs():
+    """Страница виджета: как встроить + настройки + ЖИВОЙ пример (сам виджет на странице)."""
+    snippet = ('<div class="magzgold-widget" data-cat="gold" data-count="6"></div>\n'
+               '<script src="https://magzgold.ru/widget.js" async></script>')
+    body = (
+        '<section class="seo-text">'
+        '<p>Бесплатный виджет красивых номеров для вашего сайта. Показывает актуальные номера прямо у вас, '
+        'а оформление ведёт на MagzGold. Тянет данные в браузере посетителя — не нагружает ваш сервер.</p>'
+        '<h2>Как встроить</h2>'
+        '<p>Вставьте этот код в HTML страницы, где нужен блок с номерами:</p>'
+        '<pre class="code">' + esc(snippet) + '</pre>'
+        '<h2>Настройки (атрибуты <code>data-*</code>)</h2>'
+        '<ul>'
+        '<li><b>data-cat</b> — категория: <code>brilliant</code>, <code>platinum</code>, <code>gold</code>, '
+        '<code>silver</code>, <code>bronze</code> или пусто (все категории).</li>'
+        '<li><b>data-count</b> — сколько номеров показать (1–24, по умолчанию 6).</li>'
+        '<li><b>data-title</b> — свой заголовок над блоком (необязательно).</li>'
+        '</ul>'
+        '<p>Можно поставить несколько блоков с разными категориями на одной странице.</p>'
+        '<h2>Живой пример</h2>'
+        '</section>'
+        '<div class="magzgold-widget" data-cat="gold" data-count="6"></div>'
+        '<section class="seo-text">'
+        '<p>Клик по «Забронировать» открывает страницу номера на MagzGold, где посетитель завершает бронь у '
+        'оператора. Стили виджета самодостаточны и не конфликтуют с вашим сайтом.</p>'
+        '</section>')
+    html_out = render_page(metrika=METRIKA, drawer=_DRAWER,
+        title="Виджет красивых номеров для сайта — бесплатно | MagzGold",
+        desc="Бесплатный встраиваемый виджет красивых номеров для вашего сайта: одна строка кода, номера из каталога MagzGold, оформление у оператора.",
+        canonical=SITE["base"] + "/vidzhet/",
+        og_image=OG("home"),
+        page_js="",
+        schema=schema_breadcrumb({"name": "Виджет", "slug": "vidzhet", "toplevel": True}),
+        nav=nav_links(None),
+        header_block='    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>',
+        main_top='%s\n  <h1 class="page-h1">Виджет для сайта</h1>' % crumbs("Виджет"),
+        vitrina=body,
+        footnav=nav_links(None) + patnav(),
+        scripts='<script src="/widget.js" async></script>',
+    )
+    write("vidzhet/index.html", html_out)
 
 
 def render_checker():
@@ -1234,7 +1358,7 @@ def render_sitemap():
     urls = ([SITE["base"] + "/"] + [SITE["base"] + "/kategoriya/%s/" % c["slug"] for c in CATEGORIES]
             + [SITE["base"] + "/%s/" % p["slug"] for p in PATTERNS]
             + [SITE["base"] + "/%s/" % l["slug"] for l in LANDINGS]
-            + [SITE["base"] + "/kak-eto-rabotaet/", SITE["base"] + "/proverit-nomer/", SITE["base"] + "/skolko-stoit-nomer/", SITE["base"] + "/blog/"]
+            + [SITE["base"] + "/kak-eto-rabotaet/", SITE["base"] + "/proverit-nomer/", SITE["base"] + "/vidzhet/", SITE["base"] + "/api-i-vidzhety/", SITE["base"] + "/api/", SITE["base"] + "/skolko-stoit-nomer/", SITE["base"] + "/blog/"]
             + [SITE["base"] + "/blog/%s/" % a["slug"] for a in BLOG]
             + [SITE["base"] + "/o-servise/", SITE["base"] + "/dokumenty/", SITE["base"] + "/tarify/", SITE["base"] + "/politika/", SITE["base"] + "/polzovatelskoe-soglashenie/"]
             + [SITE["base"] + "/tarif/%s/" % t["slug"] for t in TARIFFS]
@@ -1247,10 +1371,50 @@ def render_sitemap():
     write("robots.txt", "User-agent: *\nAllow: /\nSitemap: %s/sitemap.xml\n" % SITE["base"])
 
 
+def make_numbers_json():
+    """Статический JSON-фид красивых номеров (https, referral-safe): dist/api/numbers.json.
+       Снимок на момент сборки; бронь идёт через /nomer/ (реф остаётся за нами). Ошибку сети глушим."""
+    import urllib.request
+    labels = {"brilliant": "Бриллиант", "platinum": "Платина", "gold": "Золото",
+              "silver": "Серебро", "bronze": "Бронза"}
+    token = "Basic YXBpU3RvcmU6VkZ6WFdOSmhwNTVtc3JmQXV1dU0zVHBtcnFTRw=="
+    url = ("https://api.store.bezlimit.ru/v2/super-link/phones/mask-category?"
+           "expand=tariff&is_reserved=false&per_page=100&phone_pattern=9NNNNNNNNN")
+    try:
+        req = urllib.request.Request(url, headers={"Authorization": token,
+              "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 Chrome/124.0 Safari/537.36"})
+        with urllib.request.urlopen(req, timeout=30) as r:
+            data = json.load(r)
+    except Exception as e:                        # noqa: BLE001
+        print("⚠️  numbers.json: не удалось получить номера (%s) — фид пропущен" % e)
+        return
+    seen, nums = set(), []
+    if isinstance(data, dict):
+        for key, v in data.items():
+            lbl = labels.get(key.split(",")[0].strip(), "")
+            for p in (v.get("items") or []) if isinstance(v, dict) else []:
+                d = "".join(c for c in str(p.get("phone", "")) if c.isdigit())[-10:]
+                if len(d) != 10 or d in seen:
+                    continue
+                seen.add(d)
+                t = p.get("tariff") or {}
+                nums.append({"digits": d,
+                             "phone": "+7 %s %s-%s-%s" % (d[0:3], d[3:6], d[6:8], d[8:10]),
+                             "category": lbl, "tariff": t.get("name", ""), "price": t.get("price"),
+                             "url": SITE["base"] + "/nomer/?p=" + d})
+    os.makedirs(os.path.join(DIST, "api"), exist_ok=True)
+    payload = {"site": SITE["base"], "generated": date.today().isoformat(),
+               "count": len(nums), "numbers": nums}
+    with open(os.path.join(DIST, "api", "numbers.json"), "w", encoding="utf-8") as f:
+        json.dump(payload, f, ensure_ascii=False)
+    print("✅ api/numbers.json: %d номеров" % len(nums))
+
+
 def copy_assets():
-    for f in ("app.js", "styles.css", "config.js", "calc.js", "nav.js", "nomer.js", "checker.js", "favicon.svg"):
+    for f in ("app.js", "styles.css", "config.js", "calc.js", "nav.js", "nomer.js", "checker.js", "widget.js", "favicon.svg"):
         shutil.copy(os.path.join(ROOT, f), os.path.join(DIST, f))
     make_og()
+    make_numbers_json()
     copy_docs()
     write("CNAME", "magzgold.ru\n")
     open(os.path.join(DIST, ".nojekyll"), "w").close()
@@ -1289,6 +1453,9 @@ def main():
     render_app()
     render_number_page()
     render_checker()
+    render_widget_docs()
+    render_tools_hub()
+    render_api_docs()
     render_calc()
     render_blog_index()
     for a in BLOG:

@@ -559,3 +559,8 @@ body {
 .chk-avail { margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); font-size: 14px; color: var(--muted); }
 .chk-avail a { color: var(--gold); text-decoration: none; }
 .chk-avail b { color: var(--text); }
+
+/* код-сниппет (страница виджета) */
+.code { background:#0f121a; border:1px solid var(--line); border-radius:10px; padding:14px 16px;
+  overflow-x:auto; font-family:"SF Mono",Menlo,Consolas,monospace; font-size:13px; color:#cdd3df; line-height:1.5; }
+.seo-text code { background:#0f121a; border:1px solid var(--line); border-radius:5px; padding:1px 6px; font-size:13px; color:var(--gold); }

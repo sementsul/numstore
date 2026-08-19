@@ -420,8 +420,19 @@ refresh→access OK, доступ к блогу OK). 1-я статья опуб�
 тариф/цена + ссылка на /nomer/). Радиус: checker.js (новый), build.py (render_checker, main, copy_assets +checker.js
 версионир., sitemap, drawer), styles.css (.chk-*). Проверено headless: `999 888-77-77` → «Премиальный, оценка 17»,
 чипы верные, layout ок; live задеплоено. 🔺 Оценка ОРИЕНТИРОВОЧНАЯ (наш анализатор, не офиц. категория оператора).
-ДАЛЕЕ (не сделано): #4 мини-API на Beget (PHP, где бот) — эндпоинты поиск/бронь, JSON, CORS; #3 виджет-эмбед
-для партнёров (потребитель API). Связка: API кормит виджет + внешние интеграции.
+СДЕЛАНО #3 виджет: `widget.js` — встраиваемый (`<div class="magzgold-widget" data-cat data-count data-title>` +
+`<script src="https://magzgold.ru/widget.js">`), тянет номера напрямую из API Безлимита в браузере посетителя
+(ban-proof, не через наш сервер), рендерит карточки со scoped-CSS, бронь → magzgold.ru/nomer/ (реф остаётся за
+нами). Страница-докум+живой пример `/vidzhet/`.
+СДЕЛАНО #4 API (переосмыслен): у Beget нет HTTPS → hosted-HTTP-API непригоден (mixed-content с https-сайтов) +
+раскрывать raw Bezlimit API нельзя (обход рефа). Решение: СТАТИЧЕСКИЙ JSON-фид на нашем HTTPS —
+`make_numbers_json()` при сборке тянет номера (браузерный UA) → `dist/api/numbers.json` (250 номеров: digits/phone/
+category/tariff/price/url-на-бронь), referral-safe. Страница `/api/` — эндпоинт+пример+JS. Снимок, обновляется на
+деплое; live-статус на /nomer/.
+ХАБ по просьбе юзера: `/api-i-vidzhety/` (карточки → виджет/api/проверка), в ШТОРКЕ один пункт «API и виджеты»
+(вместо отдельных). Радиус: build.py (render_tools_hub/render_api_docs/render_widget_docs/make_numbers_json, +json
+import, main/copy_assets/sitemap/drawer), widget.js (новый), checker.js, styles.css (.chk-*/.code/.mgw в widget.js).
+Проверено live: numbers.json 200 (250 номеров), 4 страницы 200, widget.js 200, хаб отрисован (headless).
 
 - Поле цены самого номера (разобрать полный объект `phone`).
 - Фильтр по маске/паттерну (эндпоинт `/super-link/phones/filters`).
