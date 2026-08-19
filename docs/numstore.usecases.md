@@ -349,6 +349,17 @@ permissions contents:write для коммита state). Живёт в репо 
 Осталось (зона пользователя/ПМ): запушить numstore на GitHub, добавить секреты, создать канал + бот-админ, задать
 частоту. 🔺 РЕШЕНИЕ: GH Actions тянет сам (не браузер-сбор) — IP не забанен, токен не светится в клиенте.
 
+## UC-39. Telegram Mini App (/app/) ✅
+Каталог номеров внутри Телеграма. Страница `/app/` = home-каталог (VITRINA + app.js) + Telegram WebApp SDK
+(`telegram.org/js/telegram-web-app.js`): `ready()/expand()`, ставит header/bg #0d0f13, добавляет класс `in-tg`
+на <html>. CSS `.in-tg`: прячет сайтовые `.top`/`.foot`/`.crumbs`, показывает компактный `.tma-head` (бренд+сабтайтл).
+Бронь TMA-aware: `doReserve` при наличии `Telegram.WebApp` открывает store через `tg.openLink(url)` (а не window.open,
+который в вебвью не работает). Страница `noindex`, НЕ в sitemap. Кнопка меню бота @magzgoldbot → web_app на
+`https://magzgold.ru/app/` (setChatMenuButton, текст «Каталог номеров», проверено getChatMenuButton). Радиус:
+build.py (render_app, main), app.js (doReserve tg.openLink), styles.css (.in-tg/.tma-head). Проверено: /app/ live 200,
+SDK+in-tg+noindex в сборке, headless-мок режима in-tg (шапка/футер скрыты, компактный заголовок). 🔴 Живой тест
+внутри Телеграма (открыть бота → кнопка меню → каталог, бронь через openLink) — за пользователем.
+
 - Поле цены самого номера (разобрать полный объект `phone`).
 - Фильтр по маске/паттерну (эндпоинт `/super-link/phones/filters`).
 - Авто-извлечение токена на сборке (сейчас хардкод в `config.js`).

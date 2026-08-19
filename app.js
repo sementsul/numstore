@@ -283,7 +283,8 @@
   function doReserve(p) {
     var tariffId = p.tariff && p.tariff.id, digits = digitsOf(p.phone);
     if (!tariffId) { alert("У номера не указан тариф — бронь недоступна."); return; }
-    var w = window.open("", "_blank");
+    var tg = window.Telegram && window.Telegram.WebApp;   // внутри Telegram Mini App
+    var w = tg ? null : window.open("", "_blank");         // в браузере — окно заранее (антипопап)
     var fd = new FormData();
     fd.append("phone", digits); fd.append("tariff_id", tariffId);
     fd.append("type", "store"); fd.append("user_id", CFG.REF_ID); fd.append("filter", "professional");
@@ -294,7 +295,7 @@
         var uuid = deepUuid(d);
         if (!uuid) { if (w) w.close(); alert("Не удалось забронировать: " + ((d && d.message) || "нет сессии") + "."); return; }
         var url = CFG.REF_STORE_URL + "?type=p&cubes=" + digits + "&uuid=" + encodeURIComponent(uuid);
-        if (w) w.location = url; else window.open(url, "_blank", "noopener");
+        if (tg) tg.openLink(url); else if (w) w.location = url; else window.open(url, "_blank", "noopener");
       })
       .catch(function (e) { if (w) w.close(); alert("Ошибка брони: " + e.message); });
   }

@@ -753,6 +753,34 @@ def render_promo():
     write("kak-eto-rabotaet/index.html", html_out)
 
 
+def render_app():
+    """Telegram Mini App — каталог номеров внутри Телеграма (кнопка меню бота ведёт сюда)."""
+    tg_scripts = (
+        '<script src="https://telegram.org/js/telegram-web-app.js"></script>\n'
+        '<script>var _tg=window.Telegram&&window.Telegram.WebApp;'
+        'if(_tg){_tg.ready();_tg.expand();document.documentElement.classList.add("in-tg");'
+        'if(_tg.setHeaderColor)_tg.setHeaderColor("#0d0f13");'
+        'if(_tg.setBackgroundColor)_tg.setBackgroundColor("#0d0f13");}</script>\n'
+    ) + SCRIPTS
+    main_top = ('<div class="tma-head"><span class="brand">Magz<span class="brand-gold">Gold</span></span>'
+                '<span class="tma-sub">красивые номера · бронь онлайн</span></div>')
+    html_out = render_page(metrika=METRIKA, drawer=_DRAWER,
+        title="MagzGold — красивые номера (Telegram Mini App)",
+        desc="Каталог красивых номеров MagzGold внутри Telegram: подбор по маске и категориям, бронирование онлайн.",
+        canonical=SITE["base"] + "/app/",
+        og_image=OG("home"),
+        page_js='<meta name="robots" content="noindex">',
+        schema="",
+        nav=nav_links(None),
+        header_block='    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>',
+        main_top=main_top,
+        vitrina=VITRINA,
+        footnav=nav_links(None) + patnav(),
+        scripts=tg_scripts,
+    )
+    write("app/index.html", html_out)
+
+
 def render_number_page():
     """Страница одного номера /nomer/?p=<цифры> — данные тянет nomer.js из API в браузере."""
     html_out = render_page(metrika=METRIKA, drawer=_DRAWER,
@@ -1211,6 +1239,7 @@ def main():
     for l in LANDINGS:
         render_landing(l)
     render_promo()
+    render_app()
     render_number_page()
     render_calc()
     render_blog_index()

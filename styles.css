@@ -514,3 +514,15 @@ body {
 .num-solo-back { margin-top: 18px; font-size: 14px; }
 .num-solo-back a { color: var(--gold); text-decoration: none; }
 .num-solo-back a:hover { color: var(--gold-hi); }
+
+/* Telegram Mini App (/app/): убираем сайтовые шапку/подвал, компактный заголовок */
+.tma-head { display: none; }
+.in-tg .top, .in-tg .foot { display: none; }
+.in-tg main.wrap { padding-top: 10px; }
+.in-tg .tma-head {
+  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  margin: 4px 0 2px;
+}
+.in-tg .tma-head .brand { font-size: 24px; font-weight: 700; letter-spacing: .5px; }
+.in-tg .tma-head .tma-sub { color: var(--muted); font-size: 14px; }
+.in-tg .crumbs { display: none; }
