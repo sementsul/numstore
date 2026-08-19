@@ -433,6 +433,12 @@ category/tariff/price/url-на-бронь), referral-safe. Страница `/ap
 (вместо отдельных). Радиус: build.py (render_tools_hub/render_api_docs/render_widget_docs/make_numbers_json, +json
 import, main/copy_assets/sitemap/drawer), widget.js (новый), checker.js, styles.css (.chk-*/.code/.mgw в widget.js).
 Проверено live: numbers.json 200 (250 номеров), 4 страницы 200, widget.js 200, хаб отрисован (headless).
+ОБНОВЛЕНО: checker — переписан анализатор на монотонную шкалу 0-100 (без двойного счёта), ОТКАЛИБРОВАН по
+разметке (тарифы Безлимита как ground-truth: 100 номеров, средний балл монотонно 63→15 по тарифам); добавлены
+чередование ABAB + бонус за красивое окончание. widget.js v2 — С ФИЛЬТРАМИ (категория-кнопки/цена-select/поиск по
+цифрам + «показать ещё», клиентская фильтрация пула ~250; data-cat/count/controls/title). Хаб: проверка убрана,
+осталась отдельным пунктом шторки; /api/ дополнен примерами фильтрации фида (категория/цена/тариф/маска). Проверено
+headless-моком (stub fetch): виджет с фильтрами рендерится. ДАЛЕЕ: «API оценки номеров» (на базе идеи AddressRU).
 АВТО-ОБНОВЛЕНИЕ ФИДА: деплой ручной (в сессиях), поэтому numbers.json устаревал → добавлен GH Actions крон
 `feed_numbers.yml` (каждые 4ч + dispatch): `gen_numbers.py` тянет номера (браузерный UA) → клонирует magzgold
 (секрет DEPLOY_TOKEN=ghp с доступом к magzgold) → кладёт api/numbers.json → commit+push (обновляет ТОЛЬКО фид,
