@@ -4,9 +4,9 @@
 Истина по задаче: `TZ.md`. Живые сценарии: `docs/numstore.usecases.md`.
 
 ## Что где (архитектура v4 — SEO-каркас)
-- `build.py` — **источник HTML** (~16 страниц в `dist/`): главная + `/kategoriya/<slug>/` ×5 + паттерны
-  `/zerkalnye|povtory|pary|kruglye/` + `/skolko-stoit-nomer/` (калькулятор) + `/blog/` (хаб + 3 статьи) +
-  `/o-servise/` + 404 + sitemap/robots/CNAME. Данные: CATEGORIES/PATTERNS/BLOG. PAGE_TMPL+VITRINA; header_block/
+- `build.py` — **источник HTML** (~29 страниц в `dist/`): главная + категории ×5 + паттерны ×4 + `/skolko-stoit-nomer/`
+  + `/blog/`(хаб+3) + `/o-servise/` + `/tarify/`(хаб) + `/tarif/<slug>/`×10 (window.PAGE.tariff) + `/politika/` +
+  `/polzovatelskoe-soglashenie/` + 404 + sitemap/robots/CNAME. Данные: CATEGORIES/PATTERNS/BLOG. PAGE_TMPL+VITRINA; header_block/
   main_top/scripts настраивают страницу (контентные — scripts=""). Паттерны: `window.PAGE.mask`
   (🔴 буквы-маски на API не подтверждены). Категории: `window.PAGE.cat`.
 - `calc.js` — калькулятор: цена НОМЕРА из офиц. прайса (pmin/pmax в CATEGORIES: brilliant 400к–4М,
