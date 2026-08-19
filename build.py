@@ -701,6 +701,58 @@ def render_landing(l):
     write("%s/index.html" % l["slug"], html_out)
 
 
+# ── Гео-лендинги под города (SEO). ВАЖНО: регион номера ≠ регион покупателя (проверено по реестру
+# Россвязи: 66% номеров — Москва). Поэтому каталог НЕ фильтруем по региону — показываем полный,
+# а «регион» здесь чисто поисковый разрез: уникальный текст + локальная доставка. Номер федеральный.
+CITIES = [
+    {
+        "slug": "moskva", "name": "Москве", "name_nom": "Москва",
+        "h1": "Красивые номера в Москве",
+        "title": "Красивые номера в Москве — купить и забронировать | MagzGold",
+        "desc": "Красивые и премиальные номера телефонов в Москве: бриллиантовые, платиновые, "
+                "золотые. Бесплатная доставка SIM по Москве и области или eSIM за минуты. Бронь онлайн.",
+        "intro": "Премиальные и красивые номера с доставкой по Москве и Московской области. Соберите "
+                 "нужную комбинацию маской или выберите категорию — бронь онлайн за пару минут.",
+        "text": "<h2>Красивый номер в Москве — статус, который слышно</h2>"
+                "<p>В Москве красивый номер давно перестал быть просто набором цифр: это часть образа, "
+                "визитка и подарок, который запоминают. В каталоге MagzGold — бриллиантовые, платиновые, "
+                "золотые, серебряные и бронзовые комбинации, от зеркальных и парных до круглых окончаний.</p>"
+                "<h2>Доставка по Москве и области</h2>"
+                "<p>SIM-карту привезём по Москве и Московской области бесплатно, либо оформим eSIM — "
+                "подключение занимает минуты, без визита в офис. Номер федеральный и работает по всей "
+                "России, так что переезд или поездки ничего не меняют.</p>"
+                "<h2>Как выбрать</h2>"
+                "<p>Впишите в маску только важные для вас цифры (дату, счастливое число, повтор) — "
+                "остальные позиции оставьте пустыми, и мы покажем подходящие номера. Понравившийся "
+                "бронируется онлайн; бронь держит номер за вами около часа.</p>",
+    },
+]
+
+
+def render_city(c):
+    header_block = '    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>'
+    main_top = "%s\n  <h1 class=\"page-h1\">%s</h1>\n  <p class=\"page-intro\">%s</p>" % (
+        crumbs(c["h1"]), esc(c["h1"]), c["intro"])
+    delivery = ('<section class="seo-text"><h2>Доставка в %s</h2>'
+                '<p>Бесплатная доставка SIM по %s или eSIM за минуты. Номер федеральный — '
+                'работает по всей России.</p></section>') % (esc(c["name"]), esc(c["name"]))
+    html_out = render_page(metrika=METRIKA, drawer=_DRAWER,
+        title=c["title"],
+        desc=c["desc"],
+        canonical=SITE["base"] + "/krasivye-nomera/%s/" % c["slug"],
+        og_image=OG("landing"),
+        page_js="",
+        schema=schema_breadcrumb({"name": c["h1"], "slug": "krasivye-nomera/%s" % c["slug"], "toplevel": True}),
+        nav=nav_links(None),
+        header_block=header_block,
+        main_top=main_top,
+        vitrina=VITRINA + '<section class="seo-text">' + c["text"] + "</section>" + delivery + related_block(),
+        footnav=nav_links(None) + patnav(),
+        scripts=SCRIPTS,
+    )
+    write("krasivye-nomera/%s/index.html" % c["slug"], html_out)
+
+
 def render_promo():
     """Промо-лендинг: инфо-блоки о сервисе + кнопки «Смотреть номера» в каталог (без витрины)."""
     cat_cards = "".join(
@@ -1384,6 +1436,7 @@ def render_sitemap():
     urls = ([SITE["base"] + "/"] + [SITE["base"] + "/kategoriya/%s/" % c["slug"] for c in CATEGORIES]
             + [SITE["base"] + "/%s/" % p["slug"] for p in PATTERNS]
             + [SITE["base"] + "/%s/" % l["slug"] for l in LANDINGS]
+            + [SITE["base"] + "/krasivye-nomera/%s/" % c["slug"] for c in CITIES]
             + [SITE["base"] + "/kak-eto-rabotaet/", SITE["base"] + "/proverit-nomer/", SITE["base"] + "/vidzhet/", SITE["base"] + "/api-i-vidzhety/", SITE["base"] + "/api/", SITE["base"] + "/skolko-stoit-nomer/", SITE["base"] + "/blog/"]
             + [SITE["base"] + "/blog/%s/" % a["slug"] for a in BLOG]
             + [SITE["base"] + "/o-servise/", SITE["base"] + "/dokumenty/", SITE["base"] + "/tarify/", SITE["base"] + "/politika/", SITE["base"] + "/polzovatelskoe-soglashenie/"]
@@ -1475,6 +1528,8 @@ def main():
         render_pattern(p)
     for l in LANDINGS:
         render_landing(l)
+    for c in CITIES:
+        render_city(c)
     render_promo()
     render_app()
     render_number_page()
@@ -1500,7 +1555,7 @@ def main():
     render_404()
     render_sitemap()
     copy_assets()
-    print("✅ dist/: %d кат + %d паттернов + %d тарифов + %d кодов + FAQ + калькулятор + %d статей + юр + 404" % (len(CATEGORIES), len(PATTERNS), len(TARIFFS), len(PREFIXES), len(BLOG)))
+    print("✅ dist/: %d кат + %d паттернов + %d тарифов + %d кодов + %d гео-города + FAQ + калькулятор + %d статей + юр + 404" % (len(CATEGORIES), len(PATTERNS), len(TARIFFS), len(PREFIXES), len(CITIES), len(BLOG)))
 
 
 if __name__ == "__main__":
