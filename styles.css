@@ -385,3 +385,44 @@ body {
 .promo-cta { text-align: center; background: var(--card); border: 1px solid var(--line-2); border-radius: 16px; padding: 34px 20px; margin: 8px 0 10px; }
 .promo-cta h2 { margin: 0 0 18px; font-size: 24px; color: var(--text); }
 .promo-cta .btn-primary { padding: 13px 30px; font-size: 16px; }
+
+/* ============ Мобильная версия: компактнее отступы/шрифты ============ */
+@media (max-width: 560px) {
+  .wrap { padding: 0 14px; }
+  .top { padding: 28px 0 20px; }
+  .brand { font-size: 23px; }
+  .burger { top: 16px; right: 14px; }
+  .top .h1, .page-h1, .hero { font-size: 24px; }
+  .top .sub, .page-intro { font-size: 14px; }
+  .crumbs { margin: 16px 0 4px; }
+
+  /* карточки/панели — тоньше паддинги и радиусы */
+  .search-box { padding: 16px; margin: 18px 0; border-radius: 14px; }
+  .cube-actions { gap: 8px; }
+  .cube-actions .btn-primary, .cube-actions .btn-ghost { flex: 1 1 auto; text-align: center; }
+  .num { padding: 18px 16px 15px; border-radius: 12px; }
+  .calc { padding: 18px; border-radius: 14px; }
+  .blog-card { padding: 18px; }
+  .sidebar { padding: 14px; border-radius: 12px; }
+
+  /* сетки — меньше промежутки */
+  .grid { gap: 12px; }
+  .blog-list { grid-template-columns: 1fr; gap: 12px; }
+  .controls { gap: 10px; margin: 6px 0 16px; }
+
+  /* ---- промо-лендинг ---- */
+  .promo-hero { padding: 12px 0 20px; }
+  .promo-hero h1 { font-size: 27px; }
+  .promo-sub { font-size: 15px; margin-bottom: 18px; }
+  .promo-actions { flex-direction: column; gap: 10px; }
+  .promo-actions .btn-primary, .promo-actions .btn-ghost { width: 100%; text-align: center; padding: 13px 18px; }
+  .features, .p-steps { gap: 10px; margin-bottom: 26px; }
+  .feature { padding: 16px; }
+  .feature-ico { font-size: 26px; margin-bottom: 8px; }
+  .promo-block { margin-bottom: 26px; }
+  .promo-block > h2, .promo-cta h2 { font-size: 20px; margin-bottom: 14px; }
+  .p-step { padding: 14px; gap: 12px; }
+  .p-step-n { width: 34px; height: 34px; font-size: 16px; }
+  .promo-cta { padding: 26px 16px; border-radius: 14px; }
+  .promo-cta .btn-primary { width: 100%; padding: 13px 18px; }
+}
