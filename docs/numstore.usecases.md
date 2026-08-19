@@ -171,6 +171,12 @@ FAQ: `/faq/` — 6 Q&A + **FAQPage schema**. Доп-паттерны: `/na-777/`
 (PREFIXES/FAQ/PATTERNS+3, render_prefix/render_prefixes_hub/render_faq, main/sitemap/футер/_DRAWER), styles.css (.faq*).
 Сайт ~50 страниц. Деплой через deploy.sh.
 
+## UC-22. SEO-обвес ✅
+og:image (генерится PIL из DejaVu → dist/og.png, 1200×630 тёмный+золото) + og:url/site_name + twitter card +
+favicon.svg (золотая M). Главная: Organization + WebSite JSON-LD (+ Breadcrumb). sitemap с `<lastmod>` (date.today).
+Радиус: build.py (make_og/home_schema/PAGE_TMPL head/sitemap lastmod/copy favicon), favicon.svg.
+Готовность под Метрику/Вебмастер — вставить ID позже (в PAGE_TMPL head).
+
 ## Открытые долги
 - Поле цены самого номера (разобрать полный объект `phone`).
 - Фильтр по маске/паттерну (эндпоинт `/super-link/phones/filters`).

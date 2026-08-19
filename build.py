@@ -2,6 +2,7 @@
 # MagzGold — генератор статических SEO-страниц (главная + категории + sitemap/robots).
 # Витрина (номера) остаётся клиентской (ban-proof); вокруг — уникальный текст под запросы.
 import os, shutil, html
+from datetime import date
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 DIST = os.path.join(ROOT, "dist")
@@ -274,6 +275,11 @@ PAGE_TMPL = """<!doctype html>
 <meta property="og:title" content="{title}">
 <meta property="og:description" content="{desc}">
 <meta property="og:type" content="website">
+<meta property="og:url" content="{canonical}">
+<meta property="og:image" content="https://magzgold.ru/og.png">
+<meta property="og:site_name" content="MagzGold">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="/styles.css">
 {page_js}
 {schema}
@@ -326,6 +332,34 @@ def write(path, content):
         f.write(content)
 
 
+def home_schema():
+    org = ('<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization",'
+           '"name":"MagzGold","url":"%s/","logo":"%s/og.png"}</script>') % (SITE["base"], SITE["base"])
+    web = ('<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite",'
+           '"name":"MagzGold","url":"%s/"}</script>') % SITE["base"]
+    return org + web + schema_breadcrumb()
+
+
+def make_og():
+    from PIL import Image, ImageDraw, ImageFont
+    W, H = 1200, 630
+    img = Image.new("RGB", (W, H), (13, 15, 19))
+    d = ImageDraw.Draw(img)
+    FB = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
+    f1 = ImageFont.truetype(FB, 110); f2 = ImageFont.truetype(FB, 46)
+    gold = (201, 165, 88); white = (238, 240, 244); muted = (150, 155, 168)
+    m, g = "Magz", "Gold"
+    wm = d.textlength(m, font=f1); wg = d.textlength(g, font=f1)
+    x = (W - (wm + wg)) / 2; y = 210
+    d.text((x, y), m, font=f1, fill=white)
+    d.text((x + wm, y), g, font=f1, fill=gold)
+    d.rectangle([(W/2 - 60, y + 132), (W/2 + 60, y + 137)], fill=gold)
+    sub = "Красивые номера"
+    ws = d.textlength(sub, font=f2)
+    d.text(((W - ws) / 2, y + 160), sub, font=f2, fill=muted)
+    img.save(os.path.join(DIST, "og.png"))
+
+
 def render_home():
     header_block = ('    <h1 class="hero">Magz<span class="brand-gold">Gold</span>'
                     ' <span class="hero-tag">— премиальные номера</span></h1>')
@@ -338,7 +372,7 @@ def render_home():
              "бронирование онлайн. Бриллиантовые, платиновые, золотые, серебряные и бронзовые номера.",
         canonical=SITE["base"] + "/",
         page_js="",
-        schema=schema_breadcrumb(),
+        schema=home_schema(),
         nav=nav_links(None),
         header_block=header_block,
         main_top='  <p class="page-intro">%s</p>' % intro,
@@ -731,15 +765,17 @@ def render_sitemap():
             + [SITE["base"] + "/tarif/%s/" % t["slug"] for t in TARIFFS]
             + [SITE["base"] + "/kody/", SITE["base"] + "/faq/"]
             + [SITE["base"] + "/kod/%s/" % pfx for pfx in PREFIXES])
-    body = "".join("<url><loc>%s</loc><changefreq>daily</changefreq></url>" % u for u in urls)
+    today = date.today().isoformat()
+    body = "".join("<url><loc>%s</loc><lastmod>%s</lastmod><changefreq>daily</changefreq></url>" % (u, today) for u in urls)
     write("sitemap.xml", '<?xml version="1.0" encoding="UTF-8"?>'
           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">%s</urlset>' % body)
     write("robots.txt", "User-agent: *\nAllow: /\nSitemap: %s/sitemap.xml\n" % SITE["base"])
 
 
 def copy_assets():
-    for f in ("app.js", "styles.css", "config.js", "calc.js", "nav.js"):
+    for f in ("app.js", "styles.css", "config.js", "calc.js", "nav.js", "favicon.svg"):
         shutil.copy(os.path.join(ROOT, f), os.path.join(DIST, f))
+    make_og()
     write("CNAME", "magzgold.ru\n")
     open(os.path.join(DIST, ".nojekyll"), "w").close()
 
