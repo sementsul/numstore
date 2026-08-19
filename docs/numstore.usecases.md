@@ -549,6 +549,15 @@ render_privacy +абзац), styles.css (.geo-banner*). Проверено headl
 delivery/faq, faqpage_schema, render_city faq_html+schema), styles.css (.faq-*). Проверено: сборка, FAQPage в HTML,
 замер сходства. ❌ визуальная проверка FAQ-аккордеона + каталог — руками.
 
+## UC-52. Анти-дорвей для подборок (LANDINGS) ✅
+Юзер: «страницы в разделе Подборки тоже дорвеи». Замер: 5 подборок похожи на 60–66% + все показывали ОДИН каталог
+(page_js=""). Фикс: (1) render_landing теперь поддерживает `l["cat"]` (пресет window.PAGE={cat} → реально фильтрует
+каталог) и `l["faq"]` (аккордеон + FAQPage JSON-LD, как у городов); (2) vip-nomera → cat платина+бриллиант,
+dlya-biznesa → золото+платина (номера genuinely различаются, не только текст); (3) мини-FAQ 2 вопроса на каждую из 5.
+Результат: сходство 66%→52%. **Радиус:** build.py (render_landing +cat/faq, LANDINGS +cat/faq). Проверено: пресеты
+в HTML, FAQPage, замер. ❌ визуал — руками. Осталось однотипным: v-podarok/legko-zapomnit/na-datu-rozhdeniya без
+cat-фильтра (framing, каталог полный) — приемлемо, текст+FAQ уникальны.
+
 ## Дальше (бэклог)
 - Поле цены самого номера (разобрать полный объект `phone`).
 - Фильтр по маске/паттерну (эндпоинт `/super-link/phones/filters`).
