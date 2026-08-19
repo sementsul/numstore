@@ -208,8 +208,15 @@
         (specs.length ? '<div class="num-specs">' + esc(specs.join(" · ")) + "</div>" : "") +
         (t.price != null ? '<div class="num-price">' + esc(fmtMoney(t.price)) + "<span>/мес</span></div>" : "") +
         '<button class="num-buy" data-phone="' + esc(digitsOf(p.phone)) + '">Забронировать</button>' +
+        '<button class="num-share" data-share="' + esc(d) + '" type="button">Поделиться номером</button>' +
       "</article>"
     );
+  }
+  function shareNumber(d, btn) {
+    var url = location.origin + "/nomer/?p=" + d;
+    if (navigator.share) { navigator.share({ title: "Красивый номер " + fmtPhone(d), url: url }).catch(function () {}); return; }
+    try { navigator.clipboard.writeText(url); } catch (e) {}
+    if (btn) { var o = btn.textContent; btn.textContent = "Ссылка скопирована ✓"; setTimeout(function () { btn.textContent = o; }, 1600); }
   }
 
   /* ---------- бронь ---------- */
@@ -305,7 +312,9 @@
     var fav = e.target.closest(".fav");
     if (fav) { var d = fav.getAttribute("data-fav"); var pf = BY_PHONE[d] || FAV[d]; if (pf) toggleFav(pf); return; }
     var b = e.target.closest(".num-buy");
-    if (b) { var d2 = b.getAttribute("data-phone"), pb = BY_PHONE[d2] || FAV[d2]; if (pb) bookingInfo(pb); }
+    if (b) { var d2 = b.getAttribute("data-phone"), pb = BY_PHONE[d2] || FAV[d2]; if (pb) bookingInfo(pb); return; }
+    var sh = e.target.closest(".num-share");
+    if (sh) { shareNumber(sh.getAttribute("data-share"), sh); }
   });
   var favBtn = document.getElementById("favToggle");
   if (favBtn) favBtn.addEventListener("click", function () {

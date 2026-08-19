@@ -753,6 +753,25 @@ def render_promo():
     write("kak-eto-rabotaet/index.html", html_out)
 
 
+def render_number_page():
+    """Страница одного номера /nomer/?p=<цифры> — данные тянет nomer.js из API в браузере."""
+    html_out = render_page(metrika=METRIKA, drawer=_DRAWER,
+        title="Красивый номер — купить и забронировать | MagzGold",
+        desc="Красивый номер телефона: описание, тариф и бронирование онлайн. Официальный партнёр оператора «Безлимит».",
+        canonical=SITE["base"] + "/nomer/",
+        og_image=OG("home"),
+        page_js="",
+        schema=schema_breadcrumb({"name": "Номер", "slug": "nomer", "toplevel": True}),
+        nav=nav_links(None),
+        header_block='    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>',
+        main_top='%s\n  <h1 class="page-h1">Красивый номер</h1>' % crumbs("Номер"),
+        vitrina='<div id="numView" class="num-view"><p class="status">Загружаю номер…</p></div>',
+        footnav=nav_links(None) + patnav(),
+        scripts='<script src="/config.js%s"></script>\n<script src="/nomer.js%s"></script>' % (_ver("config.js"), _ver("nomer.js")),
+    )
+    write("nomer/index.html", html_out)
+
+
 def render_calc():
     cats_js = "[" + ",".join(
         '{"slug":"%s","code":"%s","name":"%s","pmin":%d,"pmax":%d}' % (c["slug"], c["code"], c["name"], c["pmin"], c["pmax"]) for c in CATEGORIES) + "]"
@@ -1151,7 +1170,7 @@ def render_sitemap():
 
 
 def copy_assets():
-    for f in ("app.js", "styles.css", "config.js", "calc.js", "nav.js", "favicon.svg"):
+    for f in ("app.js", "styles.css", "config.js", "calc.js", "nav.js", "nomer.js", "favicon.svg"):
         shutil.copy(os.path.join(ROOT, f), os.path.join(DIST, f))
     make_og()
     copy_docs()
@@ -1189,6 +1208,7 @@ def main():
     for l in LANDINGS:
         render_landing(l)
     render_promo()
+    render_number_page()
     render_calc()
     render_blog_index()
     for a in BLOG:

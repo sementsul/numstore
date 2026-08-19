@@ -463,3 +463,23 @@ body {
   border: 1px solid var(--line-2); border-radius: 10px; background: #fff;
 }
 .doc-item .btn-ghost { margin-top: 6px; text-decoration: none; }
+
+/* Кнопка «Поделиться» на карточке номера */
+.num-share {
+  margin-top: 8px; background: none; border: none; cursor: pointer;
+  color: var(--muted); font-size: 13px; padding: 4px; text-align: center;
+  transition: color .12s;
+}
+.num-share:hover { color: var(--gold); }
+
+/* Страница одного номера /nomer/ */
+.num-view { padding: 8px 0 48px; }
+.num-solo { max-width: 460px; }
+.num-solo .num-phone { font-size: 30px; }
+.num-solo-desc { color: var(--muted); font-size: 14px; line-height: 1.6; margin: 12px 0 4px; }
+.num-buy-solo { display: block; text-align: center; text-decoration: none; margin-top: 14px; }
+.num-solo .num-share { display: block; width: 100%; }
+.num-solo-gone { border-color: var(--line-2); }
+.num-solo-back { margin-top: 18px; font-size: 14px; }
+.num-solo-back a { color: var(--gold); text-decoration: none; }
+.num-solo-back a:hover { color: var(--gold-hi); }
