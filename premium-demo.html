@@ -355,7 +355,7 @@
     .then(function(d){
       var pool = d && d.cats && d.cats.brilliant;
       if(pool && pool.length){
-        var prem = pool.filter(function(x){ return (x.p||0) >= 2000; }); // на премиум-лендинге — только топовые тарифы
+        var prem = pool.filter(function(x){ return (x.p||0) >= 4000; }); // на премиум-лендинге — только топовые тарифы (4000+)
         if(!prem.length){ prem = pool; }
         POOL=prem.map(function(x){ return {phone:x.n, tariff:{name:x.t, price:x.p}}; });
         renderPage();
