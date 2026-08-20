@@ -9,21 +9,23 @@ jobs:
       - name: counts
         run: |
           python3 - <<'PY'
-          import urllib.request,json
+          import urllib.request,json,time
           T="Basic YXBpU3RvcmU6VkZ6WFdOSmhwNTVtc3JmQXV1dU0zVHBtcnFTRw=="
+          UA="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36"
           B="https://api.store.bezlimit.ru/v2/super-link/phones/mask-category"
           def q(extra):
             url=B+"?expand=tariff&is_reserved=false&per_page=3&phone_pattern=9NNNNNNNNN&"+extra
-            r=urllib.request.Request(url,headers={"Authorization":T})
-            d=json.load(urllib.request.urlopen(r,timeout=45))
+            r=urllib.request.Request(url,headers={"Authorization":T,"User-Agent":UA,"Accept":"application/json"})
+            try: d=json.load(urllib.request.urlopen(r,timeout=45))
+            except Exception as e: return "ERR %s"%e
             out=[]
             for k,v in d.items():
               tc=(v.get("_meta") or {}).get("totalCount") if isinstance(v,dict) else None
               its=(v.get("items") if isinstance(v,dict) else v) or []
-              prices=sorted({(x.get("tariff") or {}).get("price") for x in its if x.get("tariff")})
-              out.append((k,tc,prices))
-            return out
+              pr=sorted({(x.get("tariff") or {}).get("price") for x in its if x.get("tariff")})
+              out.append("%s:tc=%s:pr=%s"%(k,tc,pr))
+            return " | ".join(out)
           for cat in ["brilliant","platinum","gold","bronze","undefined","silver"]:
-            print("categories=%s ->"%cat, q("categories="+cat))
-          print("mask_categories=brilliant,brilliant_super ->", q("mask_categories=brilliant,brilliant_super"))
+            print("categories=%s => %s"%(cat,q("categories="+cat))); time.sleep(1)
+          print("mask_categories=brilliant,brilliant_super => %s"%q("mask_categories=brilliant,brilliant_super"))
           PY
