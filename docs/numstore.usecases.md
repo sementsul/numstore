@@ -642,3 +642,15 @@ styles.css (.chart-*). numstore запушен на GitHub (был на 2 бот
 - Фильтр по маске/паттерну (эндпоинт `/super-link/phones/filters`).
 - Авто-извлечение токена на сборке (сейчас хардкод в `config.js`).
 - Домен/бренд, хостинг (предположительно GitHub Pages).
+
+## UC-60. Тренд на карточках + мини-график в категориях ✅
+Юзер: тренд у номеров + график в категориях. (1) chart.js — режим одной категории по `data-cat` на canvas: рисует
+линию только этой категории + текст тренда «Золото: средняя абонплата X ₽/мес за период ▲Y%» (для /dinamika-cen/ —
+все категории, без data-cat). (2) render_category: блок мини-графика (canvas data-cat=SLUG2LABEL[slug]) + ссылка
+«сравнить все категории» на /dinamika-cen/; chart.js добавлен в scripts категорийных страниц. (3) app.js loadTrend():
+грузит /data/price_history.json, при ≥2 точках считает pct изменения по категориям (TREND[метка]={pct,arrow}), после
+загрузки перерисовывает карточки; card() показывает чип «Золото ▲2%» когда тренд есть. С 1 точкой (сейчас): график
+= маркер + «копится», чип на карточках скрыт (не путаем средней ценой) — появятся по мере накопления. Метка через
+SLUG2LABEL (bronze→Бронза…). **Радиус:** chart.js (ONLY/data-cat + тренд-текст), app.js (TREND/loadTrend/card-чип),
+build.py (SLUG2LABEL, render_category chart+chart.js), styles.css (.num-trend/.chart-cat/.chart-more). Проверено:
+data-cat в HTML категорий, chart.js читает data-cat, тренд-логика в app.js, сборка ок. ❌ визуал — руками.
