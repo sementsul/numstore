@@ -676,3 +676,5 @@ data-cat в HTML категорий, chart.js читает data-cat, тренд-
 **Статус:** ✅ в проде, обе ветки watchdog проверены live.
 
 **Дополнение (safe авто-мёрж):** `.github/workflows/dependabot-automerge.yml` — PR от Dependabot с minor/patch авто-мёржится (`gh pr merge --auto --squash`), major остаётся на ручной клик. Включён `allow_auto_merge`. См. ratescout UC-109.
+
+**Доп. канал Telegram:** watchdog шлёт тревогу в личный чат через `TELEGRAM_TOKEN`+`ALERT_CHAT_ID`, затем падает (письмо). ⚠️ ДОЛГ: секрета `ALERT_CHAT_ID` в numstore ПОКА НЕТ → ТГ-шаг пропускается (проверено live: «Telegram не настроен», прогон всё равно failure=письмо). Добавить `ALERT_CHAT_ID` (тот же личный chat_id, что в ratescout) → ТГ включится.
