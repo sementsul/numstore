@@ -688,55 +688,39 @@ def render_start():
 
 
 def render_home():
-    """Лендинг в премиум-стиле: сдержанный герой + живые БРИЛЛИАНТОВЫЕ номера (app.js) + CTA в каталог."""
-    header_block = '    <a class="brand" href="/">Magz<span class="brand-gold">Gold</span></a>'
-    hero = """  <section class="mhero">
-    <p class="mh-eyebrow">Красивые номера · доставка по России</p>
-    <h1>one of <span class="g">one</span></h1>
-    <div class="mh-rule"></div>
-    <p class="mh-lede">Бриллиантовая категория — самые чистые и редкие комбинации.</p>
-    <a href="#grid" class="mh-cta">Смотреть номера <span class="arw">→</span></a>
-    <div class="mh-trust">
-      <span><i></i> Доставка SIM и eSIM по России</span>
-      <span><i></i> Бронь онлайн за минуту</span>
-      <span><i></i> Официально, от оператора</span>
-    </div>
-  </section>"""
-    # секция с живыми бриллиантовыми номерами (app.js заполняет #grid) + служебные элементы app.js скрыты
-    lgrid = """  <section class="lgrid" id="grid-sec">
-    <div class="lgrid-head">
-      <h2 class="shead-h">Бриллиантовые номера</h2>
-      <a href="/start/" class="lgrid-all">Весь каталог →</a>
-    </div>
-    <div id="status" class="status">Загружаю номера…</div>
-    <div id="grid" class="grid"></div>
-    <div class="lgrid-cta"><a href="/start/" class="mh-cta">Смотреть все номера <span class="arw">→</span></a></div>
-  </section>
-  <div id="mh-hidden" hidden aria-hidden="true">
-    <div id="cubes"></div><button id="find" type="button"></button><button id="reset" type="button"></button>
-    <select id="sort"><option value="default"></option></select><button id="more" type="button"></button>
-    <ul id="fPrice"></ul><ul id="fTariff"></ul><ul id="fCat"></ul><select id="fCode"></select>
-    <button id="favToggle" type="button"></button><span id="favCount"></span><span id="count"></span>
-  </div>
-  <section class="seo-text"><p>Бриллиантовые номера — высшая категория красоты: зеркальные и последовательные
-    комбинации, длинные повторы, круглые окончания. Каждый номер подключается официально от оператора «Безлимит»,
-    с доставкой SIM и eSIM по всей России. <a href="/start/">Весь каталог номеров →</a></p></section>"""
-    html_out = render_page(metrika=METRIKA, drawer=_DRAWER,
-        title="MagzGold — красивые бриллиантовые номера: купить и забронировать онлайн",
-        desc="MagzGold — красивые бриллиантовые номера телефонов высшей категории: бронирование онлайн, "
-             "доставка SIM и eSIM по России. Официально от оператора «Безлимит». Весь каталог — по ссылке.",
-        canonical=SITE["base"] + "/",
-        og_image=OG("home"),
-        page_js='<script>window.PAGE={cat:"brilliant,brilliant_super"}</script>',
-        schema=home_schema(),
-        nav=nav_links(None),
-        header_block=header_block,
-        main_top=hero + "\n" + lgrid,
-        vitrina="",
-        footnav=nav_links(None) + patnav(),
-        scripts=SCRIPTS,
-    )
-    write("index.html", html_out)
+    """Боевая ГЛАВНАЯ = премиум-лендинг из premium-demo.html (самодостаточный: свой inline CSS/JS, живой
+    catalog.json, бронь с шагами). Вставляем SEO-голову (description/canonical/OG/favicon/Метрика/схема) в <head>."""
+    html = open(os.path.join(ROOT, "premium-demo.html"), encoding="utf-8").read()
+    b = SITE["base"]
+    title = "MagzGold — красивые бриллиантовые номера: купить и забронировать онлайн"
+    desc = ("MagzGold — красивые бриллиантовые номера телефонов высшей категории: бронирование онлайн, "
+            "доставка SIM и eSIM по России. Официально от оператора «Безлимит».")
+    og = OG("home")
+    head = "\n".join([
+        '<meta name="description" content="%s">' % desc,
+        '<meta name="yandex-verification" content="e8b5b765f77b401c" />',
+        '<link rel="canonical" href="%s/">' % b,
+        '<meta property="og:type" content="website">',
+        '<meta property="og:title" content="%s">' % title,
+        '<meta property="og:description" content="%s">' % desc,
+        '<meta property="og:url" content="%s/">' % b,
+        '<meta property="og:image" content="%s">' % og,
+        '<meta property="og:site_name" content="MagzGold">',
+        '<meta name="twitter:card" content="summary_large_image">',
+        '<meta name="twitter:image" content="%s">' % og,
+        '<link rel="icon" href="/favicon.svg" type="image/svg+xml">',
+        '<link rel="preconnect" href="https://api.store.bezlimit.ru">',
+        home_schema(),
+        METRIKA,
+    ])
+    html = html.replace("<title>MagzGold — демо премиум-стиля</title>", "<title>%s</title>" % title, 1)
+    html = html.replace("</head>", head + "\n</head>", 1)
+    write("index.html", html)
+    # catalog.json в dist — иначе deploy.sh (force-push всего dist) сотрёт его на magzgold; крон обновит позже
+    src_cat = os.path.join(ROOT, "data", "catalog.json")
+    if os.path.exists(src_cat):
+        os.makedirs(os.path.join(DIST, "data"), exist_ok=True)
+        shutil.copy(src_cat, os.path.join(DIST, "data", "catalog.json"))
 
 
 SLUG2LABEL = {"bronze": "Бронза", "silver": "Серебро", "gold": "Золото", "platinum": "Платина", "brilliant": "Бриллиант"}
