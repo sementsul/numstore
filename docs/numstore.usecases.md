@@ -674,3 +674,5 @@ data-cat в HTML категорий, chart.js читает data-cat, тренд-
 (Blogger/Telegram). Слепая зона watchdog: сам scheduled-workflow, при истечении PAT отключится с остальными через
 ~60 дн — но раньше сработает письмо о падении keepalive/пуша. Теперь PAT бессрочный, сценарий неактуален.
 **Статус:** ✅ в проде, обе ветки watchdog проверены live.
+
+**Дополнение (safe авто-мёрж):** `.github/workflows/dependabot-automerge.yml` — PR от Dependabot с minor/patch авто-мёржится (`gh pr merge --auto --squash`), major остаётся на ручной клик. Включён `allow_auto_merge`. См. ratescout UC-109.
