@@ -354,7 +354,12 @@
     .then(function(r){ return r.ok ? r.json() : null; })
     .then(function(d){
       var pool = d && d.cats && d.cats.brilliant;
-      if(pool && pool.length){ POOL=pool.map(function(x){ return {phone:x.n, tariff:{name:x.t, price:x.p}}; }); renderPage(); }
+      if(pool && pool.length){
+        var prem = pool.filter(function(x){ return (x.p||0) >= 2000; }); // на премиум-лендинге — только топовые тарифы
+        if(!prem.length){ prem = pool; }
+        POOL=prem.map(function(x){ return {phone:x.n, tariff:{name:x.t, price:x.p}}; });
+        renderPage();
+      }
       else { liveFallback(); }
     })
     .catch(liveFallback);
