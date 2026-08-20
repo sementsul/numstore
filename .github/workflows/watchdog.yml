@@ -1,0 +1,66 @@
+name: Watchdog (свежесть данных)
+
+# Сторож автономности numstore/magzgold: раз в сутки проверяет, что ежедневный сбор истории цен идёт.
+# Смотрит возраст САМОЙ СВЕЖЕЙ точки в data/price_history.json (points[].date). Сбор дневной, поэтому
+# порог STALE_H=48ч = два пропущенных дня подряд (разовый пропуск планировщика не поднимает тревогу).
+# Если данные протухли — воркфлоу ПАДАЕТ (exit 1) → GitHub шлёт владельцу письмо о сбое scheduled-воркфлоу
+# (Issues-канал не используем — единый механизм оповещения через провал прогона, как в ratescout).
+#
+# price_history.json тянем напрямую из raw (репо публичный) — без actions/checkout, минимум зависимостей.
+# Что ловит: заснувший крон (истёк DEPLOY_TOKEN), сломался сбор цен, падает публикация.
+
+on:
+  schedule:
+    - cron: "51 5 * * *"     # ежедневно 05:51 UTC (после дневного сбора в ~03:17)
+  workflow_dispatch:
+    inputs:
+      stale_hours:
+        description: "Порог протухания в часах (для теста тревоги поставь 0 — прогон должен упасть)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+concurrency:
+  group: watchdog
+  cancel-in-progress: false
+
+env:
+  STALE_H: ${{ github.event.inputs.stale_hours || '48' }}
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Проверить свежесть price_history.json
+        run: |
+          python3 - <<'PY'
+          import json, os, urllib.request, datetime as dt
+          STALE_H = float(os.environ.get("STALE_H", "48"))
+          URL = "https://raw.githubusercontent.com/sementsul/numstore/main/data/price_history.json"
+          try:
+              with urllib.request.urlopen(URL, timeout=30) as r:
+                  data = json.load(r)
+          except Exception as e:
+              print("::error::Watchdog: не удалось получить price_history.json (%s)." % e)
+              raise SystemExit(1)
+          dates = [p.get("date") for p in data.get("points", []) if p.get("date")]
+          newest = max(dates) if dates else None
+          def parse(k):
+              try:
+                  return dt.datetime.strptime(k, "%Y-%m-%d").replace(tzinfo=dt.timezone.utc)
+              except (ValueError, TypeError):
+                  return None
+          now = dt.datetime.now(dt.timezone.utc)
+          t = parse(newest) if newest else None
+          # точки датированы днём (без времени) — возраст меряем от полуночи этой даты
+          age = (now - t).total_seconds() / 3600 if t else 1e9
+          print("новейшая точка: %s | возраст %.1f ч | порог %.0f ч" % (newest, age, STALE_H))
+          if age > STALE_H:
+              print("::error::MagzGold (numstore): сбор истории цен ОСТАНОВИЛСЯ. Свежайшая точка %s (возраст %.1f ч > порога %.0f ч). "
+                    "Причины по частоте: (1) истёк секрет DEPLOY_TOKEN → крон заснул; (2) сломался сбор цен collect_prices.py; "
+                    "(3) падает публикация в magzgold. Открой вкладку Actions." % (newest, age, STALE_H))
+              raise SystemExit(1)
+          print("OK: данные свежие — тревог нет")
+          PY
