@@ -126,7 +126,7 @@
 юр-страницы (политика/оферта), авто-извлечение токена, проверка паттернов с буквами.
 
 ## Автономность / CI (UC-61)
-- `.github/workflows/watchdog.yml` — ежедневно тянет `data/price_history.json` из raw, возраст свежайшей точки >48ч (два пропущенных дня) → оповещение в 2 канала: **Telegram** в личный чат (`TELEGRAM_TOKEN`+`ALERT_CHAT_ID`) + **падение прогона** → письмо. Ловит: заснувший крон (истёк DEPLOY_TOKEN), поломку сбора цен, падение публикации. ⚠️ ДОЛГ: секрета `ALERT_CHAT_ID` пока нет → ТГ-канал спит (письмо работает), добавить chat_id.
+- `.github/workflows/watchdog.yml` — ежедневно тянет `data/price_history.json` из raw, возраст свежайшей точки >48ч (два пропущенных дня) → оповещение в 2 канала: **Telegram** в личный чат (`TELEGRAM_TOKEN`+`ALERT_CHAT_ID`) + **падение прогона** → письмо. Ловит: заснувший крон (истёк DEPLOY_TOKEN), поломку сбора цен, падение публикации. Секрет `ALERT_CHAT_ID` установлен → ТГ-канал активен (проверено live: sendMessage 200).
 - `.github/dependabot.yml` — еженедельно следит за версиями GitHub Actions, открывает PR при обновлении.
 - `.github/workflows/dependabot-automerge.yml` — safe авто-мёрж: minor/patch авто, major на ручной клик.
 - `DEPLOY_TOKEN` — бессрочный classic-PAT (No expiration); держит крон живым (PAT-пуш сбрасывает 60-дн таймер).
