@@ -158,6 +158,34 @@
   .tmodal-more:hover{filter:brightness(1.06)}
   .tmodal-all{color:var(--gold);text-decoration:none;font-size:14px}
   .tmodal-all:hover{color:var(--gold2)}
+
+  /* --- окно брони с шагами (как на сайте) --- */
+  .bmodal{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;
+    background:rgba(6,7,10,.72);backdrop-filter:blur(4px);padding:20px;overflow:auto}
+  .bmodal.open{display:flex}
+  .bmodal-box{position:relative;max-width:460px;width:100%;
+    background:linear-gradient(180deg,var(--card),#0e1015);border:1px solid var(--line);
+    border-radius:10px;padding:34px 32px 28px;box-shadow:0 30px 80px -20px rgba(0,0,0,.8)}
+  .bmodal-x{position:absolute;top:12px;right:14px;width:34px;height:34px;font-size:24px;line-height:1;
+    background:transparent;color:var(--mut);border:none;cursor:pointer}
+  .bmodal-x:hover{color:var(--ink)}
+  .bmodal-box h3{font-family:var(--serif);font-weight:500;font-size:24px;margin:0 0 8px}
+  .bmodal-sub{color:var(--mut);font-size:14px;margin:0 0 14px}
+  .bmodal-num{font-family:var(--serif);font-size:20px;letter-spacing:1px;color:var(--gold2);margin:0 0 16px}
+  .bmodal-steps{margin:0 0 16px;padding-left:0;list-style:none;counter-reset:none}
+  .bmodal-steps li{position:relative;padding:9px 0 9px 14px;border-top:1px solid var(--line);font-size:14px;color:var(--ink)}
+  .bmodal-steps li:first-child{border-top:none}
+  .bmodal-steps b{color:var(--gold)}
+  .bmodal-warn{font-size:13px;color:#e0b48a;background:rgba(224,120,80,.08);border:1px solid rgba(224,120,80,.25);
+    border-radius:6px;padding:10px 12px;margin:0 0 20px;line-height:1.5}
+  .bmodal-actions{display:flex;gap:12px;justify-content:flex-end;flex-wrap:wrap}
+  .bmodal-cancel{background:transparent;color:var(--gold);border:1px solid var(--goldln);border-radius:2px;
+    padding:12px 22px;font-size:14px;cursor:pointer;transition:border-color .2s var(--e),color .2s var(--e)}
+  .bmodal-cancel:hover{border-color:var(--gold);color:var(--gold2)}
+  .bmodal-go{background:linear-gradient(180deg,var(--gold2),var(--gold));color:#1a1406;border:none;border-radius:2px;
+    padding:12px 24px;font-size:14px;font-weight:700;letter-spacing:.3px;cursor:pointer;transition:filter .2s var(--e)}
+  .bmodal-go:hover{filter:brightness(1.06)}
+  .bmodal-go:disabled{opacity:.6;cursor:default}
 </style>
 </head>
 <body>
@@ -237,6 +265,26 @@
   </div>
 </div>
 
+<div id="bookModal" class="bmodal">
+  <div class="bmodal-box" role="dialog" aria-modal="true" aria-labelledby="bookTitle">
+    <button class="bmodal-x" type="button" aria-label="Закрыть">×</button>
+    <h3 id="bookTitle">Давайте оформим всё по правилам</h3>
+    <p class="bmodal-sub">Это займёт пару минут. Оформление и оплата — на защищённой странице оператора «Безлимит».</p>
+    <p class="bmodal-num" id="bookNum"></p>
+    <ol class="bmodal-steps">
+      <li><b>Шаг 1.</b> Загрузить фото паспорта РФ</li>
+      <li><b>Шаг 2.</b> Подписать документы</li>
+      <li><b>Шаг 3.</b> Оплатить тарифный план</li>
+      <li><b>Шаг 4.</b> Получить SIM-карту</li>
+    </ol>
+    <p class="bmodal-warn">🔴 <b>Важно:</b> подключение доступно только гражданам РФ. Паспорт другого государства не подходит.</p>
+    <div class="bmodal-actions">
+      <button class="bmodal-cancel" type="button">Отмена</button>
+      <button class="bmodal-go" type="button">Забронировать и продолжить</button>
+    </div>
+  </div>
+</div>
+
 <script>
   // мягкое появление при попадании в область видимости
   var io = new IntersectionObserver(function(es){
@@ -311,35 +359,67 @@
     })
     .catch(liveFallback);
 
-  // ---- бронь: живая проверка наличия, при «занят» — дружелюбная модалка ----
-  function checkAvail(d){
-    var ctrl = ('AbortController' in window) ? new AbortController() : null;
-    var to = ctrl ? setTimeout(function(){ ctrl.abort(); }, 6000) : null;   // не ждём медленный API дольше 6с
-    return fetch(API+'/super-link/phones/mask-category?expand=tariff&is_reserved=false&per_page=100&phone_pattern='+encodeURIComponent(d),
-        { headers:{Authorization:TOKEN}, signal: ctrl?ctrl.signal:undefined })
-      .then(function(r){ if(to){clearTimeout(to);} return r.ok?r.json():null; })
-      .then(function(j){ if(!j){return true;} var free=false; flatten(j).forEach(function(x){ if(String(x.phone)===String(d)){free=true;} }); return free; })
-      .catch(function(){ if(to){clearTimeout(to);} return true; }); // таймаут/сеть — не блокируем, откроем
+  // ---- бронь: окно с шагами (как на сайте) → живой чек + РЕЗЕРВАЦИЯ → ссылка с uuid ----
+  var REF_ID="800848";
+  function deepUuid(o){
+    if(!o||typeof o!=='object'){return null;}
+    if(o.super_link_uuid&&o.super_link_uuid.uuid){return o.super_link_uuid.uuid;}
+    for(var k in o){ var v=o[k];
+      if(typeof v==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-/i.test(v)){return v;}
+      if(v&&typeof v==='object'){ var r=deepUuid(v); if(r){return r;} } }
+    return null;
   }
-  var modal=document.getElementById('takenModal');
-  function showTaken(){ if(modal){ modal.classList.add('open'); } }
-  function hideTaken(){ if(modal){ modal.classList.remove('open'); } }
-  if(modal){
-    modal.addEventListener('click', function(e){ if(e.target===modal || e.target.closest('.tmodal-x')){ hideTaken(); } });
-    var moreBtn=modal.querySelector('.tmodal-more');
+  // модалка «номер купили»
+  var taken=document.getElementById('takenModal');
+  function showTaken(){ if(taken){ taken.classList.add('open'); } }
+  function hideTaken(){ if(taken){ taken.classList.remove('open'); } }
+  if(taken){
+    taken.addEventListener('click', function(e){ if(e.target===taken || e.target.closest('.tmodal-x')){ hideTaken(); } });
+    var moreBtn=taken.querySelector('.tmodal-more');
     if(moreBtn){ moreBtn.addEventListener('click', function(){ hideTaken(); renderPage(); grid.scrollIntoView({behavior:'smooth',block:'center'}); }); }
   }
+  // окно брони с 4 шагами
+  var book=document.getElementById('bookModal'), CUR=null;
+  function showBook(d){ CUR=d; var n=document.getElementById('bookNum'); if(n){ n.textContent=fmt(d)+' · бронь держится ~1 час'; } if(book){ book.classList.add('open'); } }
+  function hideBook(){ if(book){ book.classList.remove('open'); } }
+  if(book){
+    book.addEventListener('click', function(e){ if(e.target===book || e.target.closest('.bmodal-x') || e.target.closest('.bmodal-cancel')){ hideBook(); } });
+    var goBtn=book.querySelector('.bmodal-go');
+    if(goBtn){ goBtn.addEventListener('click', function(){ reserve(CUR, goBtn); }); }
+  }
+  function reserve(d, btn){
+    if(!d){ return; }
+    var w=window.open('','_blank');            // окно СРАЗУ по клику (антипопап)
+    hideBook();
+    if(btn){ btn.disabled=true; btn.textContent='Бронируем…'; }
+    function restore(){ if(btn){ btn.disabled=false; btn.textContent='Забронировать и продолжить'; } }
+    // 1) живой чек: свободен ли номер + берём tariff_id из ответа
+    fetch(API+'/super-link/phones/mask-category?expand=tariff&is_reserved=false&per_page=100&phone_pattern='+encodeURIComponent(d),{headers:{Authorization:TOKEN}})
+      .then(function(r){ return r.ok?r.json():null; })
+      .then(function(j){
+        var found=null; if(j){ flatten(j).forEach(function(x){ if(String(x.phone)===String(d)){ found=x; } }); }
+        var tid=found&&found.tariff&&found.tariff.id;
+        if(!found||!tid){ if(w){ w.close(); } restore(); showTaken(); throw 'sold'; }
+        // 2) свободен → создаём бронь (реф-id в user_id — привязка комиссии)
+        var fd=new FormData();
+        fd.append('phone',d); fd.append('tariff_id',tid);
+        fd.append('type','store'); fd.append('user_id',REF_ID); fd.append('filter','professional');
+        return fetch(API+'/super-link/reservations?expand=super_link_uuid',{method:'POST',headers:{Authorization:TOKEN},body:fd}).then(function(r){ return r.json(); });
+      })
+      .then(function(dd){
+        restore();
+        var uuid=deepUuid(dd);
+        if(!uuid){ if(w){ w.close(); } showTaken(); return; }
+        // 3) бронь создана → ссылка ИМЕННО на бронирование (с uuid), не поиск
+        var url=REF+'?type=p&cubes='+d+'&uuid='+encodeURIComponent(uuid);
+        if(w){ w.location=url; } else { window.open(url,'_blank','noopener'); }
+      })
+      .catch(function(e){ if(e==='sold'){ return; } restore(); if(w){ w.close(); } showTaken(); });
+  }
   grid.addEventListener('click', function(e){
-    var a=e.target.closest('.book'); if(!a){return;}
+    var a=e.target.closest('.book'); if(!a){ return; }
     e.preventDefault();
-    var d=a.getAttribute('data-phone'), href=a.href, old=a.textContent;
-    var w=window.open('','_blank');            // окно открываем СРАЗУ по клику (иначе popup заблокируется)
-    a.textContent='Проверяем…'; a.style.opacity='.6';
-    checkAvail(d).then(function(free){
-      a.textContent=old; a.style.opacity='';
-      if(free){ if(w){ w.location=href; } else { window.open(href,'_blank','noopener'); } }
-      else { if(w){ w.close(); } showTaken(); }
-    });
+    showBook(a.getAttribute('data-phone'));   // клик по карточке → окно с шагами
   });
 })();
 </script>
