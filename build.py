@@ -135,6 +135,48 @@ PATTERNS = [
 PREFIXES = ["900", "903", "905", "906", "909", "916", "925", "929",
             "950", "960", "965", "966", "967", "968", "969", "999"]
 
+# Юр-название оператора → потребительский бренд.
+_BRAND = {"Т2 МОБАЙЛ": "Tele2", "Т2 Мобайл": "Tele2", "ВЫМПЕЛКОМ": "Билайн",
+          "Мобильные ТелеСистемы": "МТС", "МТС": "МТС", "МЕГАФОН": "Мегафон",
+          "МегаФон": "Мегафон", "Скартел": "Yota"}
+
+
+def _compute_code_ops():
+    """Из реестра Россвязи считаем по каждому коду из PREFIXES: топ-операторы (по ёмкости, %) + число регионов."""
+    src = os.path.join(ROOT, "data", "DEF-9xx.csv")
+    if not os.path.exists(src):
+        return {}
+    import csv as _csv, re as _re
+    want = set(PREFIXES)
+    cap, ops, regs = {}, {}, {}
+    with open(src, encoding="utf-8-sig") as f:
+        r = _csv.reader(f, delimiter=";"); next(r, None)
+        for row in r:
+            if len(row) < 6:
+                continue
+            c = row[0].strip()
+            if c not in want:
+                continue
+            try:
+                a = int(row[1]); b = int(row[2])
+            except ValueError:
+                continue
+            n = b - a + 1
+            op = _re.sub(r"^(АО|ООО|ПАО|ЗАО|ОАО)\s+", "", row[4].strip().replace("«", "").replace("»", "").replace('"', "")).strip()
+            op = _BRAND.get(op, op)
+            ops.setdefault(c, {}); ops[c][op] = ops[c].get(op, 0) + n
+            regs.setdefault(c, set()).add(row[5].strip())
+            cap[c] = cap.get(c, 0) + n
+    res = {}
+    for c, d in ops.items():
+        total = cap[c] or 1
+        top = sorted(d.items(), key=lambda x: -x[1])[:3]
+        res[c] = {"top": [(o, round(v * 100 / total)) for o, v in top], "regions": len(regs[c])}
+    return res
+
+
+CODE_OPS = _compute_code_ops()
+
 # FAQ: вопрос → ответ (HTML в ответе допустим). Идёт в FAQPage schema.
 FAQ = [
     ("Что такое красивый номер?",
@@ -1575,12 +1617,30 @@ def render_terms():
 
 def render_prefix(pfx):
     page_js = '<script>window.PAGE={mask:"%sNNNNNNN"};</script>' % pfx
-    intro = ("Красивые номера с кодом +7 %s: подбор по маске, категории и тарифу, бронирование онлайн. "
-             "Ниже — доступные номера на %s; уточните нужные цифры маской." % (pfx, pfx))
-    html_out = render_page(metrika=METRIKA, 
+    info = CODE_OPS.get(pfx)
+    primary = info["top"][0][0] if info and info["top"] else ""
+    # Блок «оператор и регионы кода» из реестра Россвязи — уникальный факт на каждую страницу.
+    op_block = ""
+    if info and info["top"]:
+        tops = info["top"]
+        if len(tops) == 1 or tops[0][1] >= 85:
+            sent = "Код +7 %s закреплён за оператором <b>%s</b>" % (pfx, esc(tops[0][0]))
+        else:
+            sent = "Код +7 %s распределён между операторами: %s" % (
+                pfx, ", ".join("<b>%s</b> (%d%%)" % (esc(o), p) for o, p in tops))
+        op_block = ('<section class="seo-text"><h2>Оператор и регионы кода +7 %s</h2>'
+                    '<p>%s. Номера этого кода встречаются в %d регионах России. Точного оператора '
+                    'конкретного номера (с учётом переноса MNP) можно <a href="/operator-po-nomeru/">'
+                    'узнать по номеру</a>.</p></section>') % (pfx, sent, info["regions"])
+    op_tag = ("%s, " % primary) if primary else ""
+    intro = ("Красивые номера с кодом +7 %s%s: подбор по маске, категории и тарифу, бронирование онлайн. "
+             "Ниже — доступные номера на %s; уточните нужные цифры маской."
+             % (pfx, (" (" + primary + ")") if primary else "", pfx))
+    html_out = render_page(metrika=METRIKA,
         drawer=_DRAWER,
-        title="Красивые номера на %s (+7 %s) | MagzGold" % (pfx, pfx),
-        desc="Красивые номера с кодом +7 %s — подбор по маске, категории, тарифу и бронирование онлайн на MagzGold." % pfx,
+        title="Красивые номера на %s (%s+7 %s) | MagzGold" % (pfx, op_tag, pfx),
+        desc="Красивые номера с кодом +7 %s%s — подбор по маске, категории, тарифу и бронирование онлайн на MagzGold."
+             % (pfx, (", оператор " + primary) if primary else ""),
         canonical=SITE["base"] + "/kod/%s/" % pfx,
         og_image=OG("code"),
         page_js=page_js,
@@ -1589,14 +1649,17 @@ def render_prefix(pfx):
         header_block='    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>',
         main_top='%s\n  <h1 class="page-h1">Номера на %s</h1>\n  <p class="page-intro">%s</p>'
                  % (crumbs("Код %s" % pfx), pfx, esc(intro)),
-        vitrina=VITRINA, footnav=nav_links(None) + patnav(), scripts=SCRIPTS,
+        vitrina=VITRINA + op_block, footnav=nav_links(None) + patnav(), scripts=SCRIPTS,
     )
     write("kod/%s/index.html" % pfx, html_out)
 
 
 def render_prefixes_hub():
+    def _op(p):
+        i = CODE_OPS.get(p)
+        return (i["top"][0][0] + " · ") if (i and i["top"]) else ""
     rows = "".join(
-        '<a class="blog-card" href="/kod/%s/"><h2>+7 %s</h2><p>Красивые номера на %s</p></a>' % (p, p, p)
+        '<a class="blog-card" href="/kod/%s/"><h2>+7 %s</h2><p>%sкрасивые номера на этом коде</p></a>' % (p, p, _op(p))
         for p in PREFIXES)
     html_out = render_page(metrika=METRIKA, 
         drawer=_DRAWER,
