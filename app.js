@@ -333,7 +333,7 @@
       .then(function (data) {
         var free = false;
         flatten(data).forEach(function (x) { if (digitsOf(x.phone) === digits) free = true; });
-        if (!free) { if (w) w.close(); alert("Этот номер уже заняли — выберите другой из каталога."); removeSold(digits); throw "sold"; }
+        if (!free) { if (w) w.close(); alert("Ой, похоже, этот номер кто-то уже купил 😔 Но вы легко подберёте другой — не менее красивый — в каталоге."); removeSold(digits); throw "sold"; }
         // 2) свободен → создаём бронь
         var fd = new FormData();
         fd.append("phone", digits); fd.append("tariff_id", tariffId);
@@ -343,7 +343,7 @@
       })
       .then(function (d) {
         var uuid = deepUuid(d);
-        if (!uuid) { if (w) w.close(); alert("Похоже, этот номер только что заняли — выберите другой из каталога."); removeSold(digits); return; }
+        if (!uuid) { if (w) w.close(); alert("Ой, похоже, этот номер кто-то уже купил 😔 Но вы легко подберёте другой — не менее красивый — в каталоге."); removeSold(digits); return; }
         var url = CFG.REF_STORE_URL + "?type=p&cubes=" + digits + "&uuid=" + encodeURIComponent(uuid);
         if (tg) tg.openLink(url); else if (w) w.location = url; else window.open(url, "_blank", "noopener");
       })

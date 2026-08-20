@@ -118,6 +118,46 @@
   .lg .it span{color:var(--mut);font-size:13.5px}
 
   footer{padding:60px 0 80px;text-align:center;color:var(--dim);font-size:13px;border-top:1px solid var(--line)}
+
+  /* --- скелетоны (мерцающие плейсхолдеры, пока грузятся живые номера) --- */
+  .card.skel{pointer-events:none}
+  .card.skel .badge,.card.skel .num,.card.skel .meta,.card.skel .row{
+    background:linear-gradient(90deg,#171a20 25%,#242a35 37%,#171a20 63%);
+    background-size:400% 100%;animation:skg 1.3s ease infinite;
+    color:transparent;border:none;border-radius:5px}
+  .card.skel .badge{display:block;width:82px;height:22px}
+  .card.skel .num{height:26px;width:72%;margin:18px 0 6px}
+  .card.skel .meta{height:14px;width:56%}
+  .card.skel .row{height:20px;margin-top:22px;border:none;padding:0}
+  @keyframes skg{0%{background-position:100% 0}100%{background-position:0 0}}
+  .bgrid-empty{grid-column:1/-1;text-align:center;color:var(--mut);padding:26px}
+  .bgrid-empty a{color:var(--gold)}
+  .bmore{text-align:center;margin-top:34px}
+  .bmore-btn{display:inline-block;background:transparent;color:var(--gold);border:1px solid var(--goldln);
+    border-radius:2px;padding:13px 30px;font-size:14px;letter-spacing:.4px;text-decoration:none;
+    transition:border-color .3s var(--e),color .3s var(--e),background .3s var(--e)}
+  .bmore-btn:hover{border-color:var(--gold);color:var(--gold2);background:rgba(217,180,91,.06)}
+
+  /* --- модалка «номер уже купили» --- */
+  .tmodal{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;
+    background:rgba(6,7,10,.72);backdrop-filter:blur(4px);padding:20px}
+  .tmodal.open{display:flex}
+  .tmodal-box{position:relative;max-width:420px;width:100%;text-align:center;
+    background:linear-gradient(180deg,var(--card),#0e1015);border:1px solid var(--line);
+    border-radius:10px;padding:38px 30px 30px;box-shadow:0 30px 80px -20px rgba(0,0,0,.8)}
+  .tmodal-x{position:absolute;top:12px;right:14px;width:34px;height:34px;font-size:24px;line-height:1;
+    background:transparent;color:var(--mut);border:none;cursor:pointer}
+  .tmodal-x:hover{color:var(--ink)}
+  .tmodal-ico{font-size:40px;margin-bottom:10px}
+  .tmodal-box h3{font-family:var(--serif);font-weight:500;font-size:24px;margin:0 0 10px}
+  .tmodal-box p{color:var(--mut);font-size:15px;margin:0 0 24px}
+  .tmodal-actions{display:flex;flex-direction:column;gap:12px;align-items:center}
+  .tmodal-more{background:linear-gradient(180deg,var(--gold2),var(--gold));color:#1a1406;border:none;
+    border-radius:2px;padding:14px 30px;font-size:15px;font-weight:700;letter-spacing:.3px;cursor:pointer;
+    width:100%;transition:filter .2s var(--e)}
+  .tmodal-more:hover{filter:brightness(1.06)}
+  .tmodal-all{color:var(--gold);text-decoration:none;font-size:14px}
+  .tmodal-all:hover{color:var(--gold2)}
 </style>
 </head>
 <body>
@@ -138,9 +178,9 @@
 <div class="wrap">
   <div class="hero">
     <p class="eyebrow rise">Красивые номера · доставка по России</p>
-    <h1 class="rise" style="transition-delay:.08s">Номер, который <span class="g">звучит</span> как статус</h1>
+    <h1 class="rise" style="transition-delay:.08s">one of <span class="g">one</span></h1>
     <div class="rule rise" style="transition-delay:.16s"></div>
-    <p class="lede rise" style="transition-delay:.22s">Подберите эффектную комбинацию по маске или выберите категорию — от бронзовой до бриллиантовой. Тариф и мгновенная бронь онлайн, SIM и eSIM с доставкой.</p>
+    <p class="lede rise" style="transition-delay:.22s">Доставим красивый номер, куда вам удобно, и возьмём все хлопоты на себя. Ваш комфорт — наша забота.</p>
     <a href="#nums" class="cta rise" style="transition-delay:.3s">Смотреть каталог <span class="arw">→</span></a>
 
     <div class="trust rise" style="transition-delay:.4s">
@@ -156,71 +196,10 @@
   <div class="wrap">
     <div class="shead rise">
       <h2>Избранные номера</h2>
-      <a href="#nums">Весь каталог →</a>
+      <a href="/start/">Весь каталог →</a>
     </div>
-    <div class="grid">
-
-      <div class="card rise">
-        <span class="badge">Бриллиант</span>
-        <div class="num">+7 999&nbsp;888‑77‑66</div>
-        <div class="meta">Зеркальная комбинация · повтор пар</div>
-        <div class="row">
-          <span class="tariff">Тариф от <b>650&nbsp;₽</b>/мес</span>
-          <a href="#" class="book">Забронировать →</a>
-        </div>
-      </div>
-
-      <div class="card rise" style="transition-delay:.08s">
-        <span class="badge">Платина</span>
-        <div class="num">+7 977&nbsp;700‑50‑00</div>
-        <div class="meta">Круглый хвост · лёгкая память</div>
-        <div class="row">
-          <span class="tariff">Тариф от <b>550&nbsp;₽</b>/мес</span>
-          <a href="#" class="book">Забронировать →</a>
-        </div>
-      </div>
-
-      <div class="card rise" style="transition-delay:.16s">
-        <span class="badge">Бриллиант</span>
-        <div class="num">+7 900&nbsp;123‑45‑67</div>
-        <div class="meta">Последовательность · топ-запоминаемость</div>
-        <div class="row">
-          <span class="status"><i class="pulse"></i> Бронируют сейчас</span>
-          <a href="#" class="book">Забронировать →</a>
-        </div>
-      </div>
-
-      <div class="card rise" style="transition-delay:.08s">
-        <span class="badge">Золото</span>
-        <div class="num">+7 995&nbsp;220‑02‑20</div>
-        <div class="meta">Ритмичный узор · чёткая структура</div>
-        <div class="row">
-          <span class="tariff">Тариф от <b>450&nbsp;₽</b>/мес</span>
-          <a href="#" class="book">Забронировать →</a>
-        </div>
-      </div>
-
-      <div class="card rise" style="transition-delay:.16s">
-        <span class="badge silver">Серебро</span>
-        <div class="num">+7 996&nbsp;818‑18‑10</div>
-        <div class="meta">Повтор блока · приятная симметрия</div>
-        <div class="row">
-          <span class="tariff">Тариф от <b>390&nbsp;₽</b>/мес</span>
-          <a href="#" class="book">Забронировать →</a>
-        </div>
-      </div>
-
-      <div class="card rise" style="transition-delay:.24s">
-        <span class="badge bronze">Бронза</span>
-        <div class="num">+7 993&nbsp;540‑40‑50</div>
-        <div class="meta">Аккуратный набор · без наценки</div>
-        <div class="row">
-          <span class="tariff">Тариф от <b>320&nbsp;₽</b>/мес</span>
-          <a href="#" class="book">Забронировать →</a>
-        </div>
-      </div>
-
-    </div>
+    <div class="grid" id="bgrid"></div>
+    <div class="bmore"><a href="/start/" class="bmore-btn">Другие номера →</a></div>
   </div>
 </section>
 
@@ -245,6 +224,19 @@
   MagzGold · демо-страница премиум-стиля · это макет для оценки, не боевая страница
 </footer>
 
+<div id="takenModal" class="tmodal">
+  <div class="tmodal-box">
+    <button class="tmodal-x" type="button" aria-label="Закрыть">×</button>
+    <div class="tmodal-ico">😔</div>
+    <h3>Ой, кажется, номер уже купили</h3>
+    <p>Похоже, этот красивый номер кто-то забрал буквально только что. Но не расстраивайтесь — у нас есть другие, не менее эффектные.</p>
+    <div class="tmodal-actions">
+      <button class="tmodal-more" type="button">Подобрать другой</button>
+      <a class="tmodal-all" href="/start/">Весь каталог →</a>
+    </div>
+  </div>
+</div>
+
 <script>
   // мягкое появление при попадании в область видимости
   var io = new IntersectionObserver(function(es){
@@ -253,6 +245,98 @@
   document.querySelectorAll('.rise').forEach(function(el){ io.observe(el); });
   // герой показать сразу (он выше сгиба)
   document.querySelectorAll('.hero .rise').forEach(function(el){ setTimeout(function(){el.classList.add('in')}, 60); });
+</script>
+
+<!-- ЖИВЫЕ бриллиантовые номера: кэш → мгновенно, потом фон. обновление. Маленький запрос — быстрее. -->
+<script>
+(function(){
+  var API="https://api.store.bezlimit.ru/v2";
+  var TOKEN="Basic YXBpU3RvcmU6VkZ6WFdOSmhwNTVtc3JmQXV1dU0zVHBtcnFTRw==";
+  var REF="https://l.bezlimit.ru/store/800848";
+  var CATS="brilliant,brilliant_super";
+  var LIMIT=9;
+  var grid=document.getElementById('bgrid');
+  if(!grid){return;}
+
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function fmt(p){ p=String(p); return p.length===10 ? '+7 '+p.slice(0,3)+' '+p.slice(3,6)+'‑'+p.slice(6,8)+'‑'+p.slice(8,10) : '+7 '+p; }
+  function tprice(t){ return (t&&t.price) ? ('Тариф '+Math.round(t.price)+' ₽/мес') : 'Красивый номер'; }
+  function card(n){
+    var d=String(n.phone), t=n.tariff||{};
+    return '<div class="card">'
+      +'<span class="badge">Бриллиант</span>'
+      +'<div class="num">'+fmt(d)+'</div>'
+      +'<div class="meta">'+esc(t.name||'Бриллиантовая категория')+'</div>'
+      +'<div class="row"><span class="tariff">'+tprice(t)+'</span>'
+      +'<a class="book" href="'+REF+'?type=p&cubes='+encodeURIComponent(d)+'" data-phone="'+d+'" target="_blank" rel="noopener">Забронировать →</a></div>'
+      +'</div>';
+  }
+  function skeleton(){
+    var s=''; for(var i=0;i<LIMIT;i++){ s+='<div class="card skel"><span class="badge"></span><div class="num"></div><div class="meta"></div><div class="row"></div></div>'; }
+    grid.innerHTML=s;
+  }
+  function renderList(list){ if(list&&list.length){ grid.innerHTML=list.slice(0,LIMIT).map(card).join(''); } }
+  function flatten(j){
+    var out=[], seen={}, res=[];
+    if(j&&typeof j==='object'){ Object.keys(j).forEach(function(k){
+      var g=j[k], items=(g&&g.items)?g.items:(Array.isArray(g)?g:null);
+      if(items){ items.forEach(function(it){ if(it&&it.phone)out.push(it); }); }
+    }); }
+    out.forEach(function(it){ if(!seen[it.phone]){ seen[it.phone]=1; res.push(it); } });
+    return res;
+  }
+
+  function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
+  function empty(){ grid.innerHTML='<p class="bgrid-empty">Номера временно недоступны. <a href="/start/">Открыть каталог →</a></p>'; POOL=[]; }
+  var POOL=[]; // нормализованный пул {phone,tariff} — из статики или живого API
+  function renderPage(){ if(POOL.length){ renderList(shuffle(POOL).slice(0,LIMIT)); } else { empty(); } }
+
+  // фолбэк: живой API из браузера (если статики нет)
+  function liveFallback(){
+    var url=API+'/super-link/phones/mask-category?expand=tariff&is_reserved=false&per_page=12&phone_pattern=9NNNNNNNNN&mask_categories='+encodeURIComponent(CATS);
+    fetch(url,{headers:{Authorization:TOKEN},cache:'no-store'})
+      .then(function(r){ if(!r.ok){throw 0;} return r.json(); })
+      .then(function(j){ POOL=flatten(j); renderPage(); })
+      .catch(empty);
+  }
+
+  skeleton();
+  // быстрый путь: статика catalog.json (прогрета кроном) → МГНОВЕННО; нет — живой API
+  fetch('/data/catalog.json',{cache:'no-store'})
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(d){
+      var pool = d && d.cats && d.cats.brilliant;
+      if(pool && pool.length){ POOL=pool.map(function(x){ return {phone:x.n, tariff:{name:x.t, price:x.p}}; }); renderPage(); }
+      else { liveFallback(); }
+    })
+    .catch(liveFallback);
+
+  // ---- бронь: живая проверка наличия, при «занят» — дружелюбная модалка ----
+  function checkAvail(d){
+    return fetch(API+'/super-link/phones/mask-category?expand=tariff&is_reserved=false&per_page=100&phone_pattern='+encodeURIComponent(d),{headers:{Authorization:TOKEN}})
+      .then(function(r){ return r.ok?r.json():null; })
+      .then(function(j){ if(!j){return true;} var free=false; flatten(j).forEach(function(x){ if(String(x.phone)===String(d)){free=true;} }); return free; })
+      .catch(function(){ return true; }); // сеть подвела — не блокируем, дадим открыть
+  }
+  var modal=document.getElementById('takenModal');
+  function showTaken(){ if(modal){ modal.classList.add('open'); } }
+  function hideTaken(){ if(modal){ modal.classList.remove('open'); } }
+  if(modal){
+    modal.addEventListener('click', function(e){ if(e.target===modal || e.target.closest('.tmodal-x')){ hideTaken(); } });
+    var moreBtn=modal.querySelector('.tmodal-more');
+    if(moreBtn){ moreBtn.addEventListener('click', function(){ hideTaken(); renderPage(); grid.scrollIntoView({behavior:'smooth',block:'center'}); }); }
+  }
+  grid.addEventListener('click', function(e){
+    var a=e.target.closest('.book'); if(!a){return;}
+    e.preventDefault();
+    var d=a.getAttribute('data-phone'), href=a.href, old=a.textContent;
+    a.textContent='Проверяем…'; a.style.pointerEvents='none';
+    checkAvail(d).then(function(free){
+      a.textContent=old; a.style.pointerEvents='';
+      if(free){ window.open(href,'_blank','noopener'); } else { showTaken(); }
+    });
+  });
+})();
 </script>
 </body>
 </html>
