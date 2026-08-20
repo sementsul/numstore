@@ -29,8 +29,10 @@ body {
   border-bottom: 1px solid var(--line);
   background: linear-gradient(180deg, rgba(201,165,88,.06), transparent);
 }
-.brand { font-family: var(--serif); font-size: 28px; font-weight: 600; letter-spacing: .5px; color: var(--text); text-decoration: none; display: inline-block; transition: opacity .15s; }
+/* логотип КАК НА ЛЕНДИНГЕ (изначальный): серифный 22px, «Magz» обычным весом, «Gold» жирным золотом */
+.brand { font-family: var(--serif); font-size: 22px; font-weight: 400; letter-spacing: .5px; color: var(--text); text-decoration: none; display: inline-block; transition: opacity .15s; }
 .brand:hover { opacity: .85; }
+.brand .brand-gold { font-weight: 700; }
 
 /* бургер + шторка */
 .burger {
