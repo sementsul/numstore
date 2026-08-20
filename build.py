@@ -688,8 +688,7 @@ def render_page(**kw):
 
 def render_start():
     """Полный каталог (бывшая главная): маска-поиск + фильтры + все категории. Чистый URL /start/."""
-    header_block = ('    <h1 class="hero">Magz<span class="brand-gold">Gold</span>'
-                    ' <span class="hero-tag">— каталог номеров</span></h1>')
+    header_block = '    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>'
     intro = ("Полный каталог красивых номеров: соберите нужную комбинацию маской или выберите категорию — "
              "бриллиантовые, платиновые, золотые, серебряные, бронзовые. Тариф и мгновенная бронь онлайн.")
     html_out = render_page(metrika=METRIKA, drawer=_DRAWER,
@@ -702,7 +701,7 @@ def render_start():
         schema=home_schema(),
         nav=nav_links(None),
         header_block=header_block,
-        main_top='  <p class="page-intro">%s</p>' % intro,
+        main_top='  <h1 class="page-h1">Каталог красивых номеров</h1>\n  <p class="page-intro">%s</p>' % intro,
         vitrina=VITRINA,
         footnav=nav_links(None) + patnav(),
         scripts=SCRIPTS,
