@@ -352,6 +352,32 @@
     if (b) b.classList.remove("open");
     document.body.style.overflow = "";
   }
+  // Модалка «номер уже купили» (как на лендинге) — переиспользует стили .book-modal/.book-card.
+  function showTaken() {
+    var m = document.getElementById("takenModal");
+    if (!m) {
+      m = document.createElement("div");
+      m.id = "takenModal"; m.className = "book-modal";
+      m.innerHTML =
+        '<div class="book-card" role="dialog" aria-modal="true" style="text-align:center">' +
+          '<button class="book-x" aria-label="Закрыть">×</button>' +
+          '<div style="font-size:40px;line-height:1;margin-bottom:8px">😔</div>' +
+          '<h3>Ой, кажется, номер уже купили</h3>' +
+          '<p class="book-sub">Похоже, этот номер кто-то забрал буквально только что. Но не расстраивайтесь — у нас есть другие, не менее эффектные.</p>' +
+          '<div class="book-actions" style="justify-content:center">' +
+            '<button class="btn-ghost taken-close" type="button">Выбрать другой</button>' +
+            '<a class="btn-primary" href="/start/">Весь каталог →</a>' +
+          '</div>' +
+        '</div>';
+      document.body.appendChild(m);
+      m.addEventListener("click", function (e) {
+        if (e.target === m || e.target.closest(".book-x") || e.target.closest(".taken-close")) {
+          m.classList.remove("open"); document.body.style.overflow = "";
+        }
+      });
+    }
+    m.classList.add("open"); document.body.style.overflow = "hidden";
+  }
 
   function removeSold(digits) {   // номер заняли между загрузкой и кликом — убираем из выдачи
     delete BY_PHONE[digits];
@@ -370,7 +396,7 @@
       .then(function (data) {
         var free = false;
         flatten(data).forEach(function (x) { if (digitsOf(x.phone) === digits) free = true; });
-        if (!free) { if (w) w.close(); alert("Ой, похоже, этот номер кто-то уже купил 😔 Но вы легко подберёте другой — не менее красивый — в каталоге."); removeSold(digits); throw "sold"; }
+        if (!free) { if (w) w.close(); showTaken(); removeSold(digits); throw "sold"; }
         // 2) свободен → создаём бронь
         var fd = new FormData();
         fd.append("phone", digits); fd.append("tariff_id", tariffId);
@@ -380,7 +406,7 @@
       })
       .then(function (d) {
         var uuid = deepUuid(d);
-        if (!uuid) { if (w) w.close(); alert("Ой, похоже, этот номер кто-то уже купил 😔 Но вы легко подберёте другой — не менее красивый — в каталоге."); removeSold(digits); return; }
+        if (!uuid) { if (w) w.close(); showTaken(); removeSold(digits); return; }
         var url = CFG.REF_STORE_URL + "?type=p&cubes=" + digits + "&uuid=" + encodeURIComponent(uuid);
         if (tg) tg.openLink(url); else if (w) w.location = url; else window.open(url, "_blank", "noopener");
       })
