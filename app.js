@@ -117,7 +117,7 @@
     cubesEl.addEventListener("input", function (e) {
       var t = e.target;
       if (t.value && t.nextElementSibling && t.nextElementSibling.tagName === "INPUT") t.nextElementSibling.focus();
-      clearTimeout(searchTimer); searchTimer = setTimeout(fetchNumbers, 500);
+      clearTimeout(searchTimer); searchTimer = setTimeout(render, 500);
     });
     cubesEl.addEventListener("keydown", function (e) {
       if (e.key === "Backspace" && !e.target.value && e.target.previousElementSibling &&
@@ -174,21 +174,57 @@
   /* ---------- загрузка номеров (категория/тариф/маска → серверный запрос) ---------- */
   function showStatus(m) { statusEl.textContent = m; statusEl.style.display = ""; gridEl.innerHTML = ""; moreBtn.hidden = true; }
 
+  // какие категории каталога брать для текущей страницы (по flt.cat; slug — подстрока кода)
+  function catSlugsForPage(cats) {
+    var all = Object.keys(cats);
+    if (!flt.cat) return all;                                   // /start/ и паттерны — все категории
+    var sel = all.filter(function (sl) { return flt.cat.indexOf(sl) >= 0; });
+    return sel.length ? sel : all;
+  }
+  // маска на клиенте (локальная база не отфильтрована по маске): цифра=точно, N/пусто=любая, буква=повтор
+  function maskMatch(digits, mask) {
+    if (!mask || isEmptyMask(mask)) return true;
+    var rep = {};
+    for (var i = 0; i < 10; i++) {
+      var c = mask.charAt(i), d = digits.charAt(i);
+      if (c === "N" || c === "n" || c === "") continue;
+      if (c >= "0" && c <= "9") { if (d !== c) return false; }
+      else { var lc = c.toLowerCase(); if (rep[lc] == null) rep[lc] = d; else if (rep[lc] !== d) return false; }
+    }
+    return true;
+  }
+  // ГЛАВНОЕ: грузим из ЛОКАЛЬНОЙ базы catalog.json (прогрев кроном), а НЕ из медленного API Безлимита.
   function fetchNumbers() {
+    showStatus("Загружаю номера…");
+    fetch("/data/catalog.json", { cache: "no-store" })
+      .then(function (r) { if (!r.ok) { throw 0; } return r.json(); })
+      .then(function (j) {
+        var cats = j.cats || {}, out = [];
+        catSlugsForPage(cats).forEach(function (sl) {
+          (cats[sl] || []).forEach(function (x) {
+            out.push({ phone: x.n, _cat: sl, tariff: { id: x.i, name: x.t, price: x.p } });
+          });
+        });
+        if (!out.length) { fetchNumbersLive(); return; }        // база пуста → живой API
+        ALL = out.filter(okTariff); BY_PHONE = {};
+        ALL.forEach(function (p) { BY_PHONE[digitsOf(p.phone)] = p; });
+        buildTariffFilter(); buildCodeFilter(); render();
+      })
+      .catch(function () { fetchNumbersLive(); });                // нет базы → живой API (фолбэк)
+  }
+  // Фолбэк: живой API Безлимит (если catalog.json недоступен).
+  function fetchNumbersLive() {
     showStatus("Загружаю номера…");
     var mask = buildCubes();
     var q = ["expand=tariff", "is_reserved=false", "per_page=100"];
     q.push("phone_pattern=" + encodeURIComponent(isEmptyMask(mask) ? DEFAULT_MASK : mask));
     if (flt.cat) q.push("mask_categories=" + encodeURIComponent(flt.cat));
-    // тариф API на mask-category не фильтрует (проверено) → фильтруем на клиенте в matchesClient
     api("/super-link/phones/mask-category?" + q.join("&"))
       .then(function (d) {
-        var f = flatten(d).filter(okTariff); // выкидываем региональные тарифы (Анадырь/Норильск)
+        var f = flatten(d).filter(okTariff);
         ALL = f; BY_PHONE = {};
         f.forEach(function (p) { BY_PHONE[digitsOf(p.phone)] = p; });
-        buildTariffFilter(); // список тарифов из фактических номеров
-        buildCodeFilter();   // список кодов (первые 3 цифры) из фактических номеров
-        render();
+        buildTariffFilter(); buildCodeFilter(); render();
       })
       .catch(function (e) { showStatus("Ошибка загрузки (" + e.message + ")."); });
   }
@@ -216,8 +252,9 @@
     return list;
   }
   function render() {
+    var mask = buildCubes();
     var base = favMode ? Object.keys(FAV).map(function (k) { return FAV[k]; }) : ALL;
-    var list = sorted(base.filter(matchesClient));
+    var list = sorted(base.filter(function (p) { return matchesClient(p) && maskMatch(digitsOf(p.phone), mask); }));
     countEl.textContent = list.length + " " + plural(list.length, ["номер", "номера", "номеров"]);
     if (!list.length) { showStatus(favMode ? "В избранном пусто. Добавьте номера ♥." : "Ничего не найдено. Смягчи фильтры."); return; }
     statusEl.style.display = "none";
@@ -351,12 +388,12 @@
   }
 
   /* ---------- события ---------- */
-  findBtn.addEventListener("click", fetchNumbers);
+  findBtn.addEventListener("click", function () { shown = PAGE; render(); });
   resetBtn.addEventListener("click", function () {
     cubesEl.querySelectorAll("input").forEach(function (c) { c.value = ""; });
     sortEl.value = "default";
     flt = { cat: null, tariff: null, price: null };
-    buildSidebar(); fetchNumbers();
+    buildSidebar(); shown = PAGE; render();
   });
   sortEl.addEventListener("change", function () { shown = PAGE; render(); });
   if (fCode) fCode.addEventListener("change", function () { flt.code = fCode.value || null; shown = PAGE; render(); });

@@ -81,7 +81,7 @@ def collect_cat(slug, code):
                 continue
             seen.add(ph)
             t = it.get("tariff") or {}
-            items.append({"n": ph, "t": (t.get("name") or "")[:60], "p": t.get("price")})
+            items.append({"n": ph, "t": (t.get("name") or "")[:60], "p": t.get("price"), "i": t.get("id")})
             if len(items) >= PER_CAT:
                 break
         if len(items) >= PER_CAT:
