@@ -650,12 +650,14 @@ body {
 
 /* появление при скролле — без мигания: прячем реальные селекторы под .js (класс ставится в <head>
    до первой отрисовки), скрипт в конце body добавляет .in при попадании в вьюпорт. Без JS всё видно. */
-.js .num,.js .feature,.js .city-card,.js .blog-card,.js .faq-item,
-.js .promo-block,.js .chart-cat,.js .seo-text,.js .mh-trust,.js .mh-cta{
+/* ВНИМАНИЕ: .num сюда НЕ добавлять — карточки номеров рисует app.js асинхронно, IntersectionObserver
+   отрабатывает на пустой сетке и не ставит .in → карточки останутся opacity:0 (невидимы). */
+.js .feature,.js .city-card,.js .blog-card,.js .faq-item,
+.js .promo-block,.js .chart-cat,.js .seo-text{
   opacity:0;transform:translateY(16px);
   transition:opacity .7s var(--e),transform .7s var(--e);}
-.js .num.in,.js .feature.in,.js .city-card.in,.js .blog-card.in,.js .faq-item.in,
-.js .promo-block.in,.js .chart-cat.in,.js .seo-text.in,.js .mh-trust.in,.js .mh-cta.in{
+.js .feature.in,.js .city-card.in,.js .blog-card.in,.js .faq-item.in,
+.js .promo-block.in,.js .chart-cat.in,.js .seo-text.in{
   opacity:1;transform:none;}
 
 /* ---- премиальный герой главной ---- */
