@@ -34,7 +34,8 @@
   header{padding:22px 0;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5;
     background:rgba(13,14,17,.72);backdrop-filter:blur(10px)}
   .bar{display:flex;align-items:center;justify-content:space-between;gap:16px}
-  .logo{font-family:var(--serif);font-size:22px;letter-spacing:.5px}
+  .logo{font-family:var(--sans);font-size:30px;font-weight:700;letter-spacing:.5px;color:var(--ink);text-decoration:none;transition:opacity .15s}
+  .logo:hover{opacity:.85}
   .logo b{background:linear-gradient(180deg,var(--gold2),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
   .navlinks{display:flex;gap:26px;font-size:14px;color:var(--mut)}
   .navlinks a{color:var(--mut);text-decoration:none;transition:color .25s var(--e)}
@@ -202,7 +203,7 @@
 
 <header>
   <div class="wrap bar">
-    <div class="logo">Magz<b>Gold</b></div>
+    <a href="/" class="logo">Magz<b>Gold</b></a>
     <nav class="navlinks">
       <a href="/start/">Каталог</a>
       <a href="/tarify/">Тарифы</a>
