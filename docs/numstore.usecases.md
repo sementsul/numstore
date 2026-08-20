@@ -654,3 +654,23 @@ styles.css (.chart-*). numstore запушен на GitHub (был на 2 бот
 SLUG2LABEL (bronze→Бронза…). **Радиус:** chart.js (ONLY/data-cat + тренд-текст), app.js (TREND/loadTrend/card-чип),
 build.py (SLUG2LABEL, render_category chart+chart.js), styles.css (.num-trend/.chart-cat/.chart-more). Проверено:
 data-cat в HTML категорий, chart.js читает data-cat, тренд-логика в app.js, сборка ок. ❌ визуал — руками.
+
+## UC-61 — Автономность: watchdog + бессрочный DEPLOY_TOKEN + апгрейд Actions + Dependabot
+**Контекст:** цель — чтобы сбор истории цен и публикация в magzgold жили годами без ручного вмешательства.
+**Предусловие:** дневной крон `price_history.yml` пушит точку под `DEPLOY_TOKEN` (сбрасывает 60-дн таймер);
+`feed_numbers.yml` обновляет фид номеров.
+**Сделано (шаги):**
+1. **`DEPLOY_TOKEN` → бессрочный.** Обновлён новым classic-PAT «No expiration» через API+SealedBox (PyNaCl).
+   Проверка: feed_numbers + price_history (шаг «пуш под PAT в numstore») — success под новым токеном.
+2. **Watchdog** (`.github/workflows/watchdog.yml`, новый): ежедневно (05:51 UTC) тянет `data/price_history.json`
+   из raw (без checkout), берёт возраст свежайшей `points[].date`; > `STALE_H=48` ч (два пропущенных дня дневного
+   крона) → печатает `::error::` и падает (exit 1) → GitHub шлёт владельцу письмо о сбое. Issues-канал не нужен.
+   Ловит: заснувший крон (истёк DEPLOY_TOKEN), поломку `collect_prices.py`, падение публикации.
+   Вход `workflow_dispatch.stale_hours` для теста. Проверка live: порог 0 → failure, порог 48 (свежо) → success.
+3. **Апгрейд Actions**: `checkout@v4→v5` (Node20→Node24) во всех 4 воркфлоу с checkout. Проверка: feed_numbers success.
+4. **Dependabot** (`.github/dependabot.yml`): еженедельный сгруппированный PR на обновление версий actions.
+**РАДИУС:** новый `watchdog.yml` + `dependabot.yml`; `uses: checkout` в blog/feed_numbers/price_history/tg.yml;
+секрет `DEPLOY_TOKEN`. СОСЕДИ/роли: НЕ трогает `collect_prices.py`/сайт/деплой magzgold/сторонние токены
+(Blogger/Telegram). Слепая зона watchdog: сам scheduled-workflow, при истечении PAT отключится с остальными через
+~60 дн — но раньше сработает письмо о падении keepalive/пуша. Теперь PAT бессрочный, сценарий неактуален.
+**Статус:** ✅ в проде, обе ветки watchdog проверены live.
