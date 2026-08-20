@@ -498,6 +498,10 @@ PAGE_TMPL = """<!doctype html>
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="{og_image}">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="shortcut icon" href="/favicon.ico">
 <link rel="preconnect" href="https://api.store.bezlimit.ru">
 <link rel="preconnect" href="https://mc.yandex.ru">
 <link rel="dns-prefetch" href="https://www.googletagmanager.com">
@@ -731,6 +735,10 @@ def render_home():
         '<meta name="twitter:card" content="summary_large_image">',
         '<meta name="twitter:image" content="%s">' % og,
         '<link rel="icon" href="/favicon.svg" type="image/svg+xml">',
+        '<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">',
+        '<link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png">',
+        '<link rel="apple-touch-icon" href="/apple-touch-icon.png">',
+        '<link rel="shortcut icon" href="/favicon.ico">',
         '<link rel="preconnect" href="https://api.store.bezlimit.ru">',
         home_schema(),
         METRIKA,
@@ -1932,7 +1940,8 @@ def make_operators_json():
 
 
 def copy_assets():
-    for f in ("app.js", "styles.css", "config.js", "calc.js", "nav.js", "geo.js", "nomer.js", "checker.js", "operator.js", "chart.js", "widget.js", "tarify.js", "favicon.svg"):
+    for f in ("app.js", "styles.css", "config.js", "calc.js", "nav.js", "geo.js", "nomer.js", "checker.js", "operator.js", "chart.js", "widget.js", "tarify.js",
+              "favicon.svg", "favicon.ico", "favicon-32x32.png", "favicon-192x192.png", "apple-touch-icon.png"):
         shutil.copy(os.path.join(ROOT, f), os.path.join(DIST, f))
     if os.path.isdir(os.path.join(ROOT, "img")):
         shutil.copytree(os.path.join(ROOT, "img"), os.path.join(DIST, "img"), dirs_exist_ok=True)
