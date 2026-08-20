@@ -1,0 +1,55 @@
+name: Предзагрузка каталога (прогрев номеров)
+
+# API Безлимит медленный (~11с). Крон заранее тянет до 250 номеров каждой категории в статику
+# data/catalog.json → лендинг/каталог грузятся мгновенно с CDN. Наличие проверяется при брони в браузере.
+# Пуш под DEPLOY_TOKEN (как price_history) — заодно сбрасывает 60-дневный таймер scheduled-воркфлоу.
+
+on:
+  schedule:
+    - cron: "41 */4 * * *"     # каждые 4 часа
+  workflow_dispatch: {}
+
+concurrency:
+  group: catalog
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Собрать каталог (до 250 номеров/категория)
+        run: python3 collect_catalog.py data/catalog.json
+      - name: Сохранить в numstore (источник; пуш под PAT — крон не «засыпает»)
+        env:
+          TOK: ${{ secrets.DEPLOY_TOKEN }}
+        run: |
+          if [ -n "$(git status --porcelain data/catalog.json)" ]; then
+            git config user.name "catalog-bot"
+            git config user.email "catalog-bot@users.noreply.github.com"
+            git add data/catalog.json
+            git commit -m "chore: прогрев каталога номеров"
+            git push "https://x-access-token:${TOK}@github.com/sementsul/numstore.git" HEAD:main
+          else
+            echo "каталог без изменений"
+          fi
+      - name: Опубликовать на сайт (magzgold)
+        env:
+          TOK: ${{ secrets.DEPLOY_TOKEN }}
+        run: |
+          git clone --depth 1 "https://x-access-token:${TOK}@github.com/sementsul/magzgold.git" site
+          mkdir -p site/data
+          cp data/catalog.json site/data/catalog.json
+          cd site
+          if [ -n "$(git status --porcelain data/catalog.json)" ]; then
+            git config user.name "catalog-bot"
+            git config user.email "catalog-bot@users.noreply.github.com"
+            git add data/catalog.json
+            git commit -m "chore: авто-обновление catalog.json"
+            git push
+          else
+            echo "на сайте без изменений"
+          fi
