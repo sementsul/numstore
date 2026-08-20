@@ -151,3 +151,5 @@
 
 ## Премиум-редизайн (UC-62, ⏳ превью)
 Серифные заголовки + воздух + появление при скролле (`styles.css` премиум-слой в конце; `.js`-класс + IntersectionObserver в PAGE_TMPL). Главная: сдержанный герой `.mhero` + `window.PAGE={cat:"brilliant,brilliant_super"}` (только бриллиант). НЕ задеплоено — ждёт одобрения владельца, потом `deploy.sh`.
+
+- **UC-68:** растровые фавиконки (favicon.ico + png 32/192 + apple-touch) — Яндекс SVG не грузит; линки в PAGE_TMPL+лендинге, файлы в copy-списке build.py.
