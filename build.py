@@ -520,11 +520,34 @@ PAGE_TMPL = """<!doctype html>
 {vitrina}
 </main>
 <footer class="foot">
-  <div class="wrap">
-    {footnav}
-    <nav class="catnav footlinks"><a href="/blog/">Блог</a><a href="/krasivye-nomera/">Номера по городам</a><a href="/skolko-stoit-nomer/">Сколько стоит номер</a><a href="/tarify/">Тарифы</a><a href="/kody/">Коды</a><a href="/operator-po-nomeru/">Оператор по номеру</a><a href="/dinamika-cen/">Динамика цен</a><a href="/faq/">FAQ</a><a href="/o-servise/">О сервисе</a><a href="/politika/">Политика</a><a href="/polzovatelskoe-soglashenie/">Соглашение</a></nav>
-    <div class="tg-links"><a href="https://t.me/magzgoldmg" target="_blank" rel="noopener">📢 Telegram-канал с номерами</a><a href="https://t.me/magzgoldbot" target="_blank" rel="noopener">🤖 Бот подбора и брони</a></div>
-    <p>MagzGold — официальный партнёр оператора «Безлимит». Информационная витрина красивых номеров; подключение и оплата на стороне оператора.</p>
+  <div class="wrap fcols">
+    <div class="fcol">
+      <div class="flogo">Magz<span class="brand-gold">Gold</span></div>
+      <p class="fabout">Витрина красивых номеров телефонов от оператора «Безлимит». Подбор по маске и категориям, бронь онлайн, доставка SIM и eSIM по всей России. Мы — информационный партнёр: подключение и оплата на стороне оператора.</p>
+    </div>
+    <div class="fcol">
+      <div class="fhead">Каталог</div>
+      <a href="/kategoriya/brilliant/">Бриллиантовые</a>
+      <a href="/start/">Весь каталог</a>
+      <a href="/tarify/">Тарифы</a>
+      <a href="/faq/">Вопросы и ответы</a>
+    </div>
+    <div class="fcol">
+      <div class="fhead">Документы</div>
+      <a href="/o-servise/">О сервисе</a>
+      <a href="/politika/">Политика конфиденциальности</a>
+      <a href="/polzovatelskoe-soglashenie/">Пользовательское соглашение</a>
+    </div>
+    <div class="fcol">
+      <div class="fhead">Контакты</div>
+      <a href="https://t.me/magzgoldmg" target="_blank" rel="noopener">📢 Telegram-канал с номерами</a>
+      <a href="https://t.me/magzgoldbot" target="_blank" rel="noopener">🤖 Бот подбора и брони</a>
+      <a href="mailto:sementsul.maksim@yandex.ru">sementsul.maksim@yandex.ru</a>
+    </div>
+  </div>
+  <div class="wrap fbottom">
+    Семенцул Максим Геннадиевич · самозанятый (НПД) · ИНН 381616884622<br>
+    © MagzGold — красивые номера телефонов. Информационный партнёр оператора «Безлимит». Подключение официальное, только для граждан РФ.
   </div>
 </footer>
 {drawer}

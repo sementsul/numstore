@@ -704,3 +704,15 @@ body {
 .lgrid #grid > .num:nth-child(n+10){display:none;}
 .lgrid-cta{text-align:center;margin-top:30px;}
 .mhero + .lgrid{margin-top:10px;}
+
+/* ---- футер как на лендинге (4 колонки) ---- */
+.foot { padding: 46px 0 32px; }
+.foot .fcols { display: grid; grid-template-columns: 1.6fr 1fr 1fr 1fr; gap: 30px 40px; }
+@media (max-width: 860px) { .foot .fcols { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 520px) { .foot .fcols { grid-template-columns: 1fr; } }
+.flogo { font-size: 20px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
+.fabout { color: var(--muted); font-size: 13px; line-height: 1.6; max-width: 38ch; margin: 0; }
+.fhead { color: var(--text); font-size: 13px; font-weight: 600; letter-spacing: .4px; margin-bottom: 12px; }
+.fcol a { display: block; color: var(--muted); text-decoration: none; font-size: 13px; padding: 4px 0; transition: color .15s; }
+.fcol a:hover { color: var(--gold-hi); }
+.fbottom { margin-top: 34px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; line-height: 1.6; }
