@@ -691,3 +691,14 @@ body {
   -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
   -webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .35s var(--e);}
 .num:hover::after{opacity:1;}
+
+/* ---- лендинг: секция живых бриллиантовых номеров ---- */
+.lgrid{padding:8px 0 20px;}
+.lgrid-head{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin:0 0 22px;}
+.shead-h{font-family:var(--serif);font-weight:500;font-size:clamp(22px,3vw,30px);margin:0;letter-spacing:.3px;}
+.lgrid-all{color:var(--gold);text-decoration:none;font-size:14px;white-space:nowrap;transition:color .2s var(--e);}
+.lgrid-all:hover{color:var(--gold-hi);}
+/* курируем: на лендинге показываем максимум 9 карточек, остальное — «Весь каталог» */
+.lgrid #grid > .num:nth-child(n+10){display:none;}
+.lgrid-cta{text-align:center;margin-top:30px;}
+.mhero + .lgrid{margin-top:10px;}

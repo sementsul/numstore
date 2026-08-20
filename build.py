@@ -663,12 +663,36 @@ def render_page(**kw):
     return PAGE_TMPL.format(**kw)
 
 
+def render_start():
+    """Полный каталог (бывшая главная): маска-поиск + фильтры + все категории. Чистый URL /start/."""
+    header_block = ('    <h1 class="hero">Magz<span class="brand-gold">Gold</span>'
+                    ' <span class="hero-tag">— каталог номеров</span></h1>')
+    intro = ("Полный каталог красивых номеров: соберите нужную комбинацию маской или выберите категорию — "
+             "бриллиантовые, платиновые, золотые, серебряные, бронзовые. Тариф и мгновенная бронь онлайн.")
+    html_out = render_page(metrika=METRIKA, drawer=_DRAWER,
+        title="Каталог красивых номеров — подбор по маске и категориям | MagzGold",
+        desc="Полный каталог красивых номеров телефонов MagzGold: подбор по маске, фильтры по тарифу и цене, "
+             "все категории. Бронирование онлайн, доставка SIM и eSIM по России.",
+        canonical=SITE["base"] + "/start/",
+        og_image=OG("home"),
+        page_js="",
+        schema=home_schema(),
+        nav=nav_links(None),
+        header_block=header_block,
+        main_top='  <p class="page-intro">%s</p>' % intro,
+        vitrina=VITRINA,
+        footnav=nav_links(None) + patnav(),
+        scripts=SCRIPTS,
+    )
+    write("start/index.html", html_out)
+
+
 def render_home():
-    # В шапке — только логотип; крупный сдержанный герой идёт ниже, в main_top.
+    """Лендинг в премиум-стиле: сдержанный герой + живые БРИЛЛИАНТОВЫЕ номера (app.js) + CTA в каталог."""
     header_block = '    <a class="brand" href="/">Magz<span class="brand-gold">Gold</span></a>'
     hero = """  <section class="mhero">
-    <p class="mh-eyebrow">Бриллиантовая коллекция</p>
-    <h1>Красивые номера, <span class="g">которые запоминаются</span></h1>
+    <p class="mh-eyebrow">Красивые номера · доставка по России</p>
+    <h1>one of <span class="g">one</span></h1>
     <div class="mh-rule"></div>
     <p class="mh-lede">Бриллиантовая категория — самые чистые и редкие комбинации.</p>
     <a href="#grid" class="mh-cta">Смотреть номера <span class="arw">→</span></a>
@@ -678,22 +702,37 @@ def render_home():
       <span><i></i> Официально, от оператора</span>
     </div>
   </section>"""
-    # короткий SEO-абзац — внизу, чтобы не мешать тем, кто пришёл за номером
-    home_seo = ('    <section class="seo-text"><p>Бриллиантовые номера — высшая категория красоты: '
-                'зеркальные и последовательные комбинации, длинные повторы, круглые окончания. Каждый номер '
-                'подключается официально от оператора «Безлимит», с доставкой SIM и eSIM по всей России.</p></section>')
+    # секция с живыми бриллиантовыми номерами (app.js заполняет #grid) + служебные элементы app.js скрыты
+    lgrid = """  <section class="lgrid" id="grid-sec">
+    <div class="lgrid-head">
+      <h2 class="shead-h">Бриллиантовые номера</h2>
+      <a href="/start/" class="lgrid-all">Весь каталог →</a>
+    </div>
+    <div id="status" class="status">Загружаю номера…</div>
+    <div id="grid" class="grid"></div>
+    <div class="lgrid-cta"><a href="/start/" class="mh-cta">Смотреть все номера <span class="arw">→</span></a></div>
+  </section>
+  <div id="mh-hidden" hidden aria-hidden="true">
+    <div id="cubes"></div><button id="find" type="button"></button><button id="reset" type="button"></button>
+    <select id="sort"><option value="default"></option></select><button id="more" type="button"></button>
+    <ul id="fPrice"></ul><ul id="fTariff"></ul><ul id="fCat"></ul><select id="fCode"></select>
+    <button id="favToggle" type="button"></button><span id="favCount"></span><span id="count"></span>
+  </div>
+  <section class="seo-text"><p>Бриллиантовые номера — высшая категория красоты: зеркальные и последовательные
+    комбинации, длинные повторы, круглые окончания. Каждый номер подключается официально от оператора «Безлимит»,
+    с доставкой SIM и eSIM по всей России. <a href="/start/">Весь каталог номеров →</a></p></section>"""
     html_out = render_page(metrika=METRIKA, drawer=_DRAWER,
         title="MagzGold — красивые бриллиантовые номера: купить и забронировать онлайн",
-        desc="MagzGold — красивые бриллиантовые номера телефонов высшей категории: подбор по маске, тарифы, "
-             "бронирование онлайн, доставка SIM и eSIM по России. Официально от оператора «Безлимит».",
+        desc="MagzGold — красивые бриллиантовые номера телефонов высшей категории: бронирование онлайн, "
+             "доставка SIM и eSIM по России. Официально от оператора «Безлимит». Весь каталог — по ссылке.",
         canonical=SITE["base"] + "/",
         og_image=OG("home"),
         page_js='<script>window.PAGE={cat:"brilliant,brilliant_super"}</script>',
         schema=home_schema(),
         nav=nav_links(None),
         header_block=header_block,
-        main_top=hero,
-        vitrina=VITRINA + "\n" + home_seo,
+        main_top=hero + "\n" + lgrid,
+        vitrina="",
         footnav=nav_links(None) + patnav(),
         scripts=SCRIPTS,
     )
@@ -1799,7 +1838,7 @@ def render_404():
 
 
 def render_sitemap():
-    urls = ([SITE["base"] + "/"] + [SITE["base"] + "/kategoriya/%s/" % c["slug"] for c in CATEGORIES]
+    urls = ([SITE["base"] + "/", SITE["base"] + "/start/"] + [SITE["base"] + "/kategoriya/%s/" % c["slug"] for c in CATEGORIES]
             + [SITE["base"] + "/%s/" % p["slug"] for p in PATTERNS]
             + [SITE["base"] + "/%s/" % l["slug"] for l in LANDINGS]
             + [SITE["base"] + "/krasivye-nomera/"]
@@ -1926,6 +1965,7 @@ def main():
         shutil.rmtree(DIST)
     os.makedirs(DIST)
     render_home()
+    render_start()
     for c in CATEGORIES:
         render_category(c)
     for p in PATTERNS:

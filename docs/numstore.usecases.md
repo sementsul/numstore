@@ -692,10 +692,12 @@ data-cat в HTML категорий, chart.js читает data-cat, тренд-
 2. `build.py` PAGE_TMPL: в `<head>` скрипт `documentElement.className+=' js'` (до отрисовки, чтобы прятать
    анимируемое без мигания); перед `</body>` — IntersectionObserver, навешивает `.in` на
    `.num/.feature/.city-card/.blog-card/.faq-item/.promo-block/.chart-cat/.seo-text/.mh-trust/.mh-cta`.
-3. `build.py` render_home: шапка = только логотип; крупный сдержанный герой в main_top (eyebrow «Бриллиантовая
-   коллекция» → H1 «Красивые номера, которые запоминаются» → линия → короткая строка → CTA «Смотреть номера»
-   → 3 trust-чипа); `page_js=window.PAGE={cat:"brilliant,brilliant_super"}` → витрина грузит ТОЛЬКО бриллиант;
-   продающий intro убран, короткий SEO-абзац `.seo-text` уведён вниз (после витрины).
+3. `build.py` render_home/render_start: РАЗДЕЛЕНО — **index.html = лендинг** (шапка=логотип; герой eyebrow «Красивые
+   номера · доставка по России» → H1 **«one of one»** → линия → строка → CTA; ниже секция `.lgrid` с ЖИВЫМИ
+   бриллиантовыми номерами (app.js в #grid, `window.PAGE={cat:"brilliant,brilliant_super"}`, CSS-кап 9 карточек) +
+   «Весь каталог →»; служебные элементы app.js (#cubes/#find/#reset/#sort/#more/#fPrice/#fTariff/#fCat/#fCode/…)
+   присутствуют СКРЫТО, чтобы скрипт не падал). **start/index.html = полный каталог** (бывшая главная: маска+фильтры+
+   все категории, canonical /start/, в sitemap). app.js НЕ менялся.
 **Ожидаемый результат:** премиум-вид на всех страницах (сериф+воздух+анимации), главная показывает только
 бриллиантовые номера, первый экран без «процессного» текста.
 **РАДИУС:** `styles.css` (доп. слой, старые правила не тронуты), `build.py` (PAGE_TMPL +2 скрипта, render_home).
