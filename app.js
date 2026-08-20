@@ -425,7 +425,7 @@
 
   renderCubes();
   if (PRESET.mask) setCubes(PRESET.mask); // паттерн-страницы задают маску
-  loadFilters();
+  buildSidebar();   // было loadFilters() — тянул /filters с Безлимита; данные не использовались, строим локально
   loadTrend();
   fetchNumbers();
 })();
