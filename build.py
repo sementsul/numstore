@@ -385,7 +385,7 @@ def _dlinks(items):
 
 
 def _build_drawer():
-    other = [("/", "Все номера"), ("/kak-eto-rabotaet/", "Как это работает"), ("/tarify/", "Тарифы"), ("/kody/", "Номера по кодам"), ("/blog/", "Блог"), ("/faq/", "Вопросы и ответы"), ("/skolko-stoit-nomer/", "Сколько стоит номер"), ("/proverit-nomer/", "Проверить красоту номера"), ("/operator-po-nomeru/", "Оператор по номеру"), ("/api-i-vidzhety/", "API и виджеты"), ("/o-servise/", "О сервисе")]
+    other = [("/", "Все номера"), ("/kak-eto-rabotaet/", "Как это работает"), ("/tarify/", "Тарифы"), ("/kody/", "Номера по кодам"), ("/blog/", "Блог"), ("/faq/", "Вопросы и ответы"), ("/skolko-stoit-nomer/", "Сколько стоит номер"), ("/proverit-nomer/", "Проверить красоту номера"), ("/operator-po-nomeru/", "Оператор по номеру"), ("/dinamika-cen/", "Динамика цен"), ("/api-i-vidzhety/", "API и виджеты"), ("/o-servise/", "О сервисе")]
     picks = [("/%s/" % l["slug"], l["h1"]) for l in LANDINGS]
     legal = [("/dokumenty/", "Документы и партнёрство"), ("/politika/", "Политика конфиденциальности"), ("/polzovatelskoe-soglashenie/", "Пользовательское соглашение")]
     tg = ('<a href="https://t.me/magzgoldmg" target="_blank" rel="noopener">📢 Канал с номерами</a>'
@@ -521,7 +521,7 @@ PAGE_TMPL = """<!doctype html>
 <footer class="foot">
   <div class="wrap">
     {footnav}
-    <nav class="catnav footlinks"><a href="/blog/">Блог</a><a href="/krasivye-nomera/">Номера по городам</a><a href="/skolko-stoit-nomer/">Сколько стоит номер</a><a href="/tarify/">Тарифы</a><a href="/kody/">Коды</a><a href="/operator-po-nomeru/">Оператор по номеру</a><a href="/faq/">FAQ</a><a href="/o-servise/">О сервисе</a><a href="/politika/">Политика</a><a href="/polzovatelskoe-soglashenie/">Соглашение</a></nav>
+    <nav class="catnav footlinks"><a href="/blog/">Блог</a><a href="/krasivye-nomera/">Номера по городам</a><a href="/skolko-stoit-nomer/">Сколько стоит номер</a><a href="/tarify/">Тарифы</a><a href="/kody/">Коды</a><a href="/operator-po-nomeru/">Оператор по номеру</a><a href="/dinamika-cen/">Динамика цен</a><a href="/faq/">FAQ</a><a href="/o-servise/">О сервисе</a><a href="/politika/">Политика</a><a href="/polzovatelskoe-soglashenie/">Соглашение</a></nav>
     <div class="tg-links"><a href="https://t.me/magzgoldmg" target="_blank" rel="noopener">📢 Telegram-канал с номерами</a><a href="https://t.me/magzgoldbot" target="_blank" rel="noopener">🤖 Бот подбора и брони</a></div>
     <p>MagzGold — официальный партнёр оператора «Безлимит». Информационная витрина красивых номеров; подключение и оплата на стороне оператора.</p>
   </div>
@@ -1213,6 +1213,47 @@ def render_widget_docs():
     write("vidzhet/index.html", html_out)
 
 
+def render_prices():
+    """График динамики средней абонплаты тарифа по категориям (история копится кроном, кнопки диапазонов растут)."""
+    body = (
+        '<div class="chart-wrap">'
+        '<div class="chart-ranges" id="chartRanges"></div>'
+        '<div class="chart-box"><canvas id="priceChart"></canvas></div>'
+        '<div class="chart-legend" id="chartLegend"></div>'
+        '<p class="chart-note" id="chartNote">Загружаю историю…</p>'
+        '</div>'
+        '<section class="seo-text">'
+        '<h2>Что показывает график</h2>'
+        '<p>Средняя абонентская плата тарифа (₽/мес) по категориям красивых номеров — от бронзы до бриллианта. '
+        'Сам номер через MagzGold бесплатный, вы платите только за тариф; график показывает, как в среднем '
+        'меняется ёмкость тарифов на номерах каждой категории. Точную цену конкретного номера смотрите в '
+        '<a href="/">каталоге</a>.</p>'
+        '<h2>Как копится история</h2>'
+        '<p>Данные снимаются автоматически из каталога. Кнопки периодов (неделя, месяц, 3 и 6 месяцев, год, '
+        '3, 5 и 10 лет) появляются по мере накопления истории — чем дольше идёт сбор, тем длиннее доступные '
+        'диапазоны. Сегодня доступен текущий срез; тренд наполнится со временем.</p>'
+        '</section>')
+    html_out = render_page(metrika=METRIKA, drawer=_DRAWER,
+        title="Динамика цен на красивые номера по категориям — график | MagzGold",
+        desc="График средней абонплаты тарифа по категориям красивых номеров (бронза, серебро, золото, платина, "
+             "бриллиант) во времени: неделя, месяц, год и дольше. MagzGold.",
+        canonical=SITE["base"] + "/dinamika-cen/",
+        og_image=OG("home"),
+        page_js="",
+        schema=schema_breadcrumb({"name": "Динамика цен", "slug": "dinamika-cen", "toplevel": True}),
+        nav=nav_links(None),
+        header_block='    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>',
+        main_top='%s\n  <h1 class="page-h1">Динамика цен по категориям</h1>\n'
+                 '  <p class="page-intro">Как меняется средняя абонплата тарифа по категориям красивых номеров — '
+                 'от бронзы до бриллианта. История копится автоматически, диапазоны периодов растут со временем.</p>'
+                 % crumbs("Динамика цен"),
+        vitrina=body,
+        footnav=nav_links(None) + patnav(),
+        scripts='<script src="/chart.js%s"></script>' % _ver("chart.js"),
+    )
+    write("dinamika-cen/index.html", html_out)
+
+
 def render_operator():
     """Инструмент: узнать оператора и регион по номеру (база Россвязи, лукап в браузере) + похожие номера."""
     body = (
@@ -1726,7 +1767,7 @@ def render_sitemap():
             + [SITE["base"] + "/%s/" % l["slug"] for l in LANDINGS]
             + [SITE["base"] + "/krasivye-nomera/"]
             + [SITE["base"] + "/krasivye-nomera/%s/" % c["slug"] for c in CITIES]
-            + [SITE["base"] + "/kak-eto-rabotaet/", SITE["base"] + "/proverit-nomer/", SITE["base"] + "/operator-po-nomeru/", SITE["base"] + "/vidzhet/", SITE["base"] + "/api-i-vidzhety/", SITE["base"] + "/api/", SITE["base"] + "/skolko-stoit-nomer/", SITE["base"] + "/blog/"]
+            + [SITE["base"] + "/kak-eto-rabotaet/", SITE["base"] + "/proverit-nomer/", SITE["base"] + "/operator-po-nomeru/", SITE["base"] + "/dinamika-cen/", SITE["base"] + "/vidzhet/", SITE["base"] + "/api-i-vidzhety/", SITE["base"] + "/api/", SITE["base"] + "/skolko-stoit-nomer/", SITE["base"] + "/blog/"]
             + [SITE["base"] + "/blog/%s/" % a["slug"] for a in BLOG]
             + [SITE["base"] + "/o-servise/", SITE["base"] + "/dokumenty/", SITE["base"] + "/tarify/", SITE["base"] + "/politika/", SITE["base"] + "/polzovatelskoe-soglashenie/"]
             + [SITE["base"] + "/tarif/%s/" % t["slug"] for t in TARIFFS]
@@ -1809,13 +1850,17 @@ def make_operators_json():
 
 
 def copy_assets():
-    for f in ("app.js", "styles.css", "config.js", "calc.js", "nav.js", "geo.js", "nomer.js", "checker.js", "operator.js", "widget.js", "tarify.js", "favicon.svg"):
+    for f in ("app.js", "styles.css", "config.js", "calc.js", "nav.js", "geo.js", "nomer.js", "checker.js", "operator.js", "chart.js", "widget.js", "tarify.js", "favicon.svg"):
         shutil.copy(os.path.join(ROOT, f), os.path.join(DIST, f))
     if os.path.isdir(os.path.join(ROOT, "img")):
         shutil.copytree(os.path.join(ROOT, "img"), os.path.join(DIST, "img"), dirs_exist_ok=True)
     make_og()
     make_numbers_json()
     make_operators_json()
+    ph = os.path.join(ROOT, "data", "price_history.json")  # история цен (копит крон) — публикуем как есть
+    if os.path.exists(ph):
+        os.makedirs(os.path.join(DIST, "data"), exist_ok=True)
+        shutil.copy(ph, os.path.join(DIST, "data", "price_history.json"))
     copy_docs()
     write("CNAME", "magzgold.ru\n")
     open(os.path.join(DIST, ".nojekyll"), "w").close()
@@ -1858,6 +1903,7 @@ def main():
     render_number_page()
     render_checker()
     render_operator()
+    render_prices()
     render_widget_docs()
     render_tools_hub()
     render_api_docs()

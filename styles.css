@@ -159,6 +159,18 @@ body {
 .geo-sel { flex: 0 0 auto; background: #0b0d11; color: var(--text); border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px; font-size: 14px; cursor: pointer; }
 .geo-x { flex: 0 0 auto; width: 32px; height: 32px; font-size: 20px; line-height: 1; background: transparent; color: var(--muted); border: 1px solid var(--line); border-radius: 8px; cursor: pointer; }
 .geo-x:hover { color: var(--text); border-color: var(--gold); }
+.chart-wrap { margin: 8px 0; }
+.chart-ranges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.chart-btn { background: transparent; color: var(--muted); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; font-size: 14px; cursor: pointer; }
+.chart-btn:hover { color: var(--text); border-color: var(--line-2); }
+.chart-btn.on { color: #1a1608; background: linear-gradient(180deg, var(--gold-hi), var(--gold)); border-color: transparent; font-weight: 600; }
+.chart-box { background: linear-gradient(180deg, rgba(201,165,88,.04), transparent); border: 1px solid var(--line); border-radius: 14px; padding: 10px; overflow-x: auto; }
+#priceChart { width: 100%; display: block; }
+.chart-legend { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 14px; }
+.chart-legend .lg { display: inline-flex; align-items: center; gap: 7px; font-size: 14px; color: var(--muted); }
+.chart-legend .lg i { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.chart-legend .lg b { color: var(--text); }
+.chart-note { color: var(--muted); font-size: 13px; margin-top: 10px; }
 .op-row { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-top: 1px solid var(--line); font-size: 16px; }
 .op-row span { color: var(--muted); }
 .op-row b { text-align: right; }
