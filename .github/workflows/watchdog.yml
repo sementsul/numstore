@@ -1,21 +1,21 @@
 name: Watchdog (свежесть данных)
 
 # Сторож автономности numstore/magzgold: раз в сутки проверяет, что ежедневный сбор истории цен идёт.
-# Смотрит возраст САМОЙ СВЕЖЕЙ точки в data/price_history.json (points[].date). Сбор дневной, поэтому
-# порог STALE_H=48ч = два пропущенных дня подряд (разовый пропуск планировщика не поднимает тревогу).
-# Если данные протухли — воркфлоу ПАДАЕТ (exit 1) → GitHub шлёт владельцу письмо о сбое scheduled-воркфлоу
-# (Issues-канал не используем — единый механизм оповещения через провал прогона, как в ratescout).
+# Смотрит возраст САМОЙ СВЕЖЕЙ точки в data/price_history.json (points[].date). Сбор дневной, порог
+# STALE_H=48ч = два пропущенных дня подряд (разовый пропуск планировщика тревогу не поднимает).
 #
-# price_history.json тянем напрямую из raw (репо публичный) — без actions/checkout, минимум зависимостей.
-# Что ловит: заснувший крон (истёк DEPLOY_TOKEN), сломался сбор цен, падает публикация.
+# Оповещение по ДВУМ каналам: (1) Telegram в личный чат владельца (TELEGRAM_TOKEN + ALERT_CHAT_ID),
+# (2) падение прогона → GitHub шлёт письмо. price_history.json тянем из raw (репо публичный) — без checkout.
+# ВАЖНО: чтобы работал Telegram-канал, в репо нужен секрет ALERT_CHAT_ID (личный chat_id владельца).
+# Пока его нет — ТГ-шаг просто пропускается, письмо всё равно приходит.
 
 on:
   schedule:
-    - cron: "51 5 * * *"     # ежедневно 05:51 UTC (после дневного сбора в ~03:17)
+    - cron: "51 5 * * *"     # ежедневно 05:51 UTC (после дневного сбора ~03:17)
   workflow_dispatch:
     inputs:
       stale_hours:
-        description: "Порог протухания в часах (для теста тревоги поставь 0 — прогон должен упасть)"
+        description: "Порог протухания в часах (для теста тревоги поставь 0 — придёт ТГ + прогон упадёт)"
         required: false
         default: ""
 
@@ -34,6 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Проверить свежесть price_history.json
+        id: check
         run: |
           python3 - <<'PY'
           import json, os, urllib.request, datetime as dt
@@ -43,24 +44,52 @@ jobs:
               with urllib.request.urlopen(URL, timeout=30) as r:
                   data = json.load(r)
           except Exception as e:
-              print("::error::Watchdog: не удалось получить price_history.json (%s)." % e)
-              raise SystemExit(1)
-          dates = [p.get("date") for p in data.get("points", []) if p.get("date")]
-          newest = max(dates) if dates else None
-          def parse(k):
-              try:
-                  return dt.datetime.strptime(k, "%Y-%m-%d").replace(tzinfo=dt.timezone.utc)
-              except (ValueError, TypeError):
-                  return None
-          now = dt.datetime.now(dt.timezone.utc)
-          t = parse(newest) if newest else None
-          # точки датированы днём (без времени) — возраст меряем от полуночи этой даты
-          age = (now - t).total_seconds() / 3600 if t else 1e9
-          print("новейшая точка: %s | возраст %.1f ч | порог %.0f ч" % (newest, age, STALE_H))
-          if age > STALE_H:
-              print("::error::MagzGold (numstore): сбор истории цен ОСТАНОВИЛСЯ. Свежайшая точка %s (возраст %.1f ч > порога %.0f ч). "
-                    "Причины по частоте: (1) истёк секрет DEPLOY_TOKEN → крон заснул; (2) сломался сбор цен collect_prices.py; "
-                    "(3) падает публикация в magzgold. Открой вкладку Actions." % (newest, age, STALE_H))
-              raise SystemExit(1)
-          print("OK: данные свежие — тревог нет")
+              newest, age, stale = None, 1e9, True
+              print("::warning::не удалось получить price_history.json (%s)" % e)
+          else:
+              dates = [p.get("date") for p in data.get("points", []) if p.get("date")]
+              newest = max(dates) if dates else None
+              def parse(k):
+                  try:
+                      return dt.datetime.strptime(k, "%Y-%m-%d").replace(tzinfo=dt.timezone.utc)
+                  except (ValueError, TypeError):
+                      return None
+              now = dt.datetime.now(dt.timezone.utc)
+              t = parse(newest) if newest else None
+              age = (now - t).total_seconds() / 3600 if t else 1e9
+              stale = age > STALE_H
+          with open(os.environ["GITHUB_OUTPUT"], "a") as o:
+              o.write("stale=%s\n" % ("yes" if stale else "no"))
+              o.write("newest=%s\n" % (newest or "нет данных"))
+              o.write("age_h=%.1f\n" % age)
+          print("новейшая точка: %s | возраст %.1f ч | порог %.0f ч | stale=%s" % (newest, age, STALE_H, stale))
           PY
+
+      - name: Telegram-алерт в личный чат (если протухло)
+        if: steps.check.outputs.stale == 'yes'
+        env:
+          TG_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TG_CHAT: ${{ secrets.ALERT_CHAT_ID }}
+        run: |
+          if [ -z "$TG_TOKEN" ] || [ -z "$TG_CHAT" ]; then
+            echo "Telegram не настроен (нет TELEGRAM_TOKEN/ALERT_CHAT_ID) — пропускаю ТГ, письмо всё равно уйдёт."
+            exit 0
+          fi
+          MSG="🔴 MagzGold (numstore): сбор истории цен ОСТАНОВИЛСЯ.
+          Свежайшая точка: ${{ steps.check.outputs.newest }} (возраст ~${{ steps.check.outputs.age_h }} ч).
+          Причины: истёк DEPLOY_TOKEN (крон заснул) / сломался collect_prices.py / падает публикация.
+          Проверь вкладку Actions: https://github.com/sementsul/numstore/actions"
+          curl -s -m 15 -X POST "https://api.telegram.org/bot${TG_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${TG_CHAT}" \
+            --data-urlencode "text=${MSG}" \
+            -o /dev/null -w "telegram sendMessage: %{http_code}\n"
+
+      - name: Пометить сбой (письмо от GitHub + красный прогон)
+        if: steps.check.outputs.stale == 'yes'
+        run: |
+          echo "::error::MagzGold: сбор истории цен остановился — свежайшая точка ${{ steps.check.outputs.newest }} (возраст ${{ steps.check.outputs.age_h }} ч). Детали выше / в Telegram."
+          exit 1
+
+      - name: Данные свежие
+        if: steps.check.outputs.stale == 'no'
+        run: echo "OK: данные свежие (${{ steps.check.outputs.newest }}) — тревог нет."
