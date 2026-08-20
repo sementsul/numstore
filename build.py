@@ -385,7 +385,7 @@ def _dlinks(items):
 
 
 def _build_drawer():
-    other = [("/", "Все номера"), ("/kak-eto-rabotaet/", "Как это работает"), ("/tarify/", "Тарифы"), ("/kody/", "Номера по кодам"), ("/blog/", "Блог"), ("/faq/", "Вопросы и ответы"), ("/skolko-stoit-nomer/", "Сколько стоит номер"), ("/proverit-nomer/", "Проверить красоту номера"), ("/operator-po-nomeru/", "Оператор по номеру"), ("/dinamika-cen/", "Динамика цен"), ("/api-i-vidzhety/", "API и виджеты"), ("/o-servise/", "О сервисе")]
+    other = [("/start/", "Все номера"), ("/kak-eto-rabotaet/", "Как это работает"), ("/tarify/", "Тарифы"), ("/kody/", "Номера по кодам"), ("/blog/", "Блог"), ("/faq/", "Вопросы и ответы"), ("/skolko-stoit-nomer/", "Сколько стоит номер"), ("/proverit-nomer/", "Проверить красоту номера"), ("/operator-po-nomeru/", "Оператор по номеру"), ("/dinamika-cen/", "Динамика цен"), ("/api-i-vidzhety/", "API и виджеты"), ("/o-servise/", "О сервисе")]
     picks = [("/%s/" % l["slug"], l["h1"]) for l in LANDINGS]
     legal = [("/dokumenty/", "Документы и партнёрство"), ("/politika/", "Политика конфиденциальности"), ("/polzovatelskoe-soglashenie/", "Пользовательское соглашение")]
     tg = ('<a href="https://t.me/magzgoldmg" target="_blank" rel="noopener">📢 Канал с номерами</a>'
@@ -412,7 +412,7 @@ def esc(s):
 
 def nav_links(active_slug=None, only=None):
     cats = CATEGORIES if only is None else [c for c in CATEGORIES if c["slug"] in only]
-    items = ['<a href="/"%s>Все номера</a>' % (' class="active"' if active_slug is None else "")]
+    items = ['<a href="/start/"%s>Все номера</a>' % (' class="active"' if active_slug == "start" else "")]
     for c in cats:
         cls = ' class="active"' if c["slug"] == active_slug else ""
         items.append('<a href="/kategoriya/%s/"%s>%s</a>' % (c["slug"], cls, esc(c["name"])))
