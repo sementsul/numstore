@@ -313,10 +313,13 @@
 
   // ---- бронь: живая проверка наличия, при «занят» — дружелюбная модалка ----
   function checkAvail(d){
-    return fetch(API+'/super-link/phones/mask-category?expand=tariff&is_reserved=false&per_page=100&phone_pattern='+encodeURIComponent(d),{headers:{Authorization:TOKEN}})
-      .then(function(r){ return r.ok?r.json():null; })
+    var ctrl = ('AbortController' in window) ? new AbortController() : null;
+    var to = ctrl ? setTimeout(function(){ ctrl.abort(); }, 6000) : null;   // не ждём медленный API дольше 6с
+    return fetch(API+'/super-link/phones/mask-category?expand=tariff&is_reserved=false&per_page=100&phone_pattern='+encodeURIComponent(d),
+        { headers:{Authorization:TOKEN}, signal: ctrl?ctrl.signal:undefined })
+      .then(function(r){ if(to){clearTimeout(to);} return r.ok?r.json():null; })
       .then(function(j){ if(!j){return true;} var free=false; flatten(j).forEach(function(x){ if(String(x.phone)===String(d)){free=true;} }); return free; })
-      .catch(function(){ return true; }); // сеть подвела — не блокируем, дадим открыть
+      .catch(function(){ if(to){clearTimeout(to);} return true; }); // таймаут/сеть — не блокируем, откроем
   }
   var modal=document.getElementById('takenModal');
   function showTaken(){ if(modal){ modal.classList.add('open'); } }
@@ -330,10 +333,12 @@
     var a=e.target.closest('.book'); if(!a){return;}
     e.preventDefault();
     var d=a.getAttribute('data-phone'), href=a.href, old=a.textContent;
-    a.textContent='Проверяем…'; a.style.pointerEvents='none';
+    var w=window.open('','_blank');            // окно открываем СРАЗУ по клику (иначе popup заблокируется)
+    a.textContent='Проверяем…'; a.style.opacity='.6';
     checkAvail(d).then(function(free){
-      a.textContent=old; a.style.pointerEvents='';
-      if(free){ window.open(href,'_blank','noopener'); } else { showTaken(); }
+      a.textContent=old; a.style.opacity='';
+      if(free){ if(w){ w.location=href; } else { window.open(href,'_blank','noopener'); } }
+      else { if(w){ w.close(); } showTaken(); }
     });
   });
 })();
