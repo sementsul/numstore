@@ -16,8 +16,10 @@
   function fmtDate(s) { var p = s.split("-"); return p[2] + "." + p[1] + "." + p[0].slice(2); }
   function rub(n) { return Math.round(n).toLocaleString("ru-RU") + " ₽"; }
 
+  var ONLY = cv.getAttribute("data-cat") || ""; // режим одной категории (страница категории)
   fetch("/data/price_history.json").then(function (r) { return r.json(); }).then(function (j) {
-    DATA = j; cats = j.categories || [];
+    DATA = j;
+    cats = ONLY ? (j.categories || []).filter(function (c) { return c === ONLY; }) : (j.categories || []);
     buildRanges(); draw();
     window.addEventListener("resize", draw);
   }).catch(function () { if (noteEl) noteEl.textContent = "Не удалось загрузить историю цен."; });
@@ -87,8 +89,17 @@
       var last = pts[pts.length - 1].avg[c];
       return '<span class="lg"><i style="background:' + (COLORS[c] || "#888") + '"></i>' + c + " <b>" + (last != null ? rub(last) : "—") + "</b></span>";
     }).join("");
-    if (noteEl) noteEl.textContent = pts.length === 1
-      ? "История копится с " + fmtDate(DATA.points[0].date) + ". Кнопки диапазонов (неделя, месяц, год…) появятся по мере накопления данных."
-      : "Средняя абонплата тарифа по категориям, ₽/мес. Данные обновляются автоматически.";
+    if (noteEl) {
+      if (pts.length === 1) {
+        noteEl.textContent = "История копится с " + fmtDate(DATA.points[0].date) + ". Тренд и кнопки диапазонов появятся по мере накопления данных.";
+      } else if (ONLY) {
+        var f = pts[0].avg[ONLY], l = pts[pts.length - 1].avg[ONLY];
+        var pct = (f && l != null) ? Math.round((l - f) / f * 100) : null;
+        var arrow = pct == null ? "" : (pct > 0 ? " ▲" + pct + "%" : pct < 0 ? " ▼" + Math.abs(pct) + "%" : " → 0%");
+        noteEl.textContent = ONLY + ": средняя абонплата " + rub(l) + "/мес за период" + arrow + ".";
+      } else {
+        noteEl.textContent = "Средняя абонплата тарифа по категориям, ₽/мес. Данные обновляются автоматически.";
+      }
+    }
   }
 })();

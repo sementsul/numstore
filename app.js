@@ -13,7 +13,20 @@
   // Региональные тарифы (Анадырь/Норильск) выглядят стрёмно и не для широкой продажи — прячем такие номера.
   var BAD_TARIFF = /Анадыр|Норильск/i;
   function okTariff(p) { return !(p && p.tariff && p.tariff.name && BAD_TARIFF.test(p.tariff.name)); }
-  var CATS = [], TARIFFS = [];
+  var CATS = [], TARIFFS = [], TREND = {}; // TREND[метка категории] = {pct, arrow} — из истории цен (≥2 точек)
+  function loadTrend() {
+    fetch("/data/price_history.json").then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+      if (!j || !j.points || j.points.length < 2) return; // тренд показываем только при ≥2 точках истории
+      var f = j.points[0].avg, l = j.points[j.points.length - 1].avg;
+      (j.categories || []).forEach(function (c) {
+        var a = f[c], b = l[c];
+        if (a == null || b == null || !a) return;
+        var pct = Math.round((b - a) / a * 100);
+        TREND[c] = { pct: pct, arrow: pct > 0 ? "▲" + pct + "%" : pct < 0 ? "▼" + Math.abs(pct) + "%" : "→0%" };
+      });
+      if (gridEl && gridEl.children.length) render(); // перерисуем карточки с трендом
+    }).catch(function () {});
+  }
   var flt = { cat: null, tariff: null, price: null, code: null, tariffPrice: null }; // tariffPrice — пресет тарифной страницы (по цене)
 
   // Избранное (localStorage): digits -> {phone, tariff}
@@ -232,6 +245,7 @@
         (t.name ? '<div class="num-tariff">' + esc(t.name) + "</div>" : "") +
         (specs.length ? '<div class="num-specs">' + esc(specs.join(" · ")) + "</div>" : "") +
         (t.price != null ? '<div class="num-price">' + esc(fmtMoney(t.price)) + "<span>/мес</span></div>" : "") +
+        (badge && TREND[badge] ? '<div class="num-trend" title="Тренд средней абонплаты категории «' + esc(badge) + '»">' + esc(badge) + " " + TREND[badge].arrow + "</div>" : "") +
         '<button class="num-buy" data-phone="' + esc(digitsOf(p.phone)) + '">Забронировать</button>' +
       "</article>"
     );
@@ -375,5 +389,6 @@
   renderCubes();
   if (PRESET.mask) setCubes(PRESET.mask); // паттерн-страницы задают маску
   loadFilters();
+  loadTrend();
   fetchNumbers();
 })();

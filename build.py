@@ -674,12 +674,23 @@ def render_home():
     write("index.html", html_out)
 
 
+SLUG2LABEL = {"bronze": "Бронза", "silver": "Серебро", "gold": "Золото", "platinum": "Платина", "brilliant": "Бриллиант"}
+
+
 def render_category(c):
     page_js = '<script>window.PAGE={cat:"%s"};</script>' % c["code"]
     header_block = '    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>'
     main_top = "%s\n  <h1 class=\"page-h1\">%s</h1>\n  <p class=\"page-intro\">%s</p>" % (
         crumbs(c["name"]), esc(c["h1"]), c["intro"])
-    html_out = render_page(metrika=METRIKA, drawer=_DRAWER, 
+    label = SLUG2LABEL.get(c["slug"], "")
+    # Мини-график динамики средней абонплаты по этой категории (история копится кроном).
+    chart = ('<section class="chart-wrap chart-cat"><h2>Динамика средней абонплаты — %s</h2>'
+             '<div class="chart-ranges" id="chartRanges"></div>'
+             '<div class="chart-box"><canvas id="priceChart" data-cat="%s"></canvas></div>'
+             '<p class="chart-note" id="chartNote">Загружаю историю…</p>'
+             '<p class="chart-more"><a href="/dinamika-cen/">Сравнить все категории на общем графике →</a></p>'
+             '</section>') % (esc(c["name"]), esc(label)) if label else ""
+    html_out = render_page(metrika=METRIKA, drawer=_DRAWER,
         title="%s номера — купить и забронировать | MagzGold" % c["name"],
         desc=c["desc"],
         canonical=SITE["base"] + "/kategoriya/%s/" % c["slug"],
@@ -689,9 +700,9 @@ def render_category(c):
         nav=nav_links(c["slug"]),
         header_block=header_block,
         main_top=main_top,
-        vitrina=VITRINA + '<section class="seo-text">' + c["text"] + "</section>" + related_block(exclude_cat=c["slug"]),
+        vitrina=VITRINA + '<section class="seo-text">' + c["text"] + "</section>" + chart + related_block(exclude_cat=c["slug"]),
         footnav=nav_links(c["slug"]) + patnav(),
-        scripts=SCRIPTS,
+        scripts=SCRIPTS + '\n<script src="/chart.js%s"></script>' % _ver("chart.js"),
     )
     write("kategoriya/%s/index.html" % c["slug"], html_out)
 

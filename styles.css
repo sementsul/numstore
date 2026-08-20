@@ -159,6 +159,10 @@ body {
 .geo-sel { flex: 0 0 auto; background: #0b0d11; color: var(--text); border: 1px solid var(--line); border-radius: 9px; padding: 8px 10px; font-size: 14px; cursor: pointer; }
 .geo-x { flex: 0 0 auto; width: 32px; height: 32px; font-size: 20px; line-height: 1; background: transparent; color: var(--muted); border: 1px solid var(--line); border-radius: 8px; cursor: pointer; }
 .geo-x:hover { color: var(--text); border-color: var(--gold); }
+.num-trend { display: inline-block; margin: 6px 0 0; font-size: 12px; color: var(--muted); background: rgba(255,255,255,.04); border: 1px solid var(--line); border-radius: 7px; padding: 2px 8px; }
+.chart-cat { margin-top: 8px; }
+.chart-cat h2 { margin-bottom: 12px; }
+.chart-more { margin-top: 10px; font-size: 14px; }
 .chart-wrap { margin: 8px 0; }
 .chart-ranges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
 .chart-btn { background: transparent; color: var(--muted); border: 1px solid var(--line); border-radius: 8px; padding: 6px 12px; font-size: 14px; cursor: pointer; }
