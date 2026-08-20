@@ -224,10 +224,10 @@
   <div class="wrap">
     <div class="shead rise">
       <h2>Избранные номера</h2>
-      <a href="/start/">Весь каталог →</a>
+      <a href="/kategoriya/brilliant/">Все бриллиантовые →</a>
     </div>
     <div class="grid" id="bgrid"></div>
-    <div class="bmore"><a href="/start/" class="bmore-btn">Другие номера →</a></div>
+    <div class="bmore"><a href="/kategoriya/brilliant/" class="bmore-btn">Другие номера →</a></div>
   </div>
 </section>
 
@@ -260,7 +260,7 @@
     <p>Похоже, этот красивый номер кто-то забрал буквально только что. Но не расстраивайтесь — у нас есть другие, не менее эффектные.</p>
     <div class="tmodal-actions">
       <button class="tmodal-more" type="button">Подобрать другой</button>
-      <a class="tmodal-all" href="/start/">Весь каталог →</a>
+      <a class="tmodal-all" href="/kategoriya/brilliant/">Все бриллиантовые →</a>
     </div>
   </div>
 </div>
@@ -335,7 +335,7 @@
   }
 
   function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t; } return a; }
-  function empty(){ grid.innerHTML='<p class="bgrid-empty">Номера временно недоступны. <a href="/start/">Открыть каталог →</a></p>'; POOL=[]; }
+  function empty(){ grid.innerHTML='<p class="bgrid-empty">Номера временно недоступны. <a href="/kategoriya/brilliant/">Открыть каталог →</a></p>'; POOL=[]; }
   var POOL=[]; // нормализованный пул {phone,tariff} — из статики или живого API
   function renderPage(){ if(POOL.length){ renderList(shuffle(POOL).slice(0,LIMIT)); } else { empty(); } }
 
