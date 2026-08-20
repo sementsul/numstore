@@ -29,7 +29,7 @@ body {
   border-bottom: 1px solid var(--line);
   background: linear-gradient(180deg, rgba(201,165,88,.06), transparent);
 }
-.brand { font-size: 30px; font-weight: 700; letter-spacing: .5px; color: var(--text); text-decoration: none; display: inline-block; transition: opacity .15s; }
+.brand { font-family: var(--serif); font-size: 28px; font-weight: 600; letter-spacing: .5px; color: var(--text); text-decoration: none; display: inline-block; transition: opacity .15s; }
 .brand:hover { opacity: .85; }
 
 /* бургер + шторка */
