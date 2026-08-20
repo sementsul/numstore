@@ -482,6 +482,7 @@ VITRINA = """    <section class="search-box">
 PAGE_TMPL = """<!doctype html>
 <html lang="ru">
 <head>
+<script>document.documentElement.className+=' js'</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="yandex-verification" content="e8b5b765f77b401c" />
@@ -530,6 +531,18 @@ PAGE_TMPL = """<!doctype html>
 <script src="/nav.js"></script>
 <script src="/geo.js"></script>
 {scripts}
+<script>
+(function(){{
+  if(!('IntersectionObserver' in window)){{return;}}
+  var sel='.num,.feature,.city-card,.blog-card,.faq-item,.promo-block,.chart-cat,.seo-text,.mh-trust,.mh-cta';
+  var els=[].slice.call(document.querySelectorAll(sel));
+  if(!els.length){{return;}}
+  var io=new IntersectionObserver(function(en){{
+    en.forEach(function(x){{ if(x.isIntersecting){{ x.target.classList.add('in'); io.unobserve(x.target); }} }});
+  }},{{threshold:.12,rootMargin:'0px 0px -6% 0px'}});
+  els.forEach(function(e){{ io.observe(e); }});
+}})();
+</script>
 </body>
 </html>
 """
@@ -651,23 +664,36 @@ def render_page(**kw):
 
 
 def render_home():
-    header_block = ('    <h1 class="hero">Magz<span class="brand-gold">Gold</span>'
-                    ' <span class="hero-tag">— премиальные номера</span></h1>')
-    intro = ("MagzGold — витрина красивых номеров телефонов. Соберите нужную комбинацию маской или выберите "
-             "категорию: бриллиантовые, платиновые, золотые, серебряные, бронзовые. Каждый номер — с тарифом "
-             "и мгновенной бронью онлайн. Бесплатная доставка SIM по всей России и eSIM — без визита в офис.")
-    html_out = render_page(metrika=METRIKA, drawer=_DRAWER, 
-        title="MagzGold — красивые номера: купить и забронировать онлайн",
-        desc="MagzGold — красивые и премиальные номера телефонов: подбор по маске и категориям, тарифы, "
-             "бронирование онлайн. Бриллиантовые, платиновые, золотые, серебряные и бронзовые номера.",
+    # В шапке — только логотип; крупный сдержанный герой идёт ниже, в main_top.
+    header_block = '    <a class="brand" href="/">Magz<span class="brand-gold">Gold</span></a>'
+    hero = """  <section class="mhero">
+    <p class="mh-eyebrow">Бриллиантовая коллекция</p>
+    <h1>Красивые номера, <span class="g">которые запоминаются</span></h1>
+    <div class="mh-rule"></div>
+    <p class="mh-lede">Бриллиантовая категория — самые чистые и редкие комбинации.</p>
+    <a href="#grid" class="mh-cta">Смотреть номера <span class="arw">→</span></a>
+    <div class="mh-trust">
+      <span><i></i> Доставка SIM и eSIM по России</span>
+      <span><i></i> Бронь онлайн за минуту</span>
+      <span><i></i> Официально, от оператора</span>
+    </div>
+  </section>"""
+    # короткий SEO-абзац — внизу, чтобы не мешать тем, кто пришёл за номером
+    home_seo = ('    <section class="seo-text"><p>Бриллиантовые номера — высшая категория красоты: '
+                'зеркальные и последовательные комбинации, длинные повторы, круглые окончания. Каждый номер '
+                'подключается официально от оператора «Безлимит», с доставкой SIM и eSIM по всей России.</p></section>')
+    html_out = render_page(metrika=METRIKA, drawer=_DRAWER,
+        title="MagzGold — красивые бриллиантовые номера: купить и забронировать онлайн",
+        desc="MagzGold — красивые бриллиантовые номера телефонов высшей категории: подбор по маске, тарифы, "
+             "бронирование онлайн, доставка SIM и eSIM по России. Официально от оператора «Безлимит».",
         canonical=SITE["base"] + "/",
         og_image=OG("home"),
-        page_js="",
+        page_js='<script>window.PAGE={cat:"brilliant,brilliant_super"}</script>',
         schema=home_schema(),
         nav=nav_links(None),
         header_block=header_block,
-        main_top='  <p class="page-intro">%s</p>' % intro,
-        vitrina=VITRINA,
+        main_top=hero,
+        vitrina=VITRINA + "\n" + home_seo,
         footnav=nav_links(None) + patnav(),
         scripts=SCRIPTS,
     )

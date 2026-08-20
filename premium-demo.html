@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MagzGold — демо премиум-стиля</title>
+<style>
+  :root{
+    --bg:#0d0e11; --bg2:#111318; --card:#15171d; --line:#232733;
+    --ink:#eceff5; --mut:#9aa1ad; --dim:#6b7280;
+    --gold:#d9b45b; --gold2:#f0d78a; --goldln:#8a6d2e;
+    --ok:#4bbf7b;
+    --serif:Georgia,"Times New Roman",serif;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --e:cubic-bezier(.22,.61,.36,1);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:
+      radial-gradient(1200px 600px at 70% -10%, #1a1d26 0%, transparent 60%),
+      radial-gradient(900px 500px at 0% 100%, #14161d 0%, transparent 55%),
+      var(--bg);
+    color:var(--ink);font-family:var(--sans);line-height:1.6;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+  }
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+
+  /* --- анимация появления --- */
+  .rise{opacity:0;transform:translateY(18px);transition:opacity .7s var(--e),transform .7s var(--e)}
+  .rise.in{opacity:1;transform:none}
+
+  /* --- шапка --- */
+  header{padding:22px 0;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5;
+    background:rgba(13,14,17,.72);backdrop-filter:blur(10px)}
+  .bar{display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .logo{font-family:var(--serif);font-size:22px;letter-spacing:.5px}
+  .logo b{background:linear-gradient(180deg,var(--gold2),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .navlinks{display:flex;gap:26px;font-size:14px;color:var(--mut)}
+  .navlinks a{color:var(--mut);text-decoration:none;transition:color .25s var(--e)}
+  .navlinks a:hover{color:var(--gold2)}
+  @media(max-width:640px){.navlinks{display:none}}
+
+  /* --- герой: типографика + воздух --- */
+  .hero{padding:96px 0 64px;text-align:center}
+  .eyebrow{font-size:12.5px;letter-spacing:3.5px;text-transform:uppercase;color:var(--gold);
+    margin:0 0 22px}
+  .hero h1{font-family:var(--serif);font-weight:400;
+    font-size:clamp(38px,6vw,68px);line-height:1.08;letter-spacing:.5px;margin:0 auto;max-width:12ch}
+  .hero h1 .g{background:linear-gradient(180deg,var(--gold2),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .rule{width:64px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:34px auto}
+  .lede{max-width:56ch;margin:0 auto;color:var(--mut);font-size:17px}
+  .cta{display:inline-flex;align-items:center;gap:10px;margin-top:38px;
+    padding:15px 30px;border-radius:2px;text-decoration:none;font-size:15px;letter-spacing:.4px;
+    color:#1a1406;background:linear-gradient(180deg,var(--gold2),var(--gold));
+    box-shadow:0 8px 30px rgba(217,180,91,.18);transition:transform .3s var(--e),box-shadow .3s var(--e)}
+  .cta:hover{transform:translateY(-2px);box-shadow:0 14px 40px rgba(217,180,91,.32)}
+  .cta .arw{transition:transform .3s var(--e)}
+  .cta:hover .arw{transform:translateX(4px)}
+
+  /* --- полоса доверия --- */
+  .trust{display:flex;flex-wrap:wrap;justify-content:center;gap:14px 30px;margin:52px auto 0;
+    color:var(--mut);font-size:13.5px}
+  .trust span{display:inline-flex;align-items:center;gap:8px}
+  .dot{width:6px;height:6px;border-radius:50%;background:var(--gold);box-shadow:0 0 10px var(--gold)}
+
+  /* --- секции --- */
+  section{padding:70px 0}
+  .shead{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:34px}
+  .shead h2{font-family:var(--serif);font-weight:400;font-size:clamp(24px,3vw,34px);margin:0;letter-spacing:.3px}
+  .shead a{color:var(--gold);text-decoration:none;font-size:14px;white-space:nowrap}
+
+  /* --- сетка карточек номеров --- */
+  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  @media(max-width:860px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:560px){.grid{grid-template-columns:1fr}}
+  .card{position:relative;background:linear-gradient(180deg,var(--card),#101218);
+    border:1px solid var(--line);border-radius:6px;padding:24px 22px;overflow:hidden;
+    transition:transform .35s var(--e),border-color .35s var(--e),box-shadow .35s var(--e)}
+  .card::before{content:"";position:absolute;inset:0;border-radius:6px;padding:1px;
+    background:linear-gradient(140deg,transparent 30%,rgba(240,215,138,.5),transparent 70%);
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .35s var(--e)}
+  .card:hover{transform:translateY(-6px);border-color:transparent;
+    box-shadow:0 20px 50px -20px rgba(0,0,0,.7)}
+  .card:hover::before{opacity:1}
+  .badge{display:inline-block;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;
+    padding:5px 11px;border-radius:2px;color:#1a1406;
+    background:linear-gradient(180deg,var(--gold2),var(--gold))}
+  .badge.silver{background:linear-gradient(180deg,#e9edf3,#aeb6c2);color:#1c2128}
+  .badge.bronze{background:linear-gradient(180deg,#e6b98c,#b07a49);color:#241503}
+  .num{font-family:var(--serif);font-size:26px;letter-spacing:1px;margin:18px 0 4px}
+  .meta{color:var(--dim);font-size:13px}
+  .row{display:flex;align-items:center;justify-content:space-between;margin-top:20px;
+    padding-top:16px;border-top:1px solid var(--line)}
+  .tariff{font-size:13px;color:var(--mut)}
+  .tariff b{color:var(--ink);font-weight:600}
+  .book{font-size:13px;color:var(--gold);text-decoration:none;letter-spacing:.3px;
+    transition:letter-spacing .3s var(--e)}
+  .book:hover{letter-spacing:1.2px}
+  .status{display:inline-flex;align-items:center;gap:7px;font-size:12px;color:var(--ok)}
+  .pulse{width:7px;height:7px;border-radius:50%;background:var(--ok);position:relative}
+  .pulse::after{content:"";position:absolute;inset:-4px;border-radius:50%;
+    border:1px solid var(--ok);animation:pulse 2s var(--e) infinite;opacity:0}
+  @keyframes pulse{0%{transform:scale(.6);opacity:.7}100%{transform:scale(1.6);opacity:0}}
+
+  /* --- легенда приёмов --- */
+  .legend{background:linear-gradient(180deg,#0f1116,#0c0d11);border:1px solid var(--line);
+    border-radius:8px;padding:34px 30px}
+  .legend h2{font-family:var(--serif);font-weight:400;margin:0 0 6px;font-size:26px}
+  .legend p.sub{color:var(--mut);margin:0 0 26px;font-size:14.5px}
+  .lg{display:grid;grid-template-columns:repeat(2,1fr);gap:18px 34px}
+  @media(max-width:640px){.lg{grid-template-columns:1fr}}
+  .lg .it{display:flex;gap:14px}
+  .lg .n{flex:0 0 auto;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;
+    font-family:var(--serif);font-size:14px;color:var(--gold2);border:1px solid var(--goldln)}
+  .lg .it b{display:block;margin-bottom:3px;font-weight:600;font-size:14.5px}
+  .lg .it span{color:var(--mut);font-size:13.5px}
+
+  footer{padding:60px 0 80px;text-align:center;color:var(--dim);font-size:13px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap bar">
+    <div class="logo">Magz<b>Gold</b></div>
+    <nav class="navlinks">
+      <a href="#nums">Каталог</a>
+      <a href="#nums">Категории</a>
+      <a href="#legend">Приёмы</a>
+      <a href="#nums">Подбор</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ГЕРОЙ: типографика + воздух -->
+<div class="wrap">
+  <div class="hero">
+    <p class="eyebrow rise">Красивые номера · доставка по России</p>
+    <h1 class="rise" style="transition-delay:.08s">Номер, который <span class="g">звучит</span> как статус</h1>
+    <div class="rule rise" style="transition-delay:.16s"></div>
+    <p class="lede rise" style="transition-delay:.22s">Подберите эффектную комбинацию по маске или выберите категорию — от бронзовой до бриллиантовой. Тариф и мгновенная бронь онлайн, SIM и eSIM с доставкой.</p>
+    <a href="#nums" class="cta rise" style="transition-delay:.3s">Смотреть каталог <span class="arw">→</span></a>
+
+    <div class="trust rise" style="transition-delay:.4s">
+      <span><i class="dot"></i> Бесплатная доставка SIM и eSIM</span>
+      <span><i class="dot"></i> Бронь онлайн за минуту</span>
+      <span><i class="dot"></i> Официально, от оператора</span>
+    </div>
+  </div>
+</div>
+
+<!-- КАРТОЧКИ НОМЕРОВ: акценты + микро-анимации + детали доверия -->
+<section id="nums">
+  <div class="wrap">
+    <div class="shead rise">
+      <h2>Избранные номера</h2>
+      <a href="#nums">Весь каталог →</a>
+    </div>
+    <div class="grid">
+
+      <div class="card rise">
+        <span class="badge">Бриллиант</span>
+        <div class="num">+7 999&nbsp;888‑77‑66</div>
+        <div class="meta">Зеркальная комбинация · повтор пар</div>
+        <div class="row">
+          <span class="tariff">Тариф от <b>650&nbsp;₽</b>/мес</span>
+          <a href="#" class="book">Забронировать →</a>
+        </div>
+      </div>
+
+      <div class="card rise" style="transition-delay:.08s">
+        <span class="badge">Платина</span>
+        <div class="num">+7 977&nbsp;700‑50‑00</div>
+        <div class="meta">Круглый хвост · лёгкая память</div>
+        <div class="row">
+          <span class="tariff">Тариф от <b>550&nbsp;₽</b>/мес</span>
+          <a href="#" class="book">Забронировать →</a>
+        </div>
+      </div>
+
+      <div class="card rise" style="transition-delay:.16s">
+        <span class="badge">Бриллиант</span>
+        <div class="num">+7 900&nbsp;123‑45‑67</div>
+        <div class="meta">Последовательность · топ-запоминаемость</div>
+        <div class="row">
+          <span class="status"><i class="pulse"></i> Бронируют сейчас</span>
+          <a href="#" class="book">Забронировать →</a>
+        </div>
+      </div>
+
+      <div class="card rise" style="transition-delay:.08s">
+        <span class="badge">Золото</span>
+        <div class="num">+7 995&nbsp;220‑02‑20</div>
+        <div class="meta">Ритмичный узор · чёткая структура</div>
+        <div class="row">
+          <span class="tariff">Тариф от <b>450&nbsp;₽</b>/мес</span>
+          <a href="#" class="book">Забронировать →</a>
+        </div>
+      </div>
+
+      <div class="card rise" style="transition-delay:.16s">
+        <span class="badge silver">Серебро</span>
+        <div class="num">+7 996&nbsp;818‑18‑10</div>
+        <div class="meta">Повтор блока · приятная симметрия</div>
+        <div class="row">
+          <span class="tariff">Тариф от <b>390&nbsp;₽</b>/мес</span>
+          <a href="#" class="book">Забронировать →</a>
+        </div>
+      </div>
+
+      <div class="card rise" style="transition-delay:.24s">
+        <span class="badge bronze">Бронза</span>
+        <div class="num">+7 993&nbsp;540‑40‑50</div>
+        <div class="meta">Аккуратный набор · без наценки</div>
+        <div class="row">
+          <span class="tariff">Тариф от <b>320&nbsp;₽</b>/мес</span>
+          <a href="#" class="book">Забронировать →</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ЛЕГЕНДА: что именно применено -->
+<section id="legend">
+  <div class="wrap">
+    <div class="legend rise">
+      <h2>Что здесь работает на «дорого»</h2>
+      <p class="sub">Те же приёмы, что у премиум-брендов — без фоновой музыки и без спецэффектов ради спецэффектов.</p>
+      <div class="lg">
+        <div class="it"><span class="n">1</span><div><b>Типографика и воздух</b><span>Серифный заголовок, крупный масштаб, много пустоты вокруг, аккуратные интервалы — главный сигнал премиума.</span></div></div>
+        <div class="it"><span class="n">2</span><div><b>Тонкие микро-анимации</b><span>Плавное появление при прокрутке, лёгкий подъём карточки и золотая рамка на hover, стрелка у кнопки. 200–350&nbsp;мс, мягкий easing.</span></div></div>
+        <div class="it"><span class="n">3</span><div><b>Дозированное золото</b><span>Золото только на акцентах (бейджи, кнопка, тонкая линия), фон — глубокий графит. Контраст = ощущение ценности.</span></div></div>
+        <div class="it"><span class="n">4</span><div><b>Детали доверия</b><span>Полоса гарантий, живой статус «бронируют сейчас», тариф на карточке — снимают сомнение и добавляют «ликвидности».</span></div></div>
+        <div class="it"><span class="n">5</span><div><b>Ощущение скорости</b><span>Ноль внешних файлов и шрифтов, всё инлайн — страница открывается мгновенно. Быстро = дорого (и плюс к SEO).</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  MagzGold · демо-страница премиум-стиля · это макет для оценки, не боевая страница
+</footer>
+
+<script>
+  // мягкое появление при попадании в область видимости
+  var io = new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, {threshold:.12});
+  document.querySelectorAll('.rise').forEach(function(el){ io.observe(el); });
+  // герой показать сразу (он выше сгиба)
+  document.querySelectorAll('.hero .rise').forEach(function(el){ setTimeout(function(){el.classList.add('in')}, 60); });
+</script>
+</body>
+</html>

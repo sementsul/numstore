@@ -632,3 +632,62 @@ body {
 .calc-total b { color: var(--gold); }
 .calc-cta { display: inline-block; margin-top: 16px; text-decoration: none; }
 .calc-free { color: #7fd18b; font-weight: 700; }
+
+/* ============================================================
+   ПРЕМИУМ-СЛОЙ (v5) — серифные заголовки, воздух, hero, появление.
+   Дописан в конец: перекрывает базовые правила по каскаду.
+   ============================================================ */
+:root{ --serif:"Cormorant Garamond",Georgia,"Times New Roman",serif;
+       --e:cubic-bezier(.22,.61,.36,1); }
+
+/* серифные заголовки на всех страницах — главный сигнал «дорого» */
+.hero,.hero-tag,.page-h1,.top .h1,.err h1,.article h1,
+.mhero h1,.shead h2,.promo-hero h1{
+  font-family:var(--serif);font-weight:500;letter-spacing:.3px;
+}
+.page-h1{font-size:clamp(28px,4vw,42px);line-height:1.12;}
+.top .h1{font-size:clamp(26px,3.6vw,38px);}
+
+/* появление при скролле — без мигания: прячем реальные селекторы под .js (класс ставится в <head>
+   до первой отрисовки), скрипт в конце body добавляет .in при попадании в вьюпорт. Без JS всё видно. */
+.js .num,.js .feature,.js .city-card,.js .blog-card,.js .faq-item,
+.js .promo-block,.js .chart-cat,.js .seo-text,.js .mh-trust,.js .mh-cta{
+  opacity:0;transform:translateY(16px);
+  transition:opacity .7s var(--e),transform .7s var(--e);}
+.js .num.in,.js .feature.in,.js .city-card.in,.js .blog-card.in,.js .faq-item.in,
+.js .promo-block.in,.js .chart-cat.in,.js .seo-text.in,.js .mh-trust.in,.js .mh-cta.in{
+  opacity:1;transform:none;}
+
+/* ---- премиальный герой главной ---- */
+.mhero{padding:78px 0 26px;text-align:center;}
+.mh-eyebrow{font-size:12px;letter-spacing:3px;text-transform:uppercase;
+  color:var(--gold);margin:0 0 20px;}
+.mhero h1{font-size:clamp(36px,5.4vw,60px);line-height:1.1;margin:0 auto;max-width:15ch;}
+.mhero h1 .g{background:linear-gradient(180deg,var(--gold-hi),var(--gold));
+  -webkit-background-clip:text;background-clip:text;color:transparent;}
+.mh-rule{width:60px;height:1px;margin:28px auto;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);}
+.mh-lede{max-width:48ch;margin:0 auto;color:var(--muted);font-size:16px;}
+.mh-cta{display:inline-flex;align-items:center;gap:10px;margin-top:30px;
+  padding:14px 30px;border-radius:10px;text-decoration:none;font-size:15px;font-weight:700;
+  letter-spacing:.3px;color:#1a1406;background:linear-gradient(180deg,var(--gold-hi),var(--gold));
+  box-shadow:0 10px 34px -10px rgba(201,165,88,.55);
+  transition:transform .3s var(--e),box-shadow .3s var(--e);}
+.mh-cta:hover{transform:translateY(-2px);box-shadow:0 16px 44px -10px rgba(201,165,88,.7);}
+.mh-cta .arw{transition:transform .3s var(--e);}
+.mh-cta:hover .arw{transform:translateX(4px);}
+.mh-trust{display:flex;flex-wrap:wrap;justify-content:center;gap:12px 28px;
+  margin:40px auto 0;color:var(--muted);font-size:13.5px;}
+.mh-trust span{display:inline-flex;align-items:center;gap:8px;}
+.mh-trust i{width:6px;height:6px;border-radius:50%;background:var(--gold);
+  box-shadow:0 0 10px var(--gold);}
+
+/* больше воздуха в шапке контентных страниц */
+.top{padding:56px 0 34px;}
+
+/* золотая рамка карточки номера на hover (как в демо) */
+.num::after{content:"";position:absolute;inset:0;border-radius:14px;padding:1px;pointer-events:none;
+  background:linear-gradient(140deg,transparent 30%,rgba(230,205,140,.6),transparent 70%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .35s var(--e);}
+.num:hover::after{opacity:1;}

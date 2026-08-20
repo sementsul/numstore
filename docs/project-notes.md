@@ -130,3 +130,6 @@
 - `.github/dependabot.yml` — еженедельно следит за версиями GitHub Actions, открывает PR при обновлении.
 - `.github/workflows/dependabot-automerge.yml` — safe авто-мёрж: minor/patch авто, major на ручной клик.
 - `DEPLOY_TOKEN` — бессрочный classic-PAT (No expiration); держит крон живым (PAT-пуш сбрасывает 60-дн таймер).
+
+## Премиум-редизайн (UC-62, ⏳ превью)
+Серифные заголовки + воздух + появление при скролле (`styles.css` премиум-слой в конце; `.js`-класс + IntersectionObserver в PAGE_TMPL). Главная: сдержанный герой `.mhero` + `window.PAGE={cat:"brilliant,brilliant_super"}` (только бриллиант). НЕ задеплоено — ждёт одобрения владельца, потом `deploy.sh`.
