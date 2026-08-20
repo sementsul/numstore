@@ -117,7 +117,17 @@
   .lg .it b{display:block;margin-bottom:3px;font-weight:600;font-size:14.5px}
   .lg .it span{color:var(--mut);font-size:13.5px}
 
-  footer{padding:60px 0 80px;text-align:center;color:var(--dim);font-size:13px;border-top:1px solid var(--line)}
+  footer{padding:56px 0 40px;color:var(--dim);font-size:13px;border-top:1px solid var(--line)}
+  .fcols{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:30px 40px}
+  @media(max-width:860px){.fcols{grid-template-columns:1fr 1fr}}
+  @media(max-width:520px){.fcols{grid-template-columns:1fr}}
+  .flogo{font-family:var(--serif);font-size:20px;color:var(--ink);margin-bottom:12px}
+  .flogo b{background:linear-gradient(180deg,var(--gold2),var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .fabout{color:var(--mut);font-size:13px;line-height:1.6;max-width:38ch;margin:0}
+  .fhead{color:var(--ink);font-size:13px;font-weight:600;letter-spacing:.4px;margin-bottom:12px}
+  .fcol a{display:block;color:var(--mut);text-decoration:none;font-size:13px;padding:4px 0;transition:color .2s var(--e)}
+  .fcol a:hover{color:var(--gold2)}
+  .fbottom{margin-top:34px;padding-top:20px;border-top:1px solid var(--line);color:var(--dim);font-size:12px;line-height:1.6}
 
   /* --- скелетоны (мерцающие плейсхолдеры, пока грузятся живые номера) --- */
   .card.skel{pointer-events:none}
@@ -249,7 +259,31 @@
 </section>
 
 <footer>
-  MagzGold — красивые номера телефонов. Официальный партнёр оператора «Безлимит» · доставка по России
+  <div class="wrap fcols">
+    <div class="fcol">
+      <div class="flogo">Magz<b>Gold</b></div>
+      <p class="fabout">Витрина красивых номеров телефонов от оператора «Безлимит». Подбор по маске и категориям, бронь онлайн, доставка SIM и eSIM по всей России. Мы — информационный партнёр: подключение и оплата на стороне оператора.</p>
+    </div>
+    <div class="fcol">
+      <div class="fhead">Каталог</div>
+      <a href="/kategoriya/brilliant/">Бриллиантовые</a>
+      <a href="/start/">Весь каталог</a>
+      <a href="/tarify/">Тарифы</a>
+      <a href="/faq/">Вопросы и ответы</a>
+    </div>
+    <div class="fcol">
+      <div class="fhead">Документы</div>
+      <a href="/o-servise/">О сервисе</a>
+      <a href="/politika/">Политика конфиденциальности</a>
+      <a href="/polzovatelskoe-soglashenie/">Пользовательское соглашение</a>
+    </div>
+    <div class="fcol">
+      <div class="fhead">Контакты</div>
+      <a href="https://t.me/magzgoldmg" target="_blank" rel="noopener">📢 Telegram-канал с номерами</a>
+      <a href="https://t.me/magzgoldbot" target="_blank" rel="noopener">🤖 Бот подбора и брони</a>
+    </div>
+  </div>
+  <div class="wrap fbottom">© MagzGold — красивые номера телефонов. Официальный партнёр оператора «Безлимит». Номера подключаются официально, только для граждан РФ.</div>
 </footer>
 
 <div id="takenModal" class="tmodal">
