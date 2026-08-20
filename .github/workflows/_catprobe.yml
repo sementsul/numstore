@@ -1,0 +1,22 @@
+name: temp catprobe
+on: workflow_dispatch
+permissions: { contents: read }
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Проба категорий API
+        run: |
+          T="Basic YXBpU3RvcmU6VkZ6WFdOSmhwNTVtc3JmQXV1dU0zVHBtcnFTRw=="
+          B="https://api.store.bezlimit.ru/v2/super-link/phones"
+          echo "=== filters (какие категории знает API) ==="
+          curl -s -m 30 -H "Authorization: $T" "$B/filters" | python3 -c "import sys,json;d=json.load(sys.stdin);print(json.dumps(d,ensure_ascii=False)[:1200])" || echo fail
+          echo; echo "=== mask-category?categories=brilliant (как в сторе) ==="
+          curl -s -m 40 -H "Authorization: $T" "$B/mask-category?expand=tariff&is_reserved=false&per_page=3&phone_pattern=9NNNNNNNNN&categories=brilliant" | python3 -c "import sys,json;d=json.load(sys.stdin);print('keys:',list(d.keys())[:8]);
+import itertools
+for k,v in list(d.items())[:1]:
+  it=(v.get('items') if isinstance(v,dict) else v) or []
+  print('первая группа',k,'кол-во',len(it));
+  [print('  ',x.get('phone'),(x.get('tariff') or {}).get('price')) for x in it[:3]]" || echo fail
+          echo; echo "=== categories=undefined ==="
+          curl -s -m 40 -H "Authorization: $T" "$B/mask-category?expand=tariff&is_reserved=false&per_page=3&phone_pattern=9NNNNNNNNN&categories=undefined" | python3 -c "import sys,json;d=json.load(sys.stdin);print('keys:',list(d.keys())[:8])" || echo fail
