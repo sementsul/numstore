@@ -62,8 +62,11 @@ def _group_items(j, code):
 
 
 def collect_cat(slug, code):
+    # API отдаёт ~50 номеров на страницу для группы (per_page не всегда соблюдается) — пагинируем
+    # по факту: добираем до PER_CAT или пока страницы не кончатся (пустой batch). MAX_PAGES — потолок.
     seen, items = set(), []
-    for page in range(1, PER_CAT // PER_PAGE + 2):
+    MAX_PAGES = PER_CAT // 40 + 3
+    for page in range(1, MAX_PAGES + 1):
         try:
             j = _get(code, page)
         except Exception as e:
@@ -71,7 +74,7 @@ def collect_cat(slug, code):
             break
         batch = _group_items(j, code)   # только СВОЯ группа, не все категории
         if not batch:
-            break
+            break                        # страницы группы кончились
         for it in batch:
             ph = it.get("phone")
             if ph in seen:
@@ -81,9 +84,9 @@ def collect_cat(slug, code):
             items.append({"n": ph, "t": (t.get("name") or "")[:60], "p": t.get("price")})
             if len(items) >= PER_CAT:
                 break
-        if len(items) >= PER_CAT or len(batch) < PER_PAGE:
+        if len(items) >= PER_CAT:
             break
-        time.sleep(0.5)
+        time.sleep(0.4)
     return items
 
 
