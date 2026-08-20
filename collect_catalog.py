@@ -50,14 +50,15 @@ def _get(code, page):
         return json.loads(r.read())
 
 
-def _flatten(j):
-    out = []
+def _group_items(j, code):
+    """Берём ТОЛЬКО группу, совпадающую с кодом категории. ВАЖНО: эндпоинт mask-category всегда возвращает
+    ВСЕ 5 групп (brilliant/platinum/gold/silver/bronze) независимо от фильтра — если брать все (как раньше),
+    в «бриллиант» попадают чужие категории. Ключ группы == mask_categories-код (напр. 'brilliant,brilliant_super')."""
     if isinstance(j, dict):
-        for g in j.values():
-            items = g.get("items") if isinstance(g, dict) else (g if isinstance(g, list) else None)
-            if items:
-                out.extend(it for it in items if isinstance(it, dict) and it.get("phone"))
-    return out
+        g = j.get(code)
+        if isinstance(g, dict):
+            return [it for it in (g.get("items") or []) if isinstance(it, dict) and it.get("phone")]
+    return []
 
 
 def collect_cat(slug, code):
@@ -68,7 +69,7 @@ def collect_cat(slug, code):
         except Exception as e:
             print("  %s стр.%d: ошибка %s" % (slug, page, e))
             break
-        batch = _flatten(j)
+        batch = _group_items(j, code)   # только СВОЯ группа, не все категории
         if not batch:
             break
         for it in batch:
