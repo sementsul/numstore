@@ -6,14 +6,24 @@ jobs:
   probe:
     runs-on: ubuntu-latest
     steps:
-      - name: raw
+      - name: counts
         run: |
+          python3 - <<'PY'
+          import urllib.request,json
           T="Basic YXBpU3RvcmU6VkZ6WFdOSmhwNTVtc3JmQXV1dU0zVHBtcnFTRw=="
-          B="https://api.store.bezlimit.ru/v2/super-link/phones"
-          echo "===FILTERS==="
-          curl -s -m 30 -H "Authorization: $T" "$B/filters" | head -c 1500
-          echo; echo "===CATEGORIES=brilliant==="
-          curl -s -m 40 -H "Authorization: $T" "$B/mask-category?expand=tariff&is_reserved=false&per_page=2&phone_pattern=9NNNNNNNNN&categories=brilliant" | head -c 900
-          echo; echo "===mask_categories=brilliant==="
-          curl -s -m 40 -H "Authorization: $T" "$B/mask-category?expand=tariff&is_reserved=false&per_page=2&phone_pattern=9NNNNNNNNN&mask_categories=brilliant" | head -c 400
-          echo; echo "===DONE==="
+          B="https://api.store.bezlimit.ru/v2/super-link/phones/mask-category"
+          def q(extra):
+            url=B+"?expand=tariff&is_reserved=false&per_page=3&phone_pattern=9NNNNNNNNN&"+extra
+            r=urllib.request.Request(url,headers={"Authorization":T})
+            d=json.load(urllib.request.urlopen(r,timeout=45))
+            out=[]
+            for k,v in d.items():
+              tc=(v.get("_meta") or {}).get("totalCount") if isinstance(v,dict) else None
+              its=(v.get("items") if isinstance(v,dict) else v) or []
+              prices=sorted({(x.get("tariff") or {}).get("price") for x in its if x.get("tariff")})
+              out.append((k,tc,prices))
+            return out
+          for cat in ["brilliant","platinum","gold","bronze","undefined","silver"]:
+            print("categories=%s ->"%cat, q("categories="+cat))
+          print("mask_categories=brilliant,brilliant_super ->", q("mask_categories=brilliant,brilliant_super"))
+          PY
