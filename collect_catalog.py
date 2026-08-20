@@ -86,13 +86,27 @@ def collect_cat(slug, code):
     return items
 
 
+def classify(items):
+    """Классифицируем номера по тарифному тиру ОТНОСИТЕЛЬНО текущих данных категории (само-подстраивается
+    при смене тарифов): top = 2 самых дорогих тарифа, mid = следующие 3, base = остальные. Поле `c` у номера.
+    Список сортируем по тарифу по убыванию (премиальные — первыми)."""
+    prices = sorted({x["p"] for x in items if x["p"]}, reverse=True)
+    top2, mid3 = set(prices[:2]), set(prices[2:5])
+    for x in items:
+        p = x["p"]
+        x["c"] = "top" if p in top2 else ("mid" if p in mid3 else "base")
+    items.sort(key=lambda x: -(x["p"] or 0))
+    return items
+
+
 def main():
     out_path = sys.argv[1] if len(sys.argv) > 1 else os.path.join(ROOT, "data", "catalog.json")
     cats = {}
     for slug, code in CATS.items():
-        items = collect_cat(slug, code)
+        items = classify(collect_cat(slug, code))
         cats[slug] = items
-        print("✅ %s: %d номеров" % (slug, len(items)))
+        ntop = sum(1 for x in items if x["c"] == "top")
+        print("✅ %s: %d номеров (top: %d)" % (slug, len(items), ntop))
     total = sum(len(v) for v in cats.values())
     if total == 0:
         print("⚠️  ноль номеров — API недоступен, catalog.json НЕ перезаписываю")

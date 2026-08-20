@@ -6,7 +6,7 @@ name: Предзагрузка каталога (прогрев номеров)
 
 on:
   schedule:
-    - cron: "41 */4 * * *"     # каждые 4 часа
+    - cron: "41 * * * *"     # каждый час
   workflow_dispatch: {}
 
 concurrency:
