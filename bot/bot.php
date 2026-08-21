@@ -254,8 +254,11 @@ function add_watch($chat_id, $pattern)
     if (!isset($w[$cid][$m])) { $w[$cid][$m] = []; }
     save_watches($w);
     tg('sendMessage', ['chat_id' => $chat_id, 'parse_mode' => 'HTML',
-        'text' => "✅ Подписка оформлена!\nПришлю уведомление, как только появится номер по маске\n<b>" . mask_human($m) . "</b>\n\nПроверка идёт автоматически. Ваши подписки: /mywatches",
-        'reply_markup' => kb([[['text' => '📋 Мои подписки', 'callback_data' => 'mywatches']]])]);
+        'text' => "✅ Вы подписались на маску номеров\n<b>" . mask_human($m) . "</b>\n\nКак появятся соответствующие номера — мы вас обязательно уведомим.",
+        'reply_markup' => kb([
+            [['text' => '✖ Отписаться', 'callback_data' => 'unwatch:' . $m]],
+            [['text' => '📋 Мои подписки', 'callback_data' => 'mywatches']],
+        ])]);
 }
 function list_watches($chat_id, $mid = null)
 {

@@ -12,6 +12,10 @@
   --gold-hi: #e6cd8c;
 }
 * { box-sizing: border-box; }
+/* off-canvas .drawer стоит на right:0 + translateX(100%) — уезжает вправо ЗА экран.
+   Без клипа корня это тянет горизонтальный скролл на мобиле (пустое поле справа).
+   clip (а не hidden) режет вылет, НЕ создавая scroll-контейнер → не ломает position:sticky сайдбара. */
+html, body { overflow-x: clip; }
 body {
   margin: 0;
   font-family: "Inter", -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -265,6 +269,8 @@ body {
 .more-wrap { text-align: center; margin-top: 28px; }
 
 @media (max-width: 820px) {
+  /* фолбэк для браузеров без overflow:clip (старый iOS<16): тут сайдбар уже static, hidden безопасен */
+  html, body { overflow-x: hidden; }
   .layout { grid-template-columns: 1fr; gap: 16px; }
   .sidebar { position: static; }
   .filter-list { display: flex; flex-wrap: wrap; gap: 6px; }
