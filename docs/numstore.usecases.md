@@ -760,6 +760,7 @@ loadFilters), `data/catalog.json` (+`i`, 82 КБ). СОСЕДИ/роли: лен
 **Проверка:** `node --check app.js` OK; node-симуляция пути данных — /kategoriya/brilliant/ 52 номера (все с
 tariff.id), /start/ 1052; catSlugsForPage/maskMatch прогнаны; задеплоено, app.js на проде содержит локальный
 загрузчик, catalog.json с `i`. Визуальный тест — за владельцем (headless в контейнере глючит).
+**Авто-свежесть SSR (крон каждый час):** `catalog.yml` после сбора `catalog.json` теперь `pip install pillow` + `python3 build.py` (тот же render_home → свежие 9 SSR-номеров) и публикует в magzgold **и `catalog.json`, и `index.html`**. Значит SSR-номера обновляются ежечасно (не только на `deploy.sh`) — роботы видят свежие номера. Крон пушит только эти 2 файла (остальные страницы — за `deploy.sh`); index.html самодостаточен (инлайн CSS).
 **Статус:** ✅ в проде magzgold.ru.
 
 ## UC-65. UI-фиксы: невидимые карточки + навигация «Все номера» ✅
