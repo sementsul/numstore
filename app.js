@@ -415,6 +415,13 @@
 
   /* ---------- события ---------- */
   findBtn.addEventListener("click", function () { shown = PAGE; render(); });
+  // «🔔 Следить» — подписка на маску через Telegram-бота (уведомит, когда появится такой номер)
+  var watchBtn = $("watch");
+  if (watchBtn) watchBtn.addEventListener("click", function () {
+    var m = buildCubes();
+    if (isEmptyMask(m)) { alert("Укажите хотя бы одну цифру в маске — тогда пришлём уведомление, когда появится такой номер."); return; }
+    window.open("https://t.me/magzgoldbot?start=watch_" + encodeURIComponent(m), "_blank", "noopener");
+  });
   resetBtn.addEventListener("click", function () {
     cubesEl.querySelectorAll("input").forEach(function (c) { c.value = ""; });
     sortEl.value = "default";

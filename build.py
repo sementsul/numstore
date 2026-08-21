@@ -441,8 +441,9 @@ VITRINA = """    <section class="search-box">
         <div class="cube-actions">
           <button id="find" class="btn-primary">Найти по маске</button>
           <button id="reset" class="btn-ghost">Сбросить</button>
+          <button id="watch" class="btn-ghost" type="button" title="Уведомим в Telegram, когда появится номер по этой маске">🔔 Следить</button>
         </div>
-        <p class="cube-hint">Цифра — точная позиция · пусто — любая · буква (a, b, …) — повторяющаяся цифра</p>
+        <p class="cube-hint">Цифра — точная позиция · пусто — любая · буква (a, b, …) — повторяющаяся цифра. «🔔 Следить» — пришлём в Telegram, когда появится такой номер.</p>
         <label class="code-filter">Код номера: <select id="fCode"><option value="">Все коды</option></select></label>
       </div>
       <aside class="search-aside">

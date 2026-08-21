@@ -36,6 +36,8 @@ foreach ($CATS as $c) { $CAT_LABEL[$c[0]] = $c[1]; }
 
 $OFFSET_FILE = __DIR__ . '/offset.txt';
 $LOCK_FILE   = __DIR__ . '/bot.lock';
+$WATCH_FILE  = __DIR__ . '/watches.json';   // подписки: { "<chat_id>": { "<маска>": ["уже_уведомлённые_номера"] } }
+$WCHECK_FILE = __DIR__ . '/watch_check.txt'; // время последней проверки подписок (троттлинг)
 
 /* ---------- HTTP ---------- */
 function http_get($url, $headers = [])
@@ -203,11 +205,130 @@ function do_book($chat_id, $mid, $digits, $tid)
 }
 
 /* ---------- роутинг ---------- */
+/* ---------- ПОДПИСКИ на маски номеров ---------- */
+function load_watches() { global $WATCH_FILE; return is_file($WATCH_FILE) ? (json_decode(file_get_contents($WATCH_FILE), true) ?: []) : []; }
+function save_watches($w) { global $WATCH_FILE; file_put_contents($WATCH_FILE, json_encode($w, JSON_UNESCAPED_UNICODE)); }
+
+// нормализуем маску к 10 символам: цифры — как есть, всё прочее → N (любая цифра)
+function norm_mask($s)
+{
+    $s = strtoupper((string)$s);
+    $s = preg_replace('/[^0-9N]/', 'N', $s);
+    $s = substr(str_pad($s, 10, 'N'), 0, 10);
+    return $s;
+}
+// человекочитаемо: +7 9•• •77 77 (N → •)
+function mask_human($m)
+{
+    $m = str_replace('N', '•', norm_mask($m));
+    return '+7 ' . substr($m, 0, 3) . ' ' . substr($m, 3, 3) . '-' . substr($m, 6, 2) . '-' . substr($m, 8, 2);
+}
+// живой поиск номеров по маске в API (все категории) → [digits => ['price'=>..]]
+function search_pattern($pattern)
+{
+    global $API_TOKEN;
+    $q = http_build_query(['expand' => 'tariff', 'is_reserved' => 'false', 'per_page' => '100', 'phone_pattern' => norm_mask($pattern)]);
+    $data = http_get(API_BASE . "/super-link/phones/mask-category?$q", ['Authorization: ' . $API_TOKEN]);
+    $out = [];
+    if (is_array($data)) {
+        foreach ($data as $v) {
+            if (!isset($v['items'])) { continue; }
+            foreach ($v['items'] as $p) {
+                $d = digits_of($p['phone'] ?? '');
+                if (strlen($d) === 10) { $out[$d] = ['price' => $p['tariff']['price'] ?? null]; }
+            }
+        }
+    }
+    return $out;
+}
+function add_watch($chat_id, $pattern)
+{
+    $m = norm_mask($pattern);
+    if (strlen(str_replace('N', '', $m)) === 0) {
+        tg('sendMessage', ['chat_id' => $chat_id, 'text' => 'Пустая маска — укажите хотя бы одну цифру. Пример: /watch NNNNNNN7777']);
+        return;
+    }
+    $w = load_watches();
+    $cid = (string)$chat_id;
+    if (!isset($w[$cid])) { $w[$cid] = []; }
+    if (!isset($w[$cid][$m])) { $w[$cid][$m] = []; }
+    save_watches($w);
+    tg('sendMessage', ['chat_id' => $chat_id, 'parse_mode' => 'HTML',
+        'text' => "✅ Подписка оформлена!\nПришлю уведомление, как только появится номер по маске\n<b>" . mask_human($m) . "</b>\n\nПроверка идёт автоматически. Ваши подписки: /mywatches",
+        'reply_markup' => kb([[['text' => '📋 Мои подписки', 'callback_data' => 'mywatches']]])]);
+}
+function list_watches($chat_id, $mid = null)
+{
+    $w = load_watches();
+    $cid = (string)$chat_id;
+    $subs = $w[$cid] ?? [];
+    if (!$subs) {
+        $p = ['chat_id' => $chat_id, 'text' => "У вас нет подписок.\nЧтобы следить за номером — пришлите /watch и маску (напр. /watch NNNNNNN7777), или подпишитесь кнопкой на сайте."];
+        if ($mid) { $p['message_id'] = $mid; tg('editMessageText', $p); } else { tg('sendMessage', $p); }
+        return;
+    }
+    $rows = [];
+    foreach (array_keys($subs) as $m) {
+        $rows[] = [['text' => '🔔 ' . mask_human($m), 'callback_data' => 'noop']];
+        $rows[] = [['text' => '✖ отписаться', 'callback_data' => 'unwatch:' . $m]];
+    }
+    $p = ['chat_id' => $chat_id, 'parse_mode' => 'HTML', 'text' => "<b>Ваши подписки на номера:</b>", 'reply_markup' => kb($rows)];
+    if ($mid) { $p['message_id'] = $mid; tg('editMessageText', $p); } else { tg('sendMessage', $p); }
+}
+function remove_watch($chat_id, $pattern, $mid = null)
+{
+    $w = load_watches();
+    $cid = (string)$chat_id;
+    if (isset($w[$cid][$pattern])) { unset($w[$cid][$pattern]); if (!$w[$cid]) { unset($w[$cid]); } save_watches($w); }
+    list_watches($chat_id, $mid);
+}
+// проверка всех подписок по API + уведомления. Троттлинг: не чаще раза в 30 мин.
+function check_watches()
+{
+    global $WCHECK_FILE;
+    $now = time();
+    $last = is_file($WCHECK_FILE) ? (int)file_get_contents($WCHECK_FILE) : 0;
+    if ($now - $last < 1800) { return; }
+    file_put_contents($WCHECK_FILE, (string)$now);
+    $w = load_watches();
+    if (!$w) { return; }
+    $patterns = [];
+    foreach ($w as $subs) { foreach ($subs as $pat => $_) { $patterns[$pat] = 1; } }
+    $found = [];
+    foreach (array_keys($patterns) as $pat) { $found[$pat] = search_pattern($pat); }
+    $changed = false;
+    foreach ($w as $cid => $subs) {
+        foreach ($subs as $pat => $notified) {
+            foreach (($found[$pat] ?? []) as $d => $info) {
+                if (in_array($d, $notified, true)) { continue; }
+                tg('sendMessage', ['chat_id' => $cid, 'parse_mode' => 'HTML',
+                    'text' => "🔔 Появился номер по вашей подписке!\n\n<b>" . fmt_phone($d) . "</b>"
+                        . ($info['price'] ? ("\nТариф " . fmt_money($info['price']) . " /мес") : "")
+                        . "\n\nОткрыть каталог: " . SITE . "/start/",
+                    'reply_markup' => kb([[['text' => '🔎 Смотреть на сайте', 'url' => SITE . '/start/']], [['text' => '✖ отписаться', 'callback_data' => 'unwatch:' . $pat]]])]);
+                $notified[] = $d; $changed = true;
+            }
+            if (count($notified) > 300) { $notified = array_slice($notified, -300); }
+            $w[$cid][$pat] = $notified;
+        }
+    }
+    if ($changed) { save_watches($w); }
+}
+
 function handle_update($u)
 {
     if (isset($u['message']['text'])) {
-        $cmd = explode('@', explode(' ', trim($u['message']['text']))[0])[0];
-        if ($cmd === '/start' || $cmd === '/menu') { screen_home($u['message']['chat']['id']); }
+        $chat_id = $u['message']['chat']['id'];
+        $parts = preg_split('/\s+/', trim($u['message']['text']));
+        $cmd = explode('@', $parts[0])[0];
+        if ($cmd === '/start' && isset($parts[1]) && strpos($parts[1], 'watch_') === 0) { add_watch($chat_id, substr($parts[1], 6)); return; }
+        if ($cmd === '/start' || $cmd === '/menu') { screen_home($chat_id); return; }
+        if ($cmd === '/watch') {
+            if (isset($parts[1])) { add_watch($chat_id, $parts[1]); }
+            else { tg('sendMessage', ['chat_id' => $chat_id, 'text' => "Пришлите маску: /watch NNNNNNN7777 (N — любая цифра).\nИли подпишитесь кнопкой «🔔 Следить» на сайте."]); }
+            return;
+        }
+        if ($cmd === '/mywatches' || $cmd === '/list') { list_watches($chat_id); return; }
         return;
     }
     if (!isset($u['callback_query'])) { return; }
@@ -217,6 +338,9 @@ function handle_update($u)
     $mid = $cq['message']['message_id'];
     tg('answerCallbackQuery', ['callback_query_id' => $cq['id']]);
     if ($data === 'home') { screen_home($chat_id, $mid); }
+    elseif ($data === 'mywatches') { list_watches($chat_id, $mid); }
+    elseif ($data === 'noop') { /* заголовок-кнопка маски — ничего не делаем */ }
+    elseif (strpos($data, 'unwatch:') === 0) { remove_watch($chat_id, substr($data, 8), $mid); }
     elseif (strpos($data, 'cat:') === 0) { screen_list($chat_id, $mid, substr($data, 4)); }
     elseif (strpos($data, 'pick:') === 0) { [, $d, $tid] = explode(':', $data); screen_card($chat_id, $mid, $d, $tid); }
     elseif (strpos($data, 'book:') === 0) { [, $d, $tid] = explode(':', $data); do_book($chat_id, $mid, $d, $tid); }
@@ -244,6 +368,7 @@ while (time() < $deadline) {
         try { handle_update($u); } catch (\Throwable $e) { error_log('handle: ' . $e->getMessage()); }
     }
 }
+try { check_watches(); } catch (\Throwable $e) { error_log('watch: ' . $e->getMessage()); }  // проверка подписок (троттлинг 30 мин)
 flock($lock, LOCK_UN); fclose($lock);
 trigger_self();   // запускаем следующий заход → непрерывная работа (cron-job.org — лишь страховка)
 echo 'ok';
