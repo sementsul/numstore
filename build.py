@@ -745,6 +745,27 @@ def render_home():
     ])
     html = html.replace("<title>MagzGold — демо премиум-стиля</title>", "<title>%s</title>" % title, 1)
     html = html.replace("</head>", head + "\n</head>", 1)
+    # СЕРВЕРНЫЙ РЕНДЕР 9 бриллиантовых номеров в #bgrid — иначе робот видит пустую витрину (номера грузит JS).
+    # JS на загрузке заменит их свежими (skeleton пропускается, если сетка уже заполнена — SSR).
+    try:
+        _cat = json.load(open(os.path.join(ROOT, "data", "catalog.json"), encoding="utf-8"))
+        _bril = _cat.get("cats", {}).get("brilliant", [])
+        _top = [x for x in _bril if x.get("c") == "top"] or _bril
+    except Exception:
+        _top = []
+    def _hcard(x):
+        d = str(x.get("n", ""))
+        f = ("+7 %s %s‑%s‑%s" % (d[0:3], d[3:6], d[6:8], d[8:10])) if len(d) == 10 else ("+7 " + d)
+        p = x.get("p")
+        pr = ("Тариф %d ₽/мес" % p) if p else "Красивый номер"
+        return ('<div class="card"><span class="badge">Бриллиант</span>'
+                '<div class="num">%s</div><div class="meta">%s</div>'
+                '<div class="row"><span class="tariff">%s</span>'
+                '<a class="book" href="/start/" data-phone="%s">Забронировать →</a></div></div>'
+                % (f, esc(x.get("t") or "Бриллиантовая категория"), pr, esc(d)))
+    _cards = "".join(_hcard(x) for x in _top[:9])
+    if _cards:
+        html = html.replace('<div class="grid" id="bgrid"></div>', '<div class="grid" id="bgrid">' + _cards + '</div>', 1)
     write("index.html", html)
     # catalog.json в dist — иначе deploy.sh (force-push всего dist) сотрёт его на magzgold; крон обновит позже
     src_cat = os.path.join(ROOT, "data", "catalog.json")

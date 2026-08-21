@@ -197,6 +197,11 @@
     padding:12px 24px;font-size:14px;font-weight:700;letter-spacing:.3px;cursor:pointer;transition:filter .2s var(--e)}
   .bmodal-go:hover{filter:brightness(1.06)}
   .bmodal-go:disabled{opacity:.6;cursor:default}
+.seo-home{padding:56px 0;border-top:1px solid var(--line)}
+  .seo-home h2{font-family:var(--serif);font-weight:400;font-size:24px;margin:0 0 14px;color:var(--ink)}
+  .seo-home p{color:var(--mut);font-size:14px;line-height:1.7;max-width:70ch;margin:0 0 12px}
+  .seo-home a{color:var(--gold);text-decoration:none}
+  .seo-home a:hover{color:var(--gold2)}
 </style>
 </head>
 <body>
@@ -257,6 +262,12 @@
       </div>
     </div>
   </div>
+</section>
+
+<section class="wrap seo-home">
+  <h2>Красивые и бриллиантовые номера телефонов</h2>
+  <p>MagzGold — витрина красивых номеров телефонов от оператора «Безлимит». В каталоге — номера высшей, бриллиантовой категории: зеркальные комбинации, длинные повторы, круглые окончания и запоминающиеся сочетания. Выберите номер по маске или категории — <a href="/kategoriya/brilliant/">бриллиантовые</a>, платиновые, золотые, серебряные и бронзовые.</p>
+  <p>Каждый номер подключается официально, с договором, только для граждан РФ. Доставка SIM-карты и eSIM — по всей России, без визита в офис. Бронь оформляется онлайн и держится за вами около часа. Смотрите <a href="/start/">весь каталог красивых номеров</a>, изучите <a href="/tarify/">тарифы Безлимит</a> или узнайте, <a href="/kak-eto-rabotaet/">как забронировать и купить номер</a>.</p>
 </section>
 
 <footer>
@@ -387,7 +398,7 @@
       .catch(empty);
   }
 
-  skeleton();
+  if(!grid.children.length){ skeleton(); }   // если номера уже отрендерены сервером (SSR) — не затираем скелетоном
   // быстрый путь: статика catalog.json (прогрета кроном) → МГНОВЕННО; нет — живой API
   fetch('/data/catalog.json',{cache:'no-store'})
     .then(function(r){ return r.ok ? r.json() : null; })
