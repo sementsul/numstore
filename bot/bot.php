@@ -363,6 +363,17 @@ function handle_update($u)
             return;
         }
         if ($cmd === '/mywatches' || $cmd === '/list') { list_watches($chat_id); return; }
+        if ($cmd === '/debug') {   // диагностика: реальное состояние хранилища подписок
+            global $WATCH_FILE, $WCHECK_FILE;
+            $raw = is_file($WATCH_FILE) ? file_get_contents($WATCH_FILE) : '(файла нет)';
+            $msg = "chat_id: $chat_id\n"
+                . "bot.php: " . __FILE__ . " (" . filesize(__FILE__) . " б)\n"
+                . "dir: " . __DIR__ . " (writable: " . (is_writable(__DIR__) ? 'ДА' : 'НЕТ') . ")\n"
+                . "watches.json: " . (is_file($WATCH_FILE) ? (filesize($WATCH_FILE) . " б, writable: " . (is_writable($WATCH_FILE) ? 'ДА' : 'НЕТ')) : 'НЕТ ФАЙЛА') . "\n"
+                . "содержимое:\n" . substr((string)$raw, 0, 3000);
+            tg('sendMessage', ['chat_id' => $chat_id, 'text' => $msg]);
+            return;
+        }
         return;
     }
     if (!isset($u['callback_query'])) { return; }
