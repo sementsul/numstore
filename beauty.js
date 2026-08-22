@@ -5,7 +5,8 @@
 (function () {
   var grid = document.getElementById("bGrid");
   if (!grid) return;
-  var slider = document.getElementById("bMin"), valEl = document.getElementById("bVal"),
+  var sliderMin = document.getElementById("bMin"), valMin = document.getElementById("bVal"),
+      sliderMax = document.getElementById("bMax"), valMax = document.getElementById("bMaxVal"),
       countEl = document.getElementById("bCount"), statusEl = document.getElementById("bStatus"),
       moreBtn = document.getElementById("bMore");
   var STEP = 60, shown = STEP, ALL = [];
@@ -56,16 +57,24 @@
   }
 
   function render() {
-    var min = +slider.value;
-    var list = ALL.filter(function (x) { return x.s >= min; });
-    countEl.textContent = list.length + " " + plural(list.length, "номер", "номера", "номеров") + " с красотой от " + min;
-    if (!list.length) { grid.innerHTML = ""; statusEl.textContent = "Нет номеров с такой красотой — сдвиньте ползунок левее."; statusEl.style.display = ""; moreBtn.hidden = true; return; }
+    var min = +sliderMin.value, max = +sliderMax.value;
+    var list = ALL.filter(function (x) { return x.s >= min && x.s <= max; });
+    countEl.textContent = list.length + " " + plural(list.length, "номер", "номера", "номеров") + " с красотой " + min + "–" + max;
+    if (!list.length) { grid.innerHTML = ""; statusEl.textContent = "Нет номеров в этом диапазоне красоты — расширьте вилку ползунками."; statusEl.style.display = ""; moreBtn.hidden = true; return; }
     statusEl.style.display = "none";
     grid.innerHTML = list.slice(0, shown).map(card).join("");
     moreBtn.hidden = list.length <= shown;
   }
 
-  slider.addEventListener("input", function () { valEl.textContent = slider.value; shown = STEP; render(); });
+  // не даём ползункам пересечься: минимум не заходит выше максимума и наоборот
+  sliderMin.addEventListener("input", function () {
+    if (+sliderMin.value > +sliderMax.value) { sliderMax.value = sliderMin.value; valMax.textContent = sliderMax.value; }
+    valMin.textContent = sliderMin.value; shown = STEP; render();
+  });
+  sliderMax.addEventListener("input", function () {
+    if (+sliderMax.value < +sliderMin.value) { sliderMin.value = sliderMax.value; valMin.textContent = sliderMin.value; }
+    valMax.textContent = sliderMax.value; shown = STEP; render();
+  });
   moreBtn.addEventListener("click", function () { shown += STEP; render(); });
 
   fetch("/data/catalog.json").then(function (r) { return r.json(); }).then(function (j) {
@@ -77,7 +86,7 @@
       });
     });
     ALL.sort(function (a, b) { return b.s - a.s || (a.p || 0) - (b.p || 0); });
-    valEl.textContent = slider.value;
+    valMin.textContent = sliderMin.value; valMax.textContent = sliderMax.value;
     render();
   }).catch(function () { statusEl.textContent = "Не удалось загрузить номера. Обновите страницу."; });
 })();

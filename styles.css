@@ -193,7 +193,8 @@ body {
 /* подбор по красоте: панель ползунка + оценка на карточке */
 .beauty-panel { background: linear-gradient(180deg, var(--card-hi), var(--card)); border: 1px solid var(--line); border-radius: 16px; padding: 20px 22px; margin: 22px 0; }
 .beauty-slider-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-.beauty-slider-row label { font-size: 15px; color: var(--text); white-space: nowrap; }
+.beauty-slider-row + .beauty-slider-row { margin-top: 12px; }
+.beauty-slider-row label { font-size: 15px; color: var(--text); white-space: nowrap; min-width: 232px; }
 .beauty-slider-row label b { color: var(--gold); font-size: 19px; font-variant-numeric: tabular-nums; }
 .beauty-slider-row input[type="range"] { flex: 1 1 240px; min-width: 200px; accent-color: var(--gold); cursor: pointer; }
 .beauty-hint { color: var(--muted); font-size: 13px; margin: 12px 0 0; line-height: 1.55; }
