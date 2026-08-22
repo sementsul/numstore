@@ -31,8 +31,9 @@
 - `config.js` — `API_BASE`, публичный Basic-токен Безлимит, `REF_STORE_URL`, `REF_ID` (=800848, идёт в user_id брони).
 - `app.js` — клиентский fetch (mask-category, широкий пул `9NNNNNNNNN`), `flatten` в плоский список с `._cat`,
   сайдбар-фильтры, пагинация, маска-поиск, прямая бронь `reserve`, ИЗБРАННОЕ (FAV/localStorage magz_fav, ♥, режим favMode), бейджи категорий (catBadge).
-- `styles.css` — тёмная премиум-тема (графит+золото), `.layout/.sidebar/.filter-*/.num*`.
-- `docs/` — project-notes (эта карта), numstore.usecases.md (живые сценарии UC-1..11), DEFINITION_OF_DONE.
+- `chart.js` — self-contained canvas-график динамики средней абонплаты по категориям (данные `/data/price_history.json`, копятся кроном; кнопки диапазонов появляются по мере накопления). Интерактив (UC-74): тултип цен при наведении (визир+подсветка точек) + ползунок по датам для телефона. Общий для `/dinamika-cen/` и мини-графиков на страницах категорий.
+- `styles.css` — тёмная премиум-тема (графит+золото), `.layout/.sidebar/.filter-*/.num*`, `.chart-*` (график/тултип/ползунок).
+- `docs/` — project-notes (эта карта), numstore.usecases.md (живые сценарии UC-1..74), DEFINITION_OF_DONE.
 - **Превью:** `python3 -m http.server 5173 --bind 0.0.0.0` → http://localhost:5173.
 - **Репо:** github.com/sementsul/numstore (private). Пуш токеном пользователя. identity `numstore-dev`.
 
