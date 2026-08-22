@@ -7,7 +7,13 @@
   var out = document.getElementById("chkOut");
   if (!input || !btn || !out) return;
 
-  function digitsOf(s) { return String(s).replace(/\D/g, "").replace(/^7|^8/, "").slice(-10); }
+  // Снимаем 7/8 ТОЛЬКО у 11-значного (код страны/межгород) → тело 10 цифр. Иначе отдаём как есть,
+  // чтобы неверную длину поймал run() и предупредил, а не молча резал последние 10 (напр. 11-значный с 9).
+  function digitsOf(s) {
+    var r = String(s).replace(/\D/g, "");
+    if (r.length === 11 && (r.charAt(0) === "7" || r.charAt(0) === "8")) r = r.slice(1);
+    return r;
+  }
   function fmtPhone(d) {
     return d.length === 10 ? "+7 " + d.slice(0, 3) + " " + d.slice(3, 6) + "-" + d.slice(6, 8) + "-" + d.slice(8, 10) : "+7 " + d;
   }
@@ -121,7 +127,10 @@
 
   function run() {
     var d = digitsOf(input.value);
-    if (d.length !== 10) { out.innerHTML = '<p class="chk-err">Введите номер из 10 цифр (после +7).</p>'; return; }
+    if (d.length !== 10) {
+      out.innerHTML = '<p class="chk-err">Номер должен быть из 10 цифр (можно с 7 или 8 в начале). Вы ввели ' + d.length + ' — проверьте ввод.</p>';
+      return;
+    }
     render(d);
   }
   btn.addEventListener("click", run);
