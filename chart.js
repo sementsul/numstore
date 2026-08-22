@@ -11,6 +11,7 @@
   var RANGES = [{ k: 7, l: "Неделя" }, { k: 30, l: "Месяц" }, { k: 90, l: "3 месяца" }, { k: 180, l: "6 месяцев" },
                 { k: 365, l: "Год" }, { k: 1095, l: "3 года" }, { k: 1825, l: "5 лет" }, { k: 3650, l: "10 лет" }];
   var DATA = null, cats = [], sel = 0;
+  var view = null, hoverIdx = null, tip = null;   // состояние наведения (тултип цен)
 
   function dayNum(s) { var p = s.split("-"); return Date.UTC(+p[0], +p[1] - 1, +p[2]) / 86400000; }
   function fmtDate(s) { var p = s.split("-"); return p[2] + "." + p[1] + "." + p[0].slice(2); }
@@ -23,6 +24,65 @@
     buildRanges(); draw();
     window.addEventListener("resize", draw);
   }).catch(function () { if (noteEl) noteEl.textContent = "Не удалось загрузить историю цен."; });
+
+  // ---- интерактив: тултип цен при наведении + ползунок по датам (для телефона) ----
+  var box = cv.parentNode;                     // .chart-box
+  box.style.position = "relative";
+  tip = document.createElement("div"); tip.className = "chart-tip"; box.appendChild(tip);
+  var slider = document.createElement("input");
+  slider.type = "range"; slider.className = "chart-slider"; slider.min = "0"; slider.step = "1"; slider.value = "0";
+  slider.setAttribute("aria-label", "Дата на графике");
+  var sliderWrap = document.createElement("div"); sliderWrap.className = "chart-slider-wrap";
+  sliderWrap.style.display = "none"; sliderWrap.appendChild(slider);
+  box.parentNode.insertBefore(sliderWrap, box.nextSibling);
+
+  function nearestIdx(px) {
+    var p = view.pts, best = 0, bd = Infinity;
+    for (var i = 0; i < p.length; i++) { var d = Math.abs(view.X(p[i].date) - px); if (d < bd) { bd = d; best = i; } }
+    return best;
+  }
+  function tipHtml(pt) {
+    var s = '<div class="chart-tip-d">' + fmtDate(pt.date) + "</div>";
+    cats.forEach(function (c) { var v = pt.avg[c]; s += '<div class="chart-tip-r"><i style="background:' + (COLORS[c] || "#888") + '"></i>' + c + "<b>" + (v != null ? rub(v) : "—") + "</b></div>"; });
+    return s;
+  }
+  function placeTip(bx, by) {
+    var lx = bx + 14, ty = by + 14;
+    if (lx + tip.offsetWidth > box.clientWidth) lx = bx - tip.offsetWidth - 14;
+    if (lx < 2) lx = 2;
+    if (ty + tip.offsetHeight > box.clientHeight) ty = by - tip.offsetHeight - 14;
+    if (ty < 2) ty = 2;
+    tip.style.left = lx + "px"; tip.style.top = ty + "px";
+  }
+  function showHover(clientX, clientY) {
+    if (!view || view.pts.length < 1) return;
+    var rect = cv.getBoundingClientRect();
+    hoverIdx = nearestIdx(clientX - rect.left);
+    draw();
+    tip.innerHTML = tipHtml(view.pts[hoverIdx]); tip.style.display = "block";
+    var br = box.getBoundingClientRect();
+    placeTip(clientX - br.left, clientY - br.top);
+    slider.value = hoverIdx;
+  }
+  function showIdx(idx) {                       // из ползунка (телефон)
+    if (!view || view.pts.length < 1) return;
+    hoverIdx = Math.max(0, Math.min(view.pts.length - 1, idx));
+    draw();
+    tip.innerHTML = tipHtml(view.pts[hoverIdx]); tip.style.display = "block";
+    placeTip(cv.offsetLeft + view.X(view.pts[hoverIdx].date), cv.offsetTop + view.padT);
+  }
+  function hideTip() { hoverIdx = null; if (tip) tip.style.display = "none"; draw(); }
+  function syncSlider(n) {
+    if (!slider) return;
+    if (n < 2) { sliderWrap.style.display = "none"; return; }
+    sliderWrap.style.display = "";
+    slider.max = String(n - 1);
+    if (hoverIdx == null) slider.value = String(n - 1);
+  }
+
+  cv.addEventListener("mousemove", function (e) { showHover(e.clientX, e.clientY); });
+  cv.addEventListener("mouseleave", hideTip);
+  slider.addEventListener("input", function () { showIdx(+slider.value); });
 
   function spanDays() { var p = DATA.points; return p.length < 2 ? 0 : dayNum(p[p.length - 1].date) - dayNum(p[0].date); }
   function buildRanges() {
@@ -64,6 +124,7 @@
     var x0 = dayNum(pts[0].date), x1 = dayNum(pts[pts.length - 1].date), xspan = (x1 - x0) || 1;
     function X(d) { return padL + (pts.length === 1 ? w / 2 : (dayNum(d) - x0) / xspan * w); }
     function Y(v) { return padT + h - (v - mn) / (mx - mn) * h; }
+    view = { pts: pts, X: X, Y: Y, padT: padT, h: h };   // геометрия для наведения/ползунка
 
     ctx.font = "12px -apple-system,sans-serif"; ctx.textBaseline = "middle";
     for (var i = 0; i <= 5; i++) {
@@ -84,6 +145,19 @@
       ctx.stroke();
       pts.forEach(function (pt) { var v = pt.avg[c]; if (v == null) return; ctx.beginPath(); ctx.arc(X(pt.date), Y(v), pts.length === 1 ? 4 : 2.5, 0, 7); ctx.fill(); });
     });
+
+    // визир + подсветка точек в наведённой дате
+    if (hoverIdx != null && hoverIdx < pts.length) {
+      var hx = X(pts[hoverIdx].date);
+      ctx.strokeStyle = "rgba(255,255,255,.28)"; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(hx, padT); ctx.lineTo(hx, padT + h); ctx.stroke();
+      cats.forEach(function (c) {
+        var v = pts[hoverIdx].avg[c]; if (v == null) return;
+        ctx.fillStyle = COLORS[c] || "#888"; ctx.beginPath(); ctx.arc(hx, Y(v), 4.5, 0, 7); ctx.fill();
+        ctx.strokeStyle = "#0d0f13"; ctx.lineWidth = 1.5; ctx.stroke();
+      });
+    }
+    syncSlider(pts.length);   // ползунок дат под текущий диапазон
 
     if (legendEl) legendEl.innerHTML = cats.map(function (c) {
       var last = pts[pts.length - 1].avg[c];
