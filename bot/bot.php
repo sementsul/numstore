@@ -227,11 +227,14 @@ function norm_mask($s)
     $s = substr(str_pad($s, 10, 'N'), 0, 10);
     return $s;
 }
-// человекочитаемо: +7 9•• •77 77 (N → •)
+// человекочитаемо: +7 9•• •77 77 (N → •).
+// ВАЖНО: режем substr'ом ПОКА строка ASCII (цифры/N), а N→• меняем В КОНЦЕ.
+// Иначе substr (побайтовый) рвёт многобайтовый «•» → битый UTF-8 → Telegram/json_encode отклоняют сообщение.
 function mask_human($m)
 {
-    $m = str_replace('N', '•', norm_mask($m));
-    return '+7 ' . substr($m, 0, 3) . ' ' . substr($m, 3, 3) . '-' . substr($m, 6, 2) . '-' . substr($m, 8, 2);
+    $m = norm_mask($m);   // 10 ASCII-символов: цифры + N
+    $s = '+7 ' . substr($m, 0, 3) . ' ' . substr($m, 3, 3) . '-' . substr($m, 6, 2) . '-' . substr($m, 8, 2);
+    return str_replace('N', '•', $s);
 }
 // живой поиск номеров по маске в API (все категории) → [digits => ['price'=>..]]
 function search_pattern($pattern)
