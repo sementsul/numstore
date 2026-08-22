@@ -208,7 +208,16 @@ function do_book($chat_id, $mid, $digits, $tid)
 /* ---------- роутинг ---------- */
 /* ---------- ПОДПИСКИ на маски номеров ---------- */
 function load_watches() { global $WATCH_FILE; return is_file($WATCH_FILE) ? (json_decode(file_get_contents($WATCH_FILE), true) ?: []) : []; }
-function save_watches($w) { global $WATCH_FILE; file_put_contents($WATCH_FILE, json_encode($w, JSON_UNESCAPED_UNICODE)); }
+// Возвращает true только если реально записали (атомарно через .tmp+rename, с фолбэком на прямую запись).
+function save_watches($w)
+{
+    global $WATCH_FILE;
+    $json = json_encode($w, JSON_UNESCAPED_UNICODE);
+    $tmp  = $WATCH_FILE . '.tmp';
+    if (@file_put_contents($tmp, $json) !== false && @rename($tmp, $WATCH_FILE)) { return true; }
+    @unlink($tmp);
+    return @file_put_contents($WATCH_FILE, $json) !== false;   // фолбэк: прямая запись
+}
 
 // нормализуем маску к 10 символам: цифры — как есть, всё прочее → N (любая цифра)
 function norm_mask($s)
@@ -255,7 +264,12 @@ function add_watch($chat_id, $pattern)
     // null = «ещё не сделан базовый снимок»: первая проверка запомнит текущие номера МОЛЧА,
     // уведомления пойдут только про те, что появятся ПОЗЖЕ (иначе — флуд всем каталогом сразу).
     if (!array_key_exists($m, $w[$cid])) { $w[$cid][$m] = null; }
-    save_watches($w);
+    if (!save_watches($w)) {   // не соврём про успех: если папка бота не на запись — честно сообщим
+        tg('sendMessage', ['chat_id' => $chat_id,
+            'text' => "⚠️ Не смог сохранить подписку — техническая проблема на сервере (папка бота недоступна для записи). Мы уже чиним, попробуйте позже."]);
+        error_log('save_watches FAILED — bot dir not writable');
+        return;
+    }
     tg('sendMessage', ['chat_id' => $chat_id, 'parse_mode' => 'HTML',
         'text' => "✅ Вы подписались на маску номеров\n<b>" . mask_human($m) . "</b>\n\nКак появятся соответствующие номера — мы вас обязательно уведомим.",
         'reply_markup' => kb([
