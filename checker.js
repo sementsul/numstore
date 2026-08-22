@@ -14,6 +14,22 @@
   function fmtMoney(n) { return n == null || isNaN(n) ? "" : String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " ₽"; }
   function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
 
+  // сила паттернов произвольной длины 0..1 (повторы/серии/последовательности/ABAB/палиндром)
+  function patStrength(s) {
+    var n = s.length; if (n < 2) return 0;
+    var counts = {}, i; for (i = 0; i < n; i++) counts[s[i]] = (counts[s[i]] || 0) + 1;
+    var distinct = Object.keys(counts).length, maxFreq = 0, k; for (k in counts) maxFreq = Math.max(maxFreq, counts[k]);
+    var run = 1, maxRun = 1, j; for (j = 1; j < n; j++) { if (s[j] === s[j - 1]) { run++; maxRun = Math.max(maxRun, run); } else run = 1; }
+    function seqRun(st) { var r = 1, m = 1, i2; for (i2 = 1; i2 < n; i2++) { if ((+s[i2] - +s[i2 - 1]) === st) { r++; m = Math.max(m, r); } else r = 1; } return m; }
+    var maxSeq = Math.max(seqRun(1), seqRun(-1));
+    var alt = 1, ar = 1, a; for (a = 2; a < n; a++) { if (s[a] === s[a - 2] && s[a] !== s[a - 1]) { ar = (ar < 2 ? 3 : ar + 1); alt = Math.max(alt, ar); } else ar = 1; }
+    var palin = s === s.split("").reverse().join("");
+    var rep = (n - distinct) / (n - 1), runC = Math.min(1, (maxRun - 1) / Math.max(1, n - 3)), freqC = (maxFreq - 1) / (n - 1),
+        seqC = (maxSeq - 1) / (n - 1), altC = Math.min(1, (alt - 2) / Math.max(1, n - 4));
+    var repBeauty = 0.45 * rep + 0.35 * runC + 0.20 * freqC;
+    return Math.max(repBeauty, seqC * 0.8, altC * 0.72, palin ? 0.72 : 0);
+  }
+
   /* ---- анализатор паттернов (10 цифр) ---- */
   function analyze(d) {
     var counts = {}; for (var i = 0; i < 10; i++) counts[d[i]] = (counts[d[i]] || 0) + 1;
@@ -30,10 +46,10 @@
     var trail = 1; for (var b = 8; b >= 0; b--) { if (d[b] === d[9]) trail++; else break; }
     var tz = (d.match(/0+$/) || [""])[0].length;
     var palin = d === d.split("").reverse().join("");
-    var rep = (10 - distinct) / 9, runC = Math.min(1, (maxRun - 1) / 7), freqC = (maxFreq - 1) / 9,
-        seqC = (maxSeq - 1) / 9, altC = Math.min(1, (alt - 2) / 6), tailC = Math.min(1, (trail - 1) / 5), round = Math.min(1, tz / 4);
-    var repBeauty = 0.45 * rep + 0.35 * runC + 0.20 * freqC;             // сила повторов, 0..1
-    var pat = Math.max(repBeauty, seqC * 0.8, altC * 0.72, palin ? 0.7 : 0); // лучший паттерн, без двойного счёта
+    var tailC = Math.min(1, (trail - 1) / 5), round = Math.min(1, tz / 4);
+    // красоту меряем по ТЕЛУ (7 цифр после кода) и хвосту-6, а не только по всем 10 — иначе случайный код
+    // (напр. 984) разбавляет красивое тело; палиндром тела тоже ловится этими окнами. Синхронно с beauty.js.
+    var pat = Math.max(patStrength(d), patStrength(d.slice(3)) * 0.97, patStrength(d.slice(4)) * 0.93);
     var score = Math.round(Math.min(100, (pat + tailC * 0.15 + round * 0.06) * 100));  // + бонус за красивое окончание
     var verdict, cls;
     if (score >= 75) { verdict = "Премиальный · редкий"; cls = "v-top"; }
@@ -49,6 +65,7 @@
       if (alt >= 4) feats.push("Чередование пар (ABAB)");
       if (maxSeq >= 5) feats.push("Последовательность из " + maxSeq + " цифр");
       if (palin) feats.push("Зеркальный (палиндром)");
+      else if (d.slice(3) === d.slice(3).split("").reverse().join("") || d.slice(4) === d.slice(4).split("").reverse().join("")) feats.push("Зеркальное тело номера");
       if (tz >= 4) feats.push("Круглый: " + tz + " нулей в конце");
       else if (tz >= 2 && trail < 3) feats.push("Ровное окончание на нули");
       if (distinct <= 2) feats.push("Всего " + distinct + " разные цифры");

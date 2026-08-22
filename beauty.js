@@ -16,22 +16,29 @@
   function fmtMoney(n) { return n == null || isNaN(n) ? "" : String(n).replace(/\B(?=(\d{3})+(?!\d))/g, " ") + " ₽"; }
   function plural(n, a, b, c) { n = Math.abs(n) % 100; var d = n % 10; if (n > 10 && n < 20) return c; if (d > 1 && d < 5) return b; if (d === 1) return a; return c; }
 
-  // оценка красоты 0..100 — портирована из checker.js analyze() (те же веса, чтобы совпадало с «Проверить красоту»)
+  // сила паттернов произвольной длины 0..1 (повторы/серии/последовательности/ABAB/палиндром)
+  function patStrength(s) {
+    var n = s.length; if (n < 2) return 0;
+    var counts = {}, i; for (i = 0; i < n; i++) counts[s[i]] = (counts[s[i]] || 0) + 1;
+    var distinct = Object.keys(counts).length, maxFreq = 0, k; for (k in counts) maxFreq = Math.max(maxFreq, counts[k]);
+    var run = 1, maxRun = 1, j; for (j = 1; j < n; j++) { if (s[j] === s[j - 1]) { run++; maxRun = Math.max(maxRun, run); } else run = 1; }
+    function seqRun(st) { var r = 1, m = 1, i2; for (i2 = 1; i2 < n; i2++) { if ((+s[i2] - +s[i2 - 1]) === st) { r++; m = Math.max(m, r); } else r = 1; } return m; }
+    var maxSeq = Math.max(seqRun(1), seqRun(-1));
+    var alt = 1, ar = 1, a; for (a = 2; a < n; a++) { if (s[a] === s[a - 2] && s[a] !== s[a - 1]) { ar = (ar < 2 ? 3 : ar + 1); alt = Math.max(alt, ar); } else ar = 1; }
+    var palin = s === s.split("").reverse().join("");
+    var rep = (n - distinct) / (n - 1), runC = Math.min(1, (maxRun - 1) / Math.max(1, n - 3)), freqC = (maxFreq - 1) / (n - 1),
+        seqC = (maxSeq - 1) / (n - 1), altC = Math.min(1, (alt - 2) / Math.max(1, n - 4));
+    var repBeauty = 0.45 * rep + 0.35 * runC + 0.20 * freqC;
+    return Math.max(repBeauty, seqC * 0.8, altC * 0.72, palin ? 0.72 : 0);
+  }
+  // оценка красоты 0..100. Красоту меряем по ТЕЛУ (7 цифр после кода) и хвосту-6, а не только по всем 10 —
+  // иначе случайный код (напр. 984) разбавляет красивое тело. Синхронно с checker.js.
   function score(d) {
     d = String(d);
-    var counts = {}; for (var i = 0; i < 10; i++) counts[d[i]] = (counts[d[i]] || 0) + 1;
-    var distinct = Object.keys(counts).length, maxFreq = 0; for (var k in counts) maxFreq = Math.max(maxFreq, counts[k]);
-    var run = 1, maxRun = 1; for (var j = 1; j < 10; j++) { if (d[j] === d[j - 1]) { run++; maxRun = Math.max(maxRun, run); } else run = 1; }
-    function seqRun(st) { var r = 1, m = 1; for (var i2 = 1; i2 < 10; i2++) { if ((+d[i2] - +d[i2 - 1]) === st) { r++; m = Math.max(m, r); } else r = 1; } return m; }
-    var maxSeq = Math.max(seqRun(1), seqRun(-1));
-    var alt = 1, ar = 1; for (var a = 2; a < 10; a++) { if (d[a] === d[a - 2] && d[a] !== d[a - 1]) { ar = (ar < 2 ? 3 : ar + 1); alt = Math.max(alt, ar); } else ar = 1; }
     var trail = 1; for (var b = 8; b >= 0; b--) { if (d[b] === d[9]) trail++; else break; }
     var tz = (d.match(/0+$/) || [""])[0].length;
-    var palin = d === d.split("").reverse().join("");
-    var rep = (10 - distinct) / 9, runC = Math.min(1, (maxRun - 1) / 7), freqC = (maxFreq - 1) / 9,
-        seqC = (maxSeq - 1) / 9, altC = Math.min(1, (alt - 2) / 6), tailC = Math.min(1, (trail - 1) / 5), round = Math.min(1, tz / 4);
-    var repBeauty = 0.45 * rep + 0.35 * runC + 0.20 * freqC;
-    var pat = Math.max(repBeauty, seqC * 0.8, altC * 0.72, palin ? 0.7 : 0);
+    var pat = Math.max(patStrength(d), patStrength(d.slice(3)) * 0.97, patStrength(d.slice(4)) * 0.93);
+    var tailC = Math.min(1, (trail - 1) / 5), round = Math.min(1, tz / 4);
     return Math.round(Math.min(100, (pat + tailC * 0.15 + round * 0.06) * 100));
   }
   function scoreCls(s) { return s >= 75 ? "v-top" : s >= 50 ? "v-nice" : s >= 25 ? "v-ok" : "v-plain"; }
