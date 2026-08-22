@@ -385,7 +385,9 @@ def _dlinks(items):
 
 
 def _build_drawer():
-    other = [("/start/", "Все номера"), ("/podbor-po-krasote/", "Подбор по красоте"), ("/kak-eto-rabotaet/", "Как это работает"), ("/tarify/", "Тарифы"), ("/kody/", "Номера по кодам"), ("/blog/", "Блог"), ("/faq/", "Вопросы и ответы"), ("/skolko-stoit-nomer/", "Сколько стоит номер"), ("/proverit-nomer/", "Проверить красоту номера"), ("/operator-po-nomeru/", "Оператор по номеру"), ("/dinamika-cen/", "Динамика цен"), ("/api-i-vidzhety/", "API и виджеты"), ("/o-servise/", "О сервисе")]
+    catalog = [("/start/", "Все номера"), ("/podbor-po-krasote/", "Подбор по красоте"), ("/kody/", "Номера по кодам"), ("/tarify/", "Тарифы")]
+    tools = [("/proverit-nomer/", "Проверить красоту номера"), ("/operator-po-nomeru/", "Оператор по номеру"), ("/skolko-stoit-nomer/", "Сколько стоит номер"), ("/dinamika-cen/", "Динамика цен"), ("/api-i-vidzhety/", "API и виджеты")]
+    info = [("/kak-eto-rabotaet/", "Как это работает"), ("/faq/", "Вопросы и ответы"), ("/blog/", "Блог"), ("/o-servise/", "О сервисе")]
     picks = [("/%s/" % l["slug"], l["h1"]) for l in LANDINGS]
     legal = [("/dokumenty/", "Документы и партнёрство"), ("/politika/", "Политика конфиденциальности"), ("/polzovatelskoe-soglashenie/", "Пользовательское соглашение")]
     tg = ('<a href="https://t.me/magzgoldmg" target="_blank" rel="noopener">📢 Канал с номерами</a>'
@@ -395,12 +397,14 @@ def _build_drawer():
         '<aside class="drawer" id="drawer" aria-label="Меню сайта">'
         '<button class="drawer-close" aria-label="Закрыть">\u00d7</button>'
         '<a class="drawer-brand" href="/">Magz<span class="brand-gold">Gold</span></a>'
-        '<div class="drawer-group"><h4>Разделы</h4>%s</div>'
+        '<div class="drawer-group"><h4>Каталог</h4>%s</div>'
         '<div class="drawer-group"><h4>Подборки</h4>%s</div>'
+        '<div class="drawer-group"><h4>Сервисы</h4>%s</div>'
+        '<div class="drawer-group"><h4>Информация</h4>%s</div>'
         '<div class="drawer-group"><h4>Telegram</h4>%s</div>'
         '<div class="drawer-group"><h4>Документы</h4>%s</div>'
         '</aside>'
-    ) % (_dlinks(other), _dlinks(picks), tg, _dlinks(legal))
+    ) % (_dlinks(catalog), _dlinks(picks), _dlinks(tools), _dlinks(info), tg, _dlinks(legal))
 
 
 _DRAWER = _build_drawer()
