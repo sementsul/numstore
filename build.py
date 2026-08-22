@@ -385,7 +385,7 @@ def _dlinks(items):
 
 
 def _build_drawer():
-    other = [("/start/", "Все номера"), ("/kak-eto-rabotaet/", "Как это работает"), ("/tarify/", "Тарифы"), ("/kody/", "Номера по кодам"), ("/blog/", "Блог"), ("/faq/", "Вопросы и ответы"), ("/skolko-stoit-nomer/", "Сколько стоит номер"), ("/proverit-nomer/", "Проверить красоту номера"), ("/operator-po-nomeru/", "Оператор по номеру"), ("/dinamika-cen/", "Динамика цен"), ("/api-i-vidzhety/", "API и виджеты"), ("/o-servise/", "О сервисе")]
+    other = [("/start/", "Все номера"), ("/podbor-po-krasote/", "Подбор по красоте"), ("/kak-eto-rabotaet/", "Как это работает"), ("/tarify/", "Тарифы"), ("/kody/", "Номера по кодам"), ("/blog/", "Блог"), ("/faq/", "Вопросы и ответы"), ("/skolko-stoit-nomer/", "Сколько стоит номер"), ("/proverit-nomer/", "Проверить красоту номера"), ("/operator-po-nomeru/", "Оператор по номеру"), ("/dinamika-cen/", "Динамика цен"), ("/api-i-vidzhety/", "API и виджеты"), ("/o-servise/", "О сервисе")]
     picks = [("/%s/" % l["slug"], l["h1"]) for l in LANDINGS]
     legal = [("/dokumenty/", "Документы и партнёрство"), ("/politika/", "Политика конфиденциальности"), ("/polzovatelskoe-soglashenie/", "Пользовательское соглашение")]
     tg = ('<a href="https://t.me/magzgoldmg" target="_blank" rel="noopener">📢 Канал с номерами</a>'
@@ -1366,6 +1366,56 @@ def render_prices():
     write("dinamika-cen/index.html", html_out)
 
 
+def render_beauty():
+    """Подбор номеров по «красоте» с ползунком: все номера из локального catalog.json, оценка 0–100
+    (тот же анализатор, что в /proverit-nomer/), ползунок = минимальный порог красоты, сортировка по красоте."""
+    body = (
+        '<section class="beauty-panel">'
+        '<div class="beauty-slider-row">'
+        '<label for="bMin">Минимальная красота: <b id="bVal">50</b> / 100</label>'
+        '<input type="range" id="bMin" min="0" max="100" step="5" value="50" aria-label="Минимальная красота номера">'
+        '</div>'
+        '<p class="beauty-hint">Двигайте ползунок: чем правее — тем «красивее» и реже номера. '
+        'Оценка 0–100 считается по паттернам (повторы, последовательности, зеркальность, красивое окончание, круглые нули) — '
+        'так же, как в разделе <a href="/proverit-nomer/">Проверить красоту</a>.</p>'
+        '<div id="bCount" class="count"></div>'
+        '</section>'
+        '<div id="bStatus" class="status">Загружаю номера…</div>'
+        '<div class="grid" id="bGrid"></div>'
+        '<div class="more-wrap"><button id="bMore" class="btn-ghost" type="button" hidden>Показать ещё</button></div>'
+        '<section class="seo-text">'
+        '<h2>Как работает подбор по красоте</h2>'
+        '<p>Каждому номеру мы присваиваем оценку красоты от 0 до 100 по объективным закономерностям: '
+        'повторяющиеся цифры, последовательности (например 4-5-6-7), зеркальные комбинации (палиндромы), '
+        'чередование пар, красивое окончание и круглые нули на конце. Чем выше оценка — тем номер эффектнее и реже. '
+        'Ползунок задаёт минимальную оценку: сдвиньте вправо, чтобы оставить только самые статусные номера, '
+        'или влево — чтобы видеть больше вариантов.</p>'
+        '<h2>Что дальше</h2>'
+        '<p>Нажмите «Забронировать» на понравившемся номере — откроется карточка с тарифом и бронью онлайн. '
+        'Хотите искать по конкретной комбинации цифр — используйте <a href="/start/">каталог с маска-поиском</a>. '
+        'А проверить красоту любого своего номера можно в разделе <a href="/proverit-nomer/">Проверить красоту номера</a>.</p>'
+        '</section>')
+    html_out = render_page(metrika=METRIKA, drawer=_DRAWER,
+        title="Подбор красивых номеров по оценке красоты — ползунок | MagzGold",
+        desc="Подберите красивый номер по оценке красоты 0–100: ползунок отсекает по минимальной красоте, "
+             "номера отсортированы от самых эффектных. Повторы, последовательности, зеркальные, круглые. MagzGold.",
+        canonical=SITE["base"] + "/podbor-po-krasote/",
+        og_image=OG("home"),
+        page_js="",
+        schema=schema_breadcrumb({"name": "Подбор по красоте", "slug": "podbor-po-krasote", "toplevel": True}),
+        nav=nav_links(None),
+        header_block='    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>',
+        main_top='%s\n  <h1 class="page-h1">Подбор номеров по красоте</h1>\n'
+                 '  <p class="page-intro">Все номера, отсортированные по оценке красоты. Двигайте ползунок — '
+                 'и оставляйте только те, что достаточно эффектны для вас.</p>'
+                 % crumbs("Подбор по красоте"),
+        vitrina=body,
+        footnav=nav_links(None) + patnav(),
+        scripts='<script src="/beauty.js%s"></script>' % _ver("beauty.js"),
+    )
+    write("podbor-po-krasote/index.html", html_out)
+
+
 def render_operator():
     """Инструмент: узнать оператора и регион по номеру (база Россвязи, лукап в браузере) + похожие номера."""
     body = (
@@ -1879,7 +1929,7 @@ def render_sitemap():
             + [SITE["base"] + "/%s/" % l["slug"] for l in LANDINGS]
             + [SITE["base"] + "/krasivye-nomera/"]
             + [SITE["base"] + "/krasivye-nomera/%s/" % c["slug"] for c in CITIES]
-            + [SITE["base"] + "/kak-eto-rabotaet/", SITE["base"] + "/proverit-nomer/", SITE["base"] + "/operator-po-nomeru/", SITE["base"] + "/dinamika-cen/", SITE["base"] + "/vidzhet/", SITE["base"] + "/api-i-vidzhety/", SITE["base"] + "/api/", SITE["base"] + "/skolko-stoit-nomer/", SITE["base"] + "/blog/"]
+            + [SITE["base"] + "/kak-eto-rabotaet/", SITE["base"] + "/podbor-po-krasote/", SITE["base"] + "/proverit-nomer/", SITE["base"] + "/operator-po-nomeru/", SITE["base"] + "/dinamika-cen/", SITE["base"] + "/vidzhet/", SITE["base"] + "/api-i-vidzhety/", SITE["base"] + "/api/", SITE["base"] + "/skolko-stoit-nomer/", SITE["base"] + "/blog/"]
             + [SITE["base"] + "/blog/%s/" % a["slug"] for a in BLOG]
             + [SITE["base"] + "/o-servise/", SITE["base"] + "/dokumenty/", SITE["base"] + "/tarify/", SITE["base"] + "/politika/", SITE["base"] + "/polzovatelskoe-soglashenie/"]
             + [SITE["base"] + "/tarif/%s/" % t["slug"] for t in TARIFFS]
@@ -1962,7 +2012,7 @@ def make_operators_json():
 
 
 def copy_assets():
-    for f in ("app.js", "styles.css", "config.js", "calc.js", "nav.js", "geo.js", "nomer.js", "checker.js", "operator.js", "chart.js", "widget.js", "tarify.js",
+    for f in ("app.js", "styles.css", "config.js", "calc.js", "nav.js", "geo.js", "nomer.js", "checker.js", "operator.js", "chart.js", "beauty.js", "widget.js", "tarify.js",
               "favicon.svg", "favicon.ico", "favicon-32x32.png", "favicon-192x192.png", "apple-touch-icon.png"):
         shutil.copy(os.path.join(ROOT, f), os.path.join(DIST, f))
     if os.path.isdir(os.path.join(ROOT, "img")):
@@ -2018,6 +2068,7 @@ def main():
     render_checker()
     render_operator()
     render_prices()
+    render_beauty()
     render_widget_docs()
     render_tools_hub()
     render_api_docs()

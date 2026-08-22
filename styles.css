@@ -190,6 +190,19 @@ body {
 .chart-tip-r b { margin-left: auto; padding-left: 12px; font-variant-numeric: tabular-nums; }
 .chart-slider-wrap { margin: 12px 2px 2px; }
 .chart-slider { width: 100%; accent-color: var(--gold); cursor: pointer; }
+/* подбор по красоте: панель ползунка + оценка на карточке */
+.beauty-panel { background: linear-gradient(180deg, var(--card-hi), var(--card)); border: 1px solid var(--line); border-radius: 16px; padding: 20px 22px; margin: 22px 0; }
+.beauty-slider-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.beauty-slider-row label { font-size: 15px; color: var(--text); white-space: nowrap; }
+.beauty-slider-row label b { color: var(--gold); font-size: 19px; font-variant-numeric: tabular-nums; }
+.beauty-slider-row input[type="range"] { flex: 1 1 240px; min-width: 200px; accent-color: var(--gold); cursor: pointer; }
+.beauty-hint { color: var(--muted); font-size: 13px; margin: 12px 0 0; line-height: 1.55; }
+.beauty-hint a { color: var(--gold); text-decoration: none; }
+.beauty-panel .count { margin: 14px 0 0; }
+.num-score { position: absolute; top: 14px; right: 14px; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 7px; background: rgba(201,165,88,.14); color: var(--gold); border: 1px solid var(--line-2); font-variant-numeric: tabular-nums; }
+.num-score.v-top { background: rgba(185,140,230,.16); color: #c9a6ec; border-color: rgba(185,140,230,.4); }
+.num-score.v-plain { background: rgba(255,255,255,.05); color: var(--muted); border-color: var(--line); }
+a.num-buy { text-decoration: none; display: block; }
 .op-row { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-top: 1px solid var(--line); font-size: 16px; }
 .op-row span { color: var(--muted); }
 .op-row b { text-align: right; }
