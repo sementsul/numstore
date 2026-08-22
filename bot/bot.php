@@ -40,11 +40,12 @@ $WATCH_FILE  = __DIR__ . '/watches.json';   // подписки: { "<chat_id>": 
 $WCHECK_FILE = __DIR__ . '/watch_check.txt'; // время последней проверки подписок (троттлинг)
 
 /* ---------- HTTP ---------- */
-function http_get($url, $headers = [])
+function http_get($url, $headers = [], $timeout = 60)
 {
     $ch = curl_init($url);
     curl_setopt_array($ch, [
-        CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 60,
+        CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => $timeout,
+        CURLOPT_CONNECTTIMEOUT => 8,
         CURLOPT_USERAGENT => UA, CURLOPT_HTTPHEADER => $headers,
     ]);
     $r = curl_exec($ch); curl_close($ch);
@@ -228,7 +229,7 @@ function search_pattern($pattern)
 {
     global $API_TOKEN;
     $q = http_build_query(['expand' => 'tariff', 'is_reserved' => 'false', 'per_page' => '100', 'phone_pattern' => norm_mask($pattern)]);
-    $data = http_get(API_BASE . "/super-link/phones/mask-category?$q", ['Authorization: ' . $API_TOKEN]);
+    $data = http_get(API_BASE . "/super-link/phones/mask-category?$q", ['Authorization: ' . $API_TOKEN], 8);
     $out = [];
     if (is_array($data)) {
         foreach ($data as $v) {
@@ -251,7 +252,9 @@ function add_watch($chat_id, $pattern)
     $w = load_watches();
     $cid = (string)$chat_id;
     if (!isset($w[$cid])) { $w[$cid] = []; }
-    if (!isset($w[$cid][$m])) { $w[$cid][$m] = []; }
+    // null = «ещё не сделан базовый снимок»: первая проверка запомнит текущие номера МОЛЧА,
+    // уведомления пойдут только про те, что появятся ПОЗЖЕ (иначе — флуд всем каталогом сразу).
+    if (!array_key_exists($m, $w[$cid])) { $w[$cid][$m] = null; }
     save_watches($w);
     tg('sendMessage', ['chat_id' => $chat_id, 'parse_mode' => 'HTML',
         'text' => "✅ Вы подписались на маску номеров\n<b>" . mask_human($m) . "</b>\n\nКак появятся соответствующие номера — мы вас обязательно уведомим.",
@@ -282,7 +285,7 @@ function remove_watch($chat_id, $pattern, $mid = null)
 {
     $w = load_watches();
     $cid = (string)$chat_id;
-    if (isset($w[$cid][$pattern])) { unset($w[$cid][$pattern]); if (!$w[$cid]) { unset($w[$cid]); } save_watches($w); }
+    if (array_key_exists($pattern, $w[$cid] ?? [])) { unset($w[$cid][$pattern]); if (!$w[$cid]) { unset($w[$cid]); } save_watches($w); }
     list_watches($chat_id, $mid);
 }
 // проверка всех подписок по API + уведомления. Троттлинг: не чаще раза в 30 мин.
@@ -297,19 +300,33 @@ function check_watches()
     if (!$w) { return; }
     $patterns = [];
     foreach ($w as $subs) { foreach ($subs as $pat => $_) { $patterns[$pat] = 1; } }
+    // Жёсткий тайм-бюджет: проверка подписок НЕ должна подвешивать бота. Уперлись в бюджет —
+    // недопроверенные маски досмотрим на следующем заходе (троттлинг уже сдвинут — не зациклимся).
+    $stop = time() + 15;
     $found = [];
-    foreach (array_keys($patterns) as $pat) { $found[$pat] = search_pattern($pat); }
+    foreach (array_keys($patterns) as $pat) {
+        if (time() >= $stop) { break; }
+        $found[$pat] = search_pattern($pat);
+    }
     $changed = false;
+    $sent = 0;   // антиспам: не больше 20 уведомлений за заход суммарно
     foreach ($w as $cid => $subs) {
         foreach ($subs as $pat => $notified) {
-            foreach (($found[$pat] ?? []) as $d => $info) {
+            if (!array_key_exists($pat, $found)) { continue; }   // маску в этот заход не искали — не трогаем
+            $curr = array_keys($found[$pat]);
+            if ($notified === null) {                            // первая проверка = базовый снимок, БЕЗ уведомлений
+                $w[$cid][$pat] = $curr; $changed = true; continue;
+            }
+            foreach ($curr as $d) {
                 if (in_array($d, $notified, true)) { continue; }
+                if ($sent >= 20 || time() >= $stop) { break; }   // кэп/бюджет — остальные добьём на следующем заходе
+                $info = $found[$pat][$d];
                 tg('sendMessage', ['chat_id' => $cid, 'parse_mode' => 'HTML',
                     'text' => "🔔 Появился номер по вашей подписке!\n\n<b>" . fmt_phone($d) . "</b>"
                         . ($info['price'] ? ("\nТариф " . fmt_money($info['price']) . " /мес") : "")
                         . "\n\nОткрыть каталог: " . SITE . "/start/",
                     'reply_markup' => kb([[['text' => '🔎 Смотреть на сайте', 'url' => SITE . '/start/']], [['text' => '✖ отписаться', 'callback_data' => 'unwatch:' . $pat]]])]);
-                $notified[] = $d; $changed = true;
+                $notified[] = $d; $sent++; $changed = true;
             }
             if (count($notified) > 300) { $notified = array_slice($notified, -300); }
             $w[$cid][$pat] = $notified;
@@ -359,7 +376,7 @@ $offset = is_file($OFFSET_FILE) ? (int)file_get_contents($OFFSET_FILE) : 0;
 // «Агрессивный» режим: держим соединение ~50с и НЕПРЕРЫВНО long-poll'им → покрываем почти всю минуту,
 // ответ почти всегда мгновенный. ignore_user_abort позволяет работать даже после того, как пингер
 // (cron-job.org) отвалится по своему таймауту ~30с — бот доработает окно до конца.
-$deadline = time() + 50;
+$deadline = time() + 45;   // 45с поллинг + ≤15с check_watches = ≤60с < set_time_limit(70): бот не упирается в лимит
 while (time() < $deadline) {
     $t = max(1, min(20, $deadline - time()));   // long-poll кусками ≤20с (чтобы перечитывать дедлайн)
     $q = ['timeout' => $t];
