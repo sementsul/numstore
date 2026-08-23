@@ -29,8 +29,11 @@
     var palin = s === s.split("").reverse().join("");
     var rep = (n - distinct) / (n - 1), runC = Math.min(1, (maxRun - 1) / Math.max(1, n - 3)), freqC = (maxFreq - 1) / (n - 1),
         seqC = (maxSeq - 1) / (n - 1), altC = Math.min(1, (alt - 2) / Math.max(1, n - 4));
-    var repBeauty = 0.45 * rep + 0.35 * runC + 0.20 * freqC;
-    return Math.max(repBeauty, seqC * 0.8, altC * 0.72, palin ? 0.72 : 0);
+    // частота цифры весома (шесть одинаковых важнее четырёх подряд); палиндром — ДОБАВКА, а не потолок,
+    // иначе симметричные бриллиантовые (5558555) проигрывали сплошным повторам и тонули в сортировке.
+    var repBeauty = 0.40 * rep + 0.30 * runC + 0.30 * freqC;
+    var base = Math.max(repBeauty, seqC * 0.8, altC * 0.72);
+    return Math.min(1, base + (palin ? 0.16 : 0));
   }
   // оценка красоты 0..100. Красоту меряем по ТЕЛУ (7 цифр после кода) и хвосту-6, а не только по всем 10 —
   // иначе случайный код (напр. 984) разбавляет красивое тело. Синхронно с checker.js.
