@@ -435,7 +435,7 @@ def _dlinks(items):
 
 
 def _build_drawer():
-    catalog = [("/start/", "Все номера"), ("/podbor-po-krasote/", "Подбор по красоте"), ("/kody/", "Номера по кодам"), ("/tarify/", "Тарифы")]
+    catalog = [("/start/", "Все номера"), ("/podbor-po-krasote/", "Подбор по красоте"), ("/kody/", "Номера по кодам"), ("/krasivye-nomera/", "Номера по городам"), ("/tarify/", "Тарифы")]
     tools = [("/proverit-nomer/", "Проверить красоту номера"), ("/operator-po-nomeru/", "Оператор по номеру"), ("/skolko-stoit-nomer/", "Сколько стоит номер"), ("/dinamika-cen/", "Динамика цен"), ("/api-i-vidzhety/", "API и виджеты")]
     info = [("/kak-eto-rabotaet/", "Как это работает"), ("/faq/", "Вопросы и ответы"), ("/blog/", "Блог"), ("/o-servise/", "О сервисе")]
     picks = [("/%s/" % l["slug"], l["h1"]) for l in LANDINGS]
@@ -810,7 +810,7 @@ def render_start():
     intro = ("Полный каталог красивых номеров: соберите нужную комбинацию маской или выберите категорию — "
              "бриллиантовые, платиновые, золотые, серебряные, бронзовые. Тариф и мгновенная бронь онлайн.")
     html_out = render_page(metrika=METRIKA, drawer=_DRAWER,
-        title="Каталог красивых номеров — подбор по маске и категориям | MagzGold",
+        title="Каталог красивых номеров — подбор по маске | MagzGold",
         desc="Полный каталог красивых номеров телефонов MagzGold: подбор по маске, фильтры по тарифу и цене, "
              "все категории. Бронирование онлайн, доставка SIM и eSIM по России.",
         canonical=SITE["base"] + "/start/",
@@ -832,7 +832,7 @@ def render_home():
     catalog.json, бронь с шагами). Вставляем SEO-голову (description/canonical/OG/favicon/Метрика/схема) в <head>."""
     html = open(os.path.join(ROOT, "premium-demo.html"), encoding="utf-8").read()
     b = SITE["base"]
-    title = "MagzGold — красивые бриллиантовые номера: купить и забронировать онлайн"
+    title = "Красивые бриллиантовые номера — купить онлайн | MagzGold"
     desc = ("MagzGold — красивые бриллиантовые номера телефонов высшей категории: бронирование онлайн, "
             "доставка SIM и eSIM по России. Официально от оператора «Безлимит».")
     og = OG("home")
