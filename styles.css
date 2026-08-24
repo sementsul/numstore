@@ -747,3 +747,8 @@ a.num-buy { text-decoration: none; display: block; }
 .fcol a { display: block; color: var(--muted); text-decoration: none; font-size: 13px; padding: 4px 0; transition: color .15s; }
 .fcol a:hover { color: var(--gold-hi); }
 .fbottom { margin-top: 34px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; line-height: 1.6; }
+
+/* GEO: фактическая строка диапазона цен на страницах категорий (экстрактируемый факт для AI-движков) */
+.cat-facts{ margin:0 0 22px; padding:10px 14px; font-size:14px; line-height:1.5; color:var(--muted);
+  border-left:2px solid var(--gold); background:rgba(201,165,88,.05); border-radius:0 6px 6px 0; max-width:760px; }
+.cat-facts b{ color:var(--gold-hi); font-weight:600; }

@@ -25,31 +25,31 @@ SITE = {
 
 # Категории: slug, код для API (mask_categories), витринное имя, SEO-тексты.
 CATEGORIES = [
-    {"slug": "brilliant", "pmin": 400000, "pmax": 4000000, "code": "brilliant,brilliant_super", "name": "Бриллиантовые",
+    {"slug": "brilliant", "pmin": 400000, "pmax": 4000000, "tmin": 4000, "code": "brilliant,brilliant_super", "name": "Бриллиантовые",
      "h1": "Бриллиантовые номера",
      "desc": "Бриллиантовые номера телефонов — самая красивая категория: подбор по маске, тарифы, бронирование онлайн на MagzGold.",
      "intro": "Бриллиантовые номера — вершина категорий красоты: максимально «чистые» комбинации, "
               "повторяющиеся и зеркальные цифры, лёгкие для запоминания. Такой номер подчёркивает статус "
               "и почти не встречается в свободной продаже. Ниже — доступные бриллиантовые номера с тарифами; "
               "уточните комбинацию маской и забронируйте онлайн."},
-    {"slug": "platinum", "pmin": 25000, "pmax": 600000, "code": "platinum,platinum_lite", "name": "Платиновые",
+    {"slug": "platinum", "pmin": 25000, "pmax": 600000, "tmin": 1600, "code": "platinum,platinum_lite", "name": "Платиновые",
      "h1": "Платиновые номера",
      "desc": "Платиновые номера телефонов на MagzGold: красивые комбинации, разные тарифы, подбор по маске и онлайн-бронь.",
      "intro": "Платиновые номера — премиальная категория чуть доступнее бриллиантовых: эффектные сочетания "
               "цифр, которые приятно диктовать и легко запомнить. Подходят тем, кто хочет заметный номер без "
               "переплаты за топ-категорию. Выберите подходящий по маске и тарифу."},
-    {"slug": "gold", "pmin": 50000, "pmax": 200000, "code": "gold", "name": "Золотые",
+    {"slug": "gold", "pmin": 50000, "pmax": 200000, "tmin": 1300, "code": "gold", "name": "Золотые",
      "h1": "Золотые номера",
      "desc": "Золотые номера телефонов: баланс красоты и цены. Подбор по маске, тарифы, бронирование онлайн — MagzGold.",
      "intro": "Золотые номера — оптимальный баланс красоты и стоимости: узнаваемые комбинации, повторы и "
               "приятные окончания за разумные деньги. Самая популярная категория для личного и рабочего номера. "
               "Отфильтруйте по тарифу и подберите свой."},
-    {"slug": "silver", "pmin": 12000, "pmax": 100000, "code": "silver,silver_special,silver_special_2", "name": "Серебряные",
+    {"slug": "silver", "pmin": 12000, "pmax": 100000, "tmin": 750, "code": "silver,silver_special,silver_special_2", "name": "Серебряные",
      "h1": "Серебряные номера",
      "desc": "Серебряные номера телефонов на MagzGold: доступные красивые комбинации, тарифы, онлайн-бронь.",
      "intro": "Серебряные номера — доступная красота: аккуратные комбинации, которые проще запомнить, чем "
               "случайный набор, но без премиальной наценки. Хороший выбор, если нужен приятный номер недорого."},
-    {"slug": "bronze", "pmin": 3000, "pmax": 12000, "code": "bronze,bronze_vip,bronze AAA", "name": "Бронзовые",
+    {"slug": "bronze", "pmin": 3000, "pmax": 12000, "tmin": 550, "code": "bronze,bronze_vip,bronze AAA", "name": "Бронзовые",
      "h1": "Бронзовые номера",
      "desc": "Бронзовые номера телефонов: самый доступный вход в красивые номера. Подбор по маске и тарифу — MagzGold.",
      "intro": "Бронзовые номера — начальная категория красоты и самый доступный вход: лёгкие для запоминания "
@@ -63,7 +63,7 @@ CAT_TEXT = {
         "<p>Бриллиантовая категория — это верх линейки красивых номеров. Сюда попадают самые «чистые» и редкие "
         "комбинации: семь одинаковых цифр подряд, идеальные зеркала, номера, где повторяется код и окончание. "
         "Такие сочетания встречаются крайне редко, поэтому и ценятся выше всего. Через MagzGold бриллиантовый "
-        "номер достаётся <b>бесплатно</b> — вы платите только за тариф (от 4 000 ₽/мес). Платным номер становится "
+        "номер достаётся <b>бесплатно</b> — вы платите только за тариф (от {{TMIN:brilliant}} ₽/мес). Платным номер становится "
         "лишь при переносе к другому оператору.</p>"
         "<p>Бриллиантовый номер — это статусный аксессуар и одновременно инвестиция: действительно красивые "
         "комбинации со временем только растут в цене. Его выбирают под личный бренд, для первых лиц компаний и "
@@ -73,14 +73,14 @@ CAT_TEXT = {
         "<h2>Платиновые номера: премиум без максимальной наценки</h2>"
         "<p>Платина — премиальная категория чуть доступнее бриллиантовой. Здесь выраженная симметрия, длинные "
         "повторы и эффектные окончания. Через MagzGold номер <b>бесплатный</b> — платите только за тариф "
-        "(от 1 600 ₽/мес); платным он становится лишь при переносе к другому оператору. Отличный выбор, когда "
+        "(от {{TMIN:platinum}} ₽/мес); платным он становится лишь при переносе к другому оператору. Отличный выбор, когда "
         "хочется солидный запоминающийся номер без перехода в топ-сегмент.</p>"
         "<p>Платиновые номера хорошо работают и для личного пользования, и как рабочий номер, который клиенты "
         "запоминают с первого раза. Уточните нужные цифры маской и подберите вариант под свой тариф.</p>"),
     "gold": (
         "<h2>Золотые номера — золотая середина</h2>"
         "<p>Золото — самая популярная категория: оптимальный баланс красоты и цены. Через MagzGold номер "
-        "<b>бесплатный</b>, платите только за тариф (от 1 300 ₽/мес); платным он становится лишь при переносе к "
+        "<b>бесплатный</b>, платите только за тариф (от {{TMIN:gold}} ₽/мес); платным он становится лишь при переносе к "
         "другому оператору. Узнаваемые повторы, приятные окончания и лёгкие для диктовки комбинации, которые "
         "заметно выделяются на фоне обычного набора цифр.</p>"
         "<p>Такой номер одинаково уместен для личного телефона и для бизнеса. Отфильтруйте по тарифу и цене, "
@@ -88,14 +88,14 @@ CAT_TEXT = {
     "silver": (
         "<h2>Серебряные номера: доступная красота</h2>"
         "<p>Серебро — аккуратные, приятные комбинации. Через MagzGold номер <b>бесплатный</b>, платите только за "
-        "тариф (от 750 ₽/мес). Они заметно удобнее случайного набора: легче запоминаются и диктуются, но без "
+        "тариф (от {{TMIN:silver}} ₽/мес). Они заметно удобнее случайного набора: легче запоминаются и диктуются, но без "
         "премиальной наценки.</p>"
         "<p>Хороший вариант для второго номера, для работы или в подарок. Подберите комбинацию маской и "
         "сравните тарифы.</p>"),
     "bronze": (
         "<h2>Бронзовые номера: доступный вход</h2>"
         "<p>Бронза — начальная категория красивых номеров. Через MagzGold номер <b>бесплатный</b>, платите только "
-        "за тариф (от 550 ₽/мес). Лёгкие сочетания, небольшие повторы и пары цифр — чтобы номер было проще "
+        "за тариф (от {{TMIN:bronze}} ₽/мес). Лёгкие сочетания, небольшие повторы и пары цифр — чтобы номер было проще "
         "запомнить.</p>"
         "<p>Отличный выбор для второго номера, для бизнеса или в подарок без больших вложений.</p>"),
 }
@@ -272,16 +272,16 @@ BLOG = [
         "<p>Красивые номера ранжируют по категориям — они отражают редкость комбинации. Через MagzGold сам номер "
         "<b>бесплатный</b>, вы платите только за тариф; чем красивее категория, тем ёмче тариф оператора на "
         "номерах. Разберём каждую от доступной к премиальной.</p>"
-        '<h2><a href="/kategoriya/bronze/">Бронзовые</a> — тариф от 550 ₽/мес</h2>'
+        '<h2><a href="/kategoriya/bronze/">Бронзовые</a> — тариф от {{TMIN:bronze}} ₽/мес</h2>'
         "<p>Начальная категория: лёгкие для запоминания сочетания, пары и небольшие повторы. Доступный вход "
         "в красивые номера, хороший вариант для второго номера.</p>"
-        '<h2><a href="/kategoriya/silver/">Серебряные</a> — тариф от 750 ₽/мес</h2>'
+        '<h2><a href="/kategoriya/silver/">Серебряные</a> — тариф от {{TMIN:silver}} ₽/мес</h2>'
         "<p>Аккуратные комбинации заметно приятнее случайного набора, но без премиальной наценки.</p>"
-        '<h2><a href="/kategoriya/gold/">Золотые</a> — тариф от 1 300 ₽/мес</h2>'
+        '<h2><a href="/kategoriya/gold/">Золотые</a> — тариф от {{TMIN:gold}} ₽/мес</h2>'
         "<p>Оптимальный баланс красоты и статуса: узнаваемые повторы и ровные окончания. Популярный выбор.</p>"
-        '<h2><a href="/kategoriya/platinum/">Платиновые</a> — тариф от 1 600 ₽/мес</h2>'
+        '<h2><a href="/kategoriya/platinum/">Платиновые</a> — тариф от {{TMIN:platinum}} ₽/мес</h2>'
         "<p>Премиальные комбинации с выраженной симметрией и длинными повторами.</p>"
-        '<h2><a href="/kategoriya/brilliant/">Бриллиантовые</a> — тариф от 4 000 ₽/мес</h2>'
+        '<h2><a href="/kategoriya/brilliant/">Бриллиантовые</a> — тариф от {{TMIN:brilliant}} ₽/мес</h2>'
         "<p>Вершина: максимально «чистые» номера (например, семь одинаковых цифр). Встречаются редко и "
         "подчёркивают статус.</p>"
         '<p>Прикинуть расходы на тариф удобно на <a href="/skolko-stoit-nomer/">калькуляторе</a>.</p>'),
@@ -541,6 +541,7 @@ PAGE_TMPL = """<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="yandex-verification" content="e8b5b765f77b401c" />
+<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
 <title>{title}</title>
 <meta name="description" content="{desc}">
 <link rel="canonical" href="{canonical}">
@@ -652,12 +653,48 @@ def schema_breadcrumb(active=None):
             '"@type":"BreadcrumbList","itemListElement":[%s]}</script>' % li)
 
 
+def _load_cat_min_tariffs():
+    """Мин. абонплата (₽/мес) по категории из ЖИВОГО каталога (крон обновляет ежечасно). Тарифы меняются —
+    хардкод устаревает, поэтому источник истины = catalog.json. Фолбэк — поле tmin из конфига (каталог недоступен)."""
+    res = {}
+    try:
+        cat = json.load(open(os.path.join(ROOT, "data", "catalog.json"), encoding="utf-8"))
+        for slug, items in cat.get("cats", {}).items():
+            ps = [x.get("p") for x in items if x.get("p")]
+            if ps:
+                res[slug] = min(ps)
+    except Exception:
+        pass
+    return res
+
+
+CAT_MIN_TARIFF = _load_cat_min_tariffs()
+
+
+def cat_min_tariff(c):
+    """Актуальный минимальный тариф категории: живой каталог → фолбэк на конфиг tmin."""
+    return CAT_MIN_TARIFF.get(c["slug"], c.get("tmin"))
+
+
 def cat_schema(c):
+    # GEO/AI-shopping: обогащённый Product — brand/image/url. ВАЖНО: номер БЕСПЛАТНЫЙ (lowPrice 0),
+    # реальная цена — абонплата тарифа (UnitPriceSpecification, ₽/мес). pmin/pmax тут НЕ цена покупки.
     prod = ('<script type="application/ld+json">{"@context":"https://schema.org","@type":"Product",'
             '"name":"%s","category":"Красивые номера телефонов",'
-            '"offers":{"@type":"AggregateOffer","priceCurrency":"RUB","lowPrice":%d,"highPrice":%d,'
-            '"availability":"https://schema.org/InStock"}}</script>') % (esc(c["h1"]), c["pmin"], c["pmax"])
-    return prod + schema_breadcrumb(c)
+            '"brand":{"@type":"Brand","name":"MagzGold"},'
+            '"image":"%s","url":"%s",'
+            '"offers":{"@type":"Offer","priceCurrency":"RUB","price":0,'
+            '"availability":"https://schema.org/InStock",'
+            '"seller":{"@type":"Organization","name":"MagzGold"},'
+            '"priceSpecification":{"@type":"UnitPriceSpecification","price":%d,"priceCurrency":"RUB",'
+            '"unitText":"мес","name":"Абонентская плата тарифа Безлимит ULTRA (от)"}}}</script>') % (
+                esc(c["h1"]), OG("category"), SITE["base"] + "/kategoriya/%s/" % c["slug"], cat_min_tariff(c))
+    # Speakable (AEO/голос): озвучиваемый фрагмент — заголовок + факт-строка цены/тарифа
+    webpage = ('<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage",'
+               '"name":"%s","url":"%s","speakable":{"@type":"SpeakableSpecification",'
+               '"cssSelector":[".page-h1",".cat-facts"]}}</script>') % (
+                   esc(c["h1"]), SITE["base"] + "/kategoriya/%s/" % c["slug"])
+    return prod + webpage + schema_breadcrumb(c)
 
 
 def related_block(exclude_cat=None, exclude_pat=None):
@@ -669,7 +706,20 @@ def related_block(exclude_cat=None, exclude_pat=None):
     return '<section class="related"><h2>Смотрите также</h2><nav class="rel-links">%s</nav></section>' % links
 
 
+def _sub_tmin(content):
+    """Централизованная подстановка живого мин.тарифа: токен {{TMIN:slug}} → актуальное значение (₽, с пробелами).
+    Живой источник — catalog.json (крон), фолбэк — _TMIN. Так тексты (CAT_TEXT/блог) не устаревают при смене тарифа."""
+    if "{{TMIN:" not in content:
+        return content
+    for slug in _TMIN:
+        v = CAT_MIN_TARIFF.get(slug) or _TMIN.get(slug)
+        if v:
+            content = content.replace("{{TMIN:%s}}" % slug, format(v, ",").replace(",", " "))
+    return content
+
+
 def write(path, content):
+    content = _sub_tmin(content)
     full = os.path.join(DIST, path)
     os.makedirs(os.path.dirname(full), exist_ok=True)
     with open(full, "w", encoding="utf-8") as f:
@@ -680,11 +730,20 @@ def home_schema():
     org = ('<script type="application/ld+json">{"@context":"https://schema.org","@type":"Organization",'
            '"name":"MagzGold","url":"%s/","logo":"%s/og.png",'
            '"description":"Витрина красивых номеров телефонов, официальный партнёр оператора Безлимит",'
+           '"sameAs":["https://t.me/magzgoldmg"],'
            '"contactPoint":{"@type":"ContactPoint","email":"sementsul.maksim@yandex.ru","contactType":"customer support"}}'
            "</script>") % (SITE["base"], SITE["base"])
     web = ('<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite",'
            '"name":"MagzGold","url":"%s/"}</script>') % SITE["base"]
-    return org + web + schema_breadcrumb()
+    # NEO/GEO: машиночитаемый датасет красивых номеров (фид api/numbers.json) — для нейро-движков/агрегаторов
+    dataset = ('<script type="application/ld+json">{"@context":"https://schema.org","@type":"Dataset",'
+               '"name":"Каталог красивых номеров MagzGold",'
+               '"description":"Открытый фид красивых и премиальных мобильных номеров с категориями красоты и '
+               'тарифами; обновляется автоматически.","url":"%s/","isAccessibleForFree":true,'
+               '"creator":{"@type":"Organization","name":"MagzGold","url":"%s/"},'
+               '"distribution":{"@type":"DataDownload","encodingFormat":"application/json",'
+               '"contentUrl":"%s/api/numbers.json"}}</script>') % (SITE["base"], SITE["base"], SITE["base"])
+    return org + web + dataset + schema_breadcrumb()
 
 
 # Подписи OG под каждый тип страницы (файл og/<kind>.png). "home" дублируется в /og.png (дефолт + логотип).
@@ -780,6 +839,7 @@ def render_home():
     head = "\n".join([
         '<meta name="description" content="%s">' % desc,
         '<meta name="yandex-verification" content="e8b5b765f77b401c" />',
+        '<meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">',
         '<link rel="canonical" href="%s/">' % b,
         '<meta property="og:type" content="website">',
         '<meta property="og:title" content="%s">' % title,
@@ -835,8 +895,13 @@ SLUG2LABEL = {"bronze": "Бронза", "silver": "Серебро", "gold": "З�
 def render_category(c):
     page_js = '<script>window.PAGE={cat:"%s"};</script>' % c["code"]
     header_block = '    <a href="/" class="brand">Magz<span class="brand-gold">Gold</span></a>'
-    main_top = "%s\n  <h1 class=\"page-h1\">%s</h1>\n  <p class=\"page-intro\">%s</p>" % (
-        crumbs(c["name"]), esc(c["h1"]), c["intro"])
+    # GEO answer-first: короткая фактическая строка — экстрактируемый факт для AI-движков. Модель верна:
+    # номер БЕСПЛАТНЫЙ, оплата только за тариф (tmin ₽/мес по категории). Интро (копия владельца) не трогаем.
+    _pf = lambda n: format(n, ",").replace(",", " ")
+    cat_facts = ('  <p class="cat-facts">Номер — <b>бесплатно</b>, оплата только за тариф Безлимит ULTRA: '
+                 '<b>от %s ₽/мес</b> · бронирование онлайн · доставка SIM и eSIM по России</p>') % _pf(cat_min_tariff(c))
+    main_top = "%s\n  <h1 class=\"page-h1\">%s</h1>\n  <p class=\"page-intro\">%s</p>\n%s" % (
+        crumbs(c["name"]), esc(c["h1"]), c["intro"], cat_facts)
     label = SLUG2LABEL.get(c["slug"], "")
     # Мини-график динамики средней абонплаты по этой категории (история копится кроном).
     chart = ('<section class="chart-wrap chart-cat"><h2>Динамика средней абонплаты — %s</h2>'
@@ -1654,8 +1719,13 @@ def render_blog_index():
 
 def render_article(a):
     art_ld = ('<script type="application/ld+json">{"@context":"https://schema.org","@type":"Article",'
-              '"headline":"%s","publisher":{"@type":"Organization","name":"MagzGold"},'
-              '"mainEntityOfPage":"%s/blog/%s/"}</script>' % (esc(a["h1"]), SITE["base"], a["slug"]))
+              '"headline":"%s","author":{"@type":"Organization","name":"MagzGold","url":"%s/"},'
+              '"publisher":{"@type":"Organization","name":"MagzGold",'
+              '"logo":{"@type":"ImageObject","url":"%s/og.png"}},'
+              '"dateModified":"%s",'
+              '"speakable":{"@type":"SpeakableSpecification","cssSelector":[".article h1",".article p"]},'
+              '"mainEntityOfPage":"%s/blog/%s/"}</script>' % (
+                  esc(a["h1"]), SITE["base"], SITE["base"], date.today().isoformat(), SITE["base"], a["slug"]))
     bc = ('<nav class="crumbs"><a href="/">Главная</a> / <a href="/blog/">Блог</a> / <span>%s</span></nav>'
           % esc(a["h1"]))
     html_out = render_page(metrika=METRIKA, drawer=_DRAWER, 

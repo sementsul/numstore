@@ -970,3 +970,56 @@ JSON-LD, sitemap, шторка — не тронуты; `dist/` в .gitignore (�
 **Проверка:** `python3 build.py` EXIT 0; `dist/llms.txt` (53 стр.) начинается с «# MagzGold — красивые номера…»;
 `dist/robots.txt` содержит блок «# AI / answer engines» с 14 ботами. Прочитано глазами.
 **Статус:** ✅ локально; ⏳ деплой на прод (magzgold.ru) — за пользователем.
+
+## UC-75. GEO — обогащённый Product + строка-факт цены на категориях ✅
+**Предусловие:** после UC-74 (llms.txt + AI-краулеры) добиваем GEO по «денежным» страницам, но БЕЗ риска для
+премиум-дизайна и без правки копии владельца. Аудит: Product-схема категорий была базовой (AggregateOffer с
+pmin/pmax), без brand/image/url; на самих страницах не было экстрактируемого числового факта.
+**🔴 Модель цены (поправка владельца):** номер БЕСПЛАТНЫЙ, оплата только за тариф Безлимит ULTRA (₽/мес);
+платным номер становится лишь при переносе к другому оператору. `pmin/pmax` в CATEGORIES — НЕ цена покупки
+(внутренняя метрика для фильтра каталога, отдаётся в JS `window.__CATS__`).
+**🔴 Тарифы меняются → источник ЖИВОЙ:** мин. абонплата берётся из `data/catalog.json` (min `p` по категории,
+крон обновляет ежечасно) через `cat_min_tariff(c)`/`CAT_MIN_TARIFF`. Хардкод устаревает — копия CAT_TEXT уже
+разошлась с фактом (платина 1600→1300, золото 1300→950). Поле `tmin` в CATEGORIES оставлено ТОЛЬКО как фолбэк
+(каталог недоступен при сборке).
+**Шаги/ожидаемо:**
+1. Невидимо — `cat_schema(c)`: Product + `brand` (MagzGold), `image` (OG категории), `url` (canonical), `seller`.
+   Offer: `price:0` (номер бесплатен) + `UnitPriceSpecification` с абонплатой тарифа (`cat_min_tariff(c)` ₽/мес,
+   живой). Раньше был AggregateOffer с lowPrice=pmin/highPrice=pmax — вводил в заблуждение (будто номер стоит
+   400 000 ₽), убрано.
+2. Видимо, бережно — `render_category`: под `.page-intro` строка `<p class="cat-facts">`:
+   «Номер — бесплатно, оплата только за тариф Безлимит ULTRA: от <живой мин.тариф> ₽/мес · бронирование онлайн ·
+   доставка SIM и eSIM по России». Только данные, копию `intro` не трогали. CSS `.cat-facts` — золотая палитра.
+3. Копия тоже живая — токен `{{TMIN:slug}}` в CAT_TEXT (глубокий текст категорий) и в теле блог-статьи
+   «kategorii-krasivyh-nomerov»; централизованная подстановка в `write()` через `_sub_tmin()` (living источник
+   CAT_MIN_TARIFF, фолбэк _TMIN). Раньше числа были зашиты в прозе и уже устарели (платина 1600, золото 1300).
+4. Главную (премиум-лендинг premium-demo.html) НЕ трогали — «5000 ₽/мес» там = реальный тариф SSR-номера из
+   живого каталога, не хардкод.
+**Сознательный отказ:** `offerCount`/счётчики номеров НЕ добавляли — `data/catalog.json` отдаёт обрезанный снимок
+(brilliant=50, остальные ровно 250 = кап, не реальный остаток) → был бы недостоверный факт.
+**РАДИУС:** `build.py` — CATEGORIES (`tmin` фолбэк), `_load_cat_min_tariffs`/`CAT_MIN_TARIFF`/`cat_min_tariff`
+(живой тариф), `_sub_tmin`+`write()` (подстановка токенов), `cat_schema`, `render_category`; копия — CAT_TEXT×5 и
+блог-статья «kategorii-krasivyh-nomerov» (числа → токены `{{TMIN}}`); `styles.css` (+`.cat-facts`).
+СОСЕДИ/роли: `write()` теперь прогоняет ЛЮБУЮ страницу через `_sub_tmin` (no-op, если токена нет — накладные ~0);
+паттерны/города/тарифы/лендинги/главная/бот НЕ затронуты; `pmin/pmax` не менялись (фильтр каталога цел); интро-копия
+категорий не изменена (правил только глубокий CAT_TEXT и блог, где тариф был зашит числом).
+**Проверка:** `python3 build.py` EXIT 0; живые тарифы из catalog.json: brilliant 4000, platinum 1300, gold 950,
+silver 750, bronze 550 (строка+схема совпали, не совпадают со стухшей копией — что и требовалось); Product `price:0`
++ тариф в UnitPriceSpecification; старого «Стоимость номера: от» в dist нет; главная цела. Превью :8000 → HTTP 200.
+**Статус:** ✅ локально, превью на :8000; ⏳ визуальная приёмка (дизайн!) → коммит → пуш.
+
+## UC-76. SEO/AEO/GEO/LLMO/NEO — robots-preview, sameAs, Speakable, Article-author, Dataset ✅
+**Предусловие:** аудит dist: нет `max-image-preview`, нет `sameAs`, нет Speakable, блог-Article без author/даты,
+нет Dataset на машинный фид.
+**Шаги/ожидаемо (дизайн НЕ трогали — только head/схемы):**
+1. SEO/AEO — `PAGE_TMPL` + head главной: `<meta name="robots">` +max-image-preview:large/max-snippet/-video.
+2. GEO/LLMO/NEO — Organization `sameAs`:["https://t.me/magzgoldmg"] в `home_schema`.
+3. AEO — Speakable: категории (WebPage-узел в `cat_schema`, cssSelector `.page-h1`,`.cat-facts`) + блог (в Article,
+   `.article h1/p`).
+4. AEO/E-E-A-T — блог Article: `author` (Organization MagzGold) + `dateModified` (дата сборки) + publisher.logo.
+   datePublished НЕ ставили — реальной даты по статьям нет (только drip-состояние), не фабрикуем.
+5. NEO/GEO — `Dataset` на главной → фид `api/numbers.json` (DataDownload, application/json).
+**Осознанный пропуск:** `SearchAction` — поиск клиентский (window.PAGE/фильтр), выделенного URL нет.
+**РАДИУС:** `build.py` — PAGE_TMPL, render_home(head), home_schema(sameAs+Dataset), cat_schema(speakable WebPage),
+render_article(author/date/speakable). СОСЕДИ: премиум-лендинг/вёрстка/копия не тронуты. **Проверка:** build EXIT 0;
+все правки в dist подтверждены; 108 JSON-LD блоков — все валидны (0 ошибок). **Статус:** ✅ локально; ⏳ приёмка.
