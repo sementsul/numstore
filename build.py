@@ -1997,7 +1997,54 @@ def render_sitemap():
     body = "".join("<url><loc>%s</loc><lastmod>%s</lastmod><changefreq>daily</changefreq></url>" % (u, today) for u in urls)
     write("sitemap.xml", '<?xml version="1.0" encoding="UTF-8"?>'
           '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">%s</urlset>' % body)
-    write("robots.txt", "User-agent: *\nAllow: /\nSitemap: %s/sitemap.xml\n" % SITE["base"])
+    # AI / answer-engine краулеры разрешаем ЯВНО (сигнал намерения для GEO): каждый именованный
+    # user-agent читает только свой блок, поэтому дублируем Allow: / для каждого. + ссылка на llms.txt.
+    ai_bots = ["GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "Claude-Web", "anthropic-ai",
+               "PerplexityBot", "Perplexity-User", "Google-Extended", "Applebot-Extended",
+               "CCBot", "Amazonbot", "Bytespider", "YandexAdditional"]
+    robots = "User-agent: *\nAllow: /\n\n# AI / answer engines\n"
+    robots += "".join("User-agent: %s\nAllow: /\n\n" % b for b in ai_bots)
+    robots += "Sitemap: %s/sitemap.xml\n# LLM guidance: %s/llms.txt\n" % (SITE["base"], SITE["base"])
+    write("robots.txt", robots)
+
+
+def render_llms():
+    """llms.txt (llmstxt.org) — карта сайта для AI-систем/ответных движков.
+       Извлекаемое описание + ссылки на ключевые разделы, чтобы движок цитировал точно."""
+    B = SITE["base"]
+    lines = [
+        "# MagzGold — красивые номера телефонов (купить и забронировать онлайн)",
+        "",
+        "> Витрина красивых и премиальных мобильных номеров: подбор по маске и категории красоты "
+        "(бронзовые → бриллиантовые), проверка балла красоты 0–100, тарифы, бронирование онлайн, "
+        "доставка SIM и eSIM по России. Домен: " + B + "/.",
+        "",
+        "## Основные разделы",
+        f"- [Каталог номеров]({B}/start/): подбор по маске, категории и баллу красоты.",
+        f"- [Проверить красоту номера]({B}/proverit-nomer/): балл 0–100 по паттернам.",
+        f"- [Сколько стоит номер]({B}/skolko-stoit-nomer/): калькулятор цены и тарифа.",
+        f"- [Подбор по красоте]({B}/podbor-po-krasote/): сортировка по баллу красоты.",
+        f"- [Как это работает]({B}/kak-eto-rabotaet/): подбор → бронь → доставка SIM/eSIM.",
+        f"- [Тарифы]({B}/tarify/): абонплаты по категориям.",
+        f"- [Частые вопросы (FAQ)]({B}/faq/): бронь, оплата, доставка, перенос номера.",
+        f"- [О сервисе]({B}/o-servise/): кто мы и как устроен подбор.",
+        "",
+        "## Категории красоты",
+    ]
+    for c in CATEGORIES:
+        lines.append(f"- [{c['name']} номера]({B}/kategoriya/{c['slug']}/): {c.get('desc','')}")
+    lines += ["", "## Типы красивых комбинаций"]
+    for p in PATTERNS:
+        lines.append(f"- [{p['name']}]({B}/{p['slug']}/): {p.get('desc','')}")
+    lines += ["", "## Блог (гайды)"]
+    for a in BLOG:
+        lines.append(f"- [{a['h1']}]({B}/blog/{a['slug']}/): {a.get('desc','')}")
+    lines += ["", "## Данные и каналы",
+              f"- Sitemap: {B}/sitemap.xml",
+              f"- Фид номеров (JSON): {B}/api/numbers.json",
+              f"- Telegram-канал: {SITE['tg_channel']}",
+              f"- Telegram-бот подбора: {SITE['tg_bot']}", ""]
+    write("llms.txt", "\n".join(lines))
 
 
 def make_numbers_json():
@@ -2147,6 +2194,7 @@ def main():
     render_faq()
     render_404()
     render_sitemap()
+    render_llms()
     copy_assets()
     print("✅ dist/: %d кат + %d паттернов + %d тарифов + %d кодов + %d гео-города + FAQ + калькулятор + %d статей + юр + 404" % (len(CATEGORIES), len(PATTERNS), len(TARIFFS), len(PREFIXES), len(CITIES), len(BLOG)))
 
