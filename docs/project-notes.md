@@ -175,3 +175,5 @@
 - **UC-77: SEO — хаб городов + title.** `/krasivye-nomera/` был сиротой → добавлен в шторку (Каталог→«Номера по городам»), теперь вх.ссылки с 84 стр. Подрезаны длинные title главной/старта (~56/~52 симв, meta-only).
 
 - **UC-78: предохранитель размера репо.** `repo-size-guard.yml` — еженедельно size репо (API) → при ≥400 МБ алерт в TG (секреты watchdog). Read-only, без force-push. Squash — вручную.
+
+- **Защита ветки `main` (вкл. 2026-08-25).** GitHub branch protection: 🔒 force-push запрещён, 🔒 удаление запрещено, enforce_admins=ON; require PR/checks — ВЫКЛ (иначе умрёт прямой PAT keep-alive пуш кронов). Для ручного squash временно снять «Block force pushes» (см. docs/how-to/repo-size-alert.md).
