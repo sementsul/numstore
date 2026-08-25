@@ -1048,3 +1048,15 @@ GitHub API, и ТОЛЬКО при ≥ порога (400 МБ) шлёт алер
 Read-only + уведомление, ничего не пушит. Ручной squash — процедура в project-notes (orphan-branch + push -f, с backup).
 **РАДИУС:** только новый workflow-файл; код/данные/деплой/бот не тронуты; секреты те же, что watchdog. **Проверка:**
 bash-логика прогнана (ниже порога тихо, выше — алерт); YAML без табов, структура как watchdog. **Статус:** ✅ добавлен.
+
+## UC-79. CI-гейт: smoke-проверка сборки перед деплоем magzgold ✅
+**Предусловие:** build-ломающий коммит не деплоился (build.py падает), но логически битая «собравшаяся» сборка
+уходила на magzgold.ru. Require-checks в branch protection нельзя (убьёт keep-alive) → гейт в скриптах деплоя.
+**Шаги/ожидаемо:** `verify_build.py` проверяет dist/: ключевые файлы (index/sitemap/robots/llms), главная с
+'MagzGold', kategoriya/brilliant с cat-facts + моделью «бесплатно/тариф ₽/мес», sitemap с <loc>, нет битых маркеров
+(`{{`/`None ₽`/`{tmin}`/`от  ₽/мес`), JSON-LD парсится, ≥50 страниц. exit 1 → деплой прерывается.
+Вставлен: `deploy.sh` (после build.py, до push dist в magzgold; set -e прервёт) и `catalog.yml` (после build.py,
+до clone/copy/push в magzgold; bash -e прервёт). keep-alive-пуш numstore в catalog.yml (выше по порядку) не страдает.
+**РАДИУС:** новый `verify_build.py` + `deploy.sh` + `.github/workflows/catalog.yml`. СОСЕДИ: build/данные/бот не
+тронуты; порядок шагов сохранён (keep-alive push numstore → build → verify → deploy magzgold). **Проверка:** на
+текущей сборке EXIT 0 (84 стр.); на подсунутом `{{TMIN` — EXIT 1; после отката 0. **Статус:** ✅ добавлен.

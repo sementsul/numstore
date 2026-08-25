@@ -46,6 +46,7 @@ jobs:
           # (тот же render_home, без дублирования). pillow нужен для og-картинок в build.py.
           pip install --quiet pillow || pip3 install --quiet pillow
           python3 build.py
+          python3 verify_build.py   # smoke-гейт: битую сборку не публикуем (bash -e прервёт шаг)
           git clone --depth 1 "https://x-access-token:${TOK}@github.com/sementsul/magzgold.git" site
           mkdir -p site/data
           cp data/catalog.json site/data/catalog.json      # свежие данные (для JS-витрины)

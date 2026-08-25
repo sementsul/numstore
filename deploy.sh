@@ -4,6 +4,7 @@
 set -e
 cd "$(dirname "$0")"
 python3 build.py
+python3 verify_build.py          # smoke-гейт: битую сборку не деплоим (set -e прервёт)
 cd dist
 rm -rf .git
 git init -q

@@ -177,3 +177,5 @@
 - **UC-78: предохранитель размера репо.** `repo-size-guard.yml` — еженедельно size репо (API) → при ≥400 МБ алерт в TG (секреты watchdog). Read-only, без force-push. Squash — вручную.
 
 - **Защита ветки `main` (вкл. 2026-08-25).** GitHub branch protection: 🔒 force-push запрещён, 🔒 удаление запрещено, enforce_admins=ON; require PR/checks — ВЫКЛ (иначе умрёт прямой PAT keep-alive пуш кронов). Для ручного squash временно снять «Block force pushes» (см. docs/how-to/repo-size-alert.md).
+
+- **UC-79: CI-гейт smoke-проверки (magzgold).** `verify_build.py` в `deploy.sh` и `catalog.yml` (после build.py, до пуша в magzgold) — dist проверяется (файлы/маркеры/JSON-LD/≥50 стр.); при провале деплой прерывается, остаётся прошлая версия. keep-alive push numstore выше по порядку — не страдает.
