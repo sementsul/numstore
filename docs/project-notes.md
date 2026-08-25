@@ -173,3 +173,5 @@
 - **UC-76: SEO/AEO/GEO/LLMO/NEO добор (дизайн не трогали).** robots-meta в PAGE_TMPL+главной; Organization `sameAs` (TG-канал); `speakable` (WebPage категорий .cat-facts + блог Article); блог Article +author/dateModified/publisher.logo (datePublished не фабрикуем); `Dataset`→api/numbers.json. SearchAction пропущен.
 
 - **UC-77: SEO — хаб городов + title.** `/krasivye-nomera/` был сиротой → добавлен в шторку (Каталог→«Номера по городам»), теперь вх.ссылки с 84 стр. Подрезаны длинные title главной/старта (~56/~52 симв, meta-only).
+
+- **UC-78: предохранитель размера репо.** `repo-size-guard.yml` — еженедельно size репо (API) → при ≥400 МБ алерт в TG (секреты watchdog). Read-only, без force-push. Squash — вручную.
