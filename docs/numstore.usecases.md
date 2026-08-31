@@ -1060,3 +1060,23 @@ bash-логика прогнана (ниже порога тихо, выше —
 **РАДИУС:** новый `verify_build.py` + `deploy.sh` + `.github/workflows/catalog.yml`. СОСЕДИ: build/данные/бот не
 тронуты; порядок шагов сохранён (keep-alive push numstore → build → verify → deploy magzgold). **Проверка:** на
 текущей сборке EXIT 0 (84 стр.); на подсунутом `{{TMIN` — EXIT 1; после отката 0. **Статус:** ✅ добавлен.
+
+## UC-80. Разметка по рекомендациям Google Search Console (offerCount + license) ✅
+**Предусловие:** GSC у magzgold.ru сообщил о «минорных» проблемах структурированных данных: у Product отсутствуют
+`offerCount` (в offers), `review`, `aggregateRating`; у Dataset отсутствует `license`.
+**Шаги:**
+1. Открыть Search Console → отчёты «Описания товара» и «Наборы данных» → увидеть список отсутствующих полей.
+2. В `build.py`: `cat_schema` — offers `Offer`→`AggregateOffer` с `offerCount` = реальное число номеров категории
+   из живого каталога (`CAT_COUNT`/`_load_cat_counts`, читает `data/catalog.json`; фолбэк на обычный Offer, если
+   каталог недоступен). `lowPrice:0` и тариф в `UnitPriceSpecification` сохранены.
+3. В `build.py`: `home_schema` Dataset +`license` → `SITE/polzovatelskoe-soglashenie/`.
+4. `python3 build.py`, извлечь JSON-LD из dist и распарсить `json.loads` → проверить поля.
+**Ожидаемо:** Product/offers = AggregateOffer с offerCount (brilliant=19, platinum/gold/silver/bronze=250), lowPrice 0,
+тариф в spec; Dataset содержит license-URL; весь JSON-LD валиден. После полного `deploy.sh` — GSC «Проверить исправление».
+🔴 `review`/`aggregateRating` НЕ добавляем: фабриковать отзывы/рейтинг = нарушение правил Google (риск ручных санкций);
+поля «минорные», ждут появления РЕАЛЬНЫХ отзывов на сайте.
+**РАДИУС:** `build.py` — `cat_schema` (5 стр. `/kategoriya/*/`), `home_schema` (главная, Dataset), новый `_load_cat_counts`/`CAT_COUNT`.
+СОСЕДИ/роли: паттерн-страницы (`render_pattern`) Product не отдают — не затронуты; видимая вёрстка/цены/тексты не менялись;
+деплой category-страниц — только полным `deploy.sh` (ежечасный `catalog.yml` шлёт лишь index.html+catalog.json → Dataset-фикс
+уедет сам, Product-фикс — после deploy.sh). **Проверка:** build.py EXIT 0, JSON-LD валиден, offerCount по 5 категориям сверен.
+**Статус:** ✅ код+доки, ⏳ ждёт полного deploy.sh для выката Product-фикса на прод.
