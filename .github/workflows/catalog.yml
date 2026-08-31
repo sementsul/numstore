@@ -51,12 +51,13 @@ jobs:
           mkdir -p site/data
           cp data/catalog.json site/data/catalog.json      # свежие данные (для JS-витрины)
           cp dist/index.html   site/index.html             # свежий SSR главной (для роботов)
+          cp -a dist/kategoriya site/                       # свежий offerCount в Product-разметке категорий
           cd site
           if [ -n "$(git status --porcelain)" ]; then
             git config user.name "catalog-bot"
             git config user.email "catalog-bot@users.noreply.github.com"
-            git add data/catalog.json index.html
-            git commit -m "chore: авто-обновление catalog.json + SSR главной"
+            git add data/catalog.json index.html kategoriya
+            git commit -m "chore: авто-обновление catalog.json + SSR главной + offerCount категорий"
             git push
           else
             echo "на сайте без изменений"
