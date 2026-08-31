@@ -671,6 +671,23 @@ def _load_cat_min_tariffs():
 CAT_MIN_TARIFF = _load_cat_min_tariffs()
 
 
+def _load_cat_counts():
+    """Число листингов (номеров) по категории из ЖИВОГО каталога — для offerCount в AggregateOffer.
+    Каталог недоступен → пусто (тогда разметка падает на обычный Offer без offerCount)."""
+    res = {}
+    try:
+        cat = json.load(open(os.path.join(ROOT, "data", "catalog.json"), encoding="utf-8"))
+        for slug, items in cat.get("cats", {}).items():
+            if items:
+                res[slug] = len(items)
+    except Exception:
+        pass
+    return res
+
+
+CAT_COUNT = _load_cat_counts()
+
+
 def cat_min_tariff(c):
     """Актуальный минимальный тариф категории: живой каталог → фолбэк на конфиг tmin."""
     return CAT_MIN_TARIFF.get(c["slug"], c.get("tmin"))
@@ -679,16 +696,23 @@ def cat_min_tariff(c):
 def cat_schema(c):
     # GEO/AI-shopping: обогащённый Product — brand/image/url. ВАЖНО: номер БЕСПЛАТНЫЙ (lowPrice 0),
     # реальная цена — абонплата тарифа (UnitPriceSpecification, ₽/мес). pmin/pmax тут НЕ цена покупки.
+    # Категория = МНОГО номеров → AggregateOffer с offerCount (честное число из каталога).
+    # Номер бесплатный (lowPrice 0), реальная цена — абонплата тарифа (UnitPriceSpecification, ₽/мес).
+    n = CAT_COUNT.get(c["slug"], 0)
+    tariff_spec = ('"priceSpecification":{"@type":"UnitPriceSpecification","price":%d,"priceCurrency":"RUB",'
+                   '"unitText":"мес","name":"Абонентская плата тарифа Безлимит ULTRA (от)"}') % cat_min_tariff(c)
+    seller = '"seller":{"@type":"Organization","name":"MagzGold"}'
+    avail = '"availability":"https://schema.org/InStock"'
+    if n:
+        offers = ('"offers":{"@type":"AggregateOffer","priceCurrency":"RUB","lowPrice":0,"offerCount":%d,'
+                  '%s,%s,%s}') % (n, avail, seller, tariff_spec)
+    else:  # каталог недоступен на сборке — валидный обычный Offer без offerCount
+        offers = ('"offers":{"@type":"Offer","priceCurrency":"RUB","price":0,%s,%s,%s}') % (avail, seller, tariff_spec)
     prod = ('<script type="application/ld+json">{"@context":"https://schema.org","@type":"Product",'
             '"name":"%s","category":"Красивые номера телефонов",'
             '"brand":{"@type":"Brand","name":"MagzGold"},'
-            '"image":"%s","url":"%s",'
-            '"offers":{"@type":"Offer","priceCurrency":"RUB","price":0,'
-            '"availability":"https://schema.org/InStock",'
-            '"seller":{"@type":"Organization","name":"MagzGold"},'
-            '"priceSpecification":{"@type":"UnitPriceSpecification","price":%d,"priceCurrency":"RUB",'
-            '"unitText":"мес","name":"Абонентская плата тарифа Безлимит ULTRA (от)"}}}</script>') % (
-                esc(c["h1"]), OG("category"), SITE["base"] + "/kategoriya/%s/" % c["slug"], cat_min_tariff(c))
+            '"image":"%s","url":"%s",%s}</script>') % (
+                esc(c["h1"]), OG("category"), SITE["base"] + "/kategoriya/%s/" % c["slug"], offers)
     # Speakable (AEO/голос): озвучиваемый фрагмент — заголовок + факт-строка цены/тарифа
     webpage = ('<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage",'
                '"name":"%s","url":"%s","speakable":{"@type":"SpeakableSpecification",'
@@ -740,9 +764,11 @@ def home_schema():
                '"name":"Каталог красивых номеров MagzGold",'
                '"description":"Открытый фид красивых и премиальных мобильных номеров с категориями красоты и '
                'тарифами; обновляется автоматически.","url":"%s/","isAccessibleForFree":true,'
+               '"license":"%s/polzovatelskoe-soglashenie/",'
                '"creator":{"@type":"Organization","name":"MagzGold","url":"%s/"},'
                '"distribution":{"@type":"DataDownload","encodingFormat":"application/json",'
-               '"contentUrl":"%s/api/numbers.json"}}</script>') % (SITE["base"], SITE["base"], SITE["base"])
+               '"contentUrl":"%s/api/numbers.json"}}</script>') % (
+                   SITE["base"], SITE["base"], SITE["base"], SITE["base"])
     return org + web + dataset + schema_breadcrumb()
 
 
