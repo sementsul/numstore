@@ -13,7 +13,7 @@ jobs:
   refresh:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Сгенерировать numbers.json
         run: python3 gen_numbers.py numbers.json
       - name: Запушить фид на сайт (magzgold)
