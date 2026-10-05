@@ -16,7 +16,7 @@ jobs:
   collect:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Собрать точку истории (средняя абонплата по категориям)
         run: python3 collect_prices.py data/price_history.json
       - name: Сохранить историю в numstore (источник правды; пуш под PAT — чтобы крон не «засыпал» через 60 дней)
