@@ -20,7 +20,7 @@ jobs:
   collect:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Собрать каталог (до 250 номеров/категория)
         run: python3 collect_catalog.py data/catalog.json
       - name: Сохранить в numstore (источник; пуш под PAT — крон не «засыпает»)
